@@ -3,7 +3,6 @@ title: "Household Assets and Fuelwood Use"
 author:
   - name: "Renato Vargas"
     id: rv
-    orcid: 0000-0002-2302-1141
     email: renovargas@gmail.com
     affiliation: 
       - name: Consultant
