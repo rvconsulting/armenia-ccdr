@@ -1,17 +1,25 @@
 project:
   type: website
+  output-dir: docs
 
 website:
-  title: "armenia-ccdr"
+  title: "Armenia CCDR"
   navbar:
+    pinned: true
     left:
       - href: index.qmd
         text: Home
       - about.qmd
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - section: "Background notes"
+        contents: bg-notes/*
 
 format:
   html:
-    theme: cosmo
+    theme: yeti
     css: styles.css
     toc: true
 
