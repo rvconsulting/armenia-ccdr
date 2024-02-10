@@ -16,6 +16,8 @@ website:
     contents:
       - section: "Background notes"
         contents: bg-notes/*
+      - section: "Supporting materials"
+        contents: supporting-materials/*
 
 format:
   html:
