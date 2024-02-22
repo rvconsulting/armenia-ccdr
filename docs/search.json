@@ -347,6 +347,49 @@
     "href": "index.html",
     "title": "Armenia Country Climate and Development Report",
     "section": "",
-    "text": "This website contains background documents created by Renato Vargas for Armenia’s Country Climate and Development Report."
+    "text": "This website contains background documents and guides created for Armenia’s Country Climate and Development Report. Authorship is indicated in each document."
+  },
+  {
+    "objectID": "data/ARM-Geodata/ARM-ADM1.html",
+    "href": "data/ARM-Geodata/ARM-ADM1.html",
+    "title": "Armenia CCDR",
+    "section": "",
+    "text": "&lt;!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’&gt;     \n\n\n        0 0     false"
+  },
+  {
+    "objectID": "supporting-materials/reweighting-R-guide.html",
+    "href": "supporting-materials/reweighting-R-guide.html",
+    "title": "A guide to reweighting in R",
+    "section": "",
+    "text": "In the context of the development of the Country Climate and Development Report (CCDR) for Armenia, the poverty team is contributing with inputs for vulnerability analysis at the household level. The methods for these inputs are in active development and benefit greatly from the practical applications and interdisciplinary discussions that take place during the creation of these CCDRs. The current guide aims to document the steps taken to use and modify existing household survey data for these efforts. The original code has been written by Juan Manuel Monroy and Ercio Muñoz using Stata and it has been reinterpreted in this guide using R to take advantage of its data tidying and processing facilities. Where necessary, other routines have been implemented to provide elements for a particular discussion. R has chosen for convenience and speed, because it doesn’t require saving intermediate datasets to disk or the use of memory-intensive for loops, which saves on coding and execution times. At the same time, it is also a statistical language with most techniques implemented in its base library or through libraries.\nAs a convention, code is presented in the following format in this guide:\n\n# Some comment that is not evaluated by R\nsome_variable &lt;- some_function(some_object, some_parameter = TRUE)\n\nWe assume that the reader has created an Rstudio project and is familiar with basic R functions. Within that project we recommend the following file structure:\n\nroot/\n├── scripts\n│   └── my_script.R\n├── data/\n|   ├── my_data.sav\n|   ├── my_data.dta\n|   └── my_data.csv\n└── output\n    ├── my_output1.csv\n    └── my_output2.xlsx\n\nUsing RStudio project makes it possible to not use setwd() to establish the root directory and refer to subdirectories in a relative manner, making interoperability easier within teams and not hard coding a particular computer’s file structure into the code. If you are not using RStudio, just add setwd(r'(C:\\My\\path\\to\\root)') at the beginning of your coding session.",
+    "crumbs": [
+      "Home",
+      "Supporting materials",
+      "A guide to reweighting in R"
+    ]
+  },
+  {
+    "objectID": "supporting-materials/reweighting-R-guide.html#introduction",
+    "href": "supporting-materials/reweighting-R-guide.html#introduction",
+    "title": "A guide to reweighting in R",
+    "section": "",
+    "text": "In the context of the development of the Country Climate and Development Report (CCDR) for Armenia, the poverty team is contributing with inputs for vulnerability analysis at the household level. The methods for these inputs are in active development and benefit greatly from the practical applications and interdisciplinary discussions that take place during the creation of these CCDRs. The current guide aims to document the steps taken to use and modify existing household survey data for these efforts. The original code has been written by Juan Manuel Monroy and Ercio Muñoz using Stata and it has been reinterpreted in this guide using R to take advantage of its data tidying and processing facilities. Where necessary, other routines have been implemented to provide elements for a particular discussion. R has chosen for convenience and speed, because it doesn’t require saving intermediate datasets to disk or the use of memory-intensive for loops, which saves on coding and execution times. At the same time, it is also a statistical language with most techniques implemented in its base library or through libraries.\nAs a convention, code is presented in the following format in this guide:\n\n# Some comment that is not evaluated by R\nsome_variable &lt;- some_function(some_object, some_parameter = TRUE)\n\nWe assume that the reader has created an Rstudio project and is familiar with basic R functions. Within that project we recommend the following file structure:\n\nroot/\n├── scripts\n│   └── my_script.R\n├── data/\n|   ├── my_data.sav\n|   ├── my_data.dta\n|   └── my_data.csv\n└── output\n    ├── my_output1.csv\n    └── my_output2.xlsx\n\nUsing RStudio project makes it possible to not use setwd() to establish the root directory and refer to subdirectories in a relative manner, making interoperability easier within teams and not hard coding a particular computer’s file structure into the code. If you are not using RStudio, just add setwd(r'(C:\\My\\path\\to\\root)') at the beginning of your coding session.",
+    "crumbs": [
+      "Home",
+      "Supporting materials",
+      "A guide to reweighting in R"
+    ]
+  },
+  {
+    "objectID": "supporting-materials/reweighting-R-guide.html#preamble",
+    "href": "supporting-materials/reweighting-R-guide.html#preamble",
+    "title": "A guide to reweighting in R",
+    "section": "2 Preamble",
+    "text": "2 Preamble\nWe start with a clean environment, making sure that any objects from a previous session are not present. We take this oportunity to keep our country ISO code in a variable iso in case we need it later.\n\n# Clean workspace\nrm(list = ls())\n\n# Armenia country ISO code\niso &lt;- \"ARM\"\n\nRather than calling our libraries as we go, we will make sure we have everything we need from the beginning.\n\n# Load packages\nlibrary(tidyverse) # includes dplyr, ggplot2 and others\nlibrary(haven)     # to read SPSS and Stata datasets\nlibrary(readxl)    # to read from MS-Excel\nlibrary(openxlsx)  # to write to MS-Excel.\nlibrary(gt)        # pretty tables\nlibrary(modelr)    # regression models\nlibrary(janitor)   # pretty subtotals\n\n# Geopackages\nlibrary(sf)        # to read and write shapefile maps\nlibrary(terra)     # to perform geocalculations\nlibrary(tmap)      # for static and interactive maps\n\nWe then load the datasets that we need for this study. We are lucky that the World Bank has processed some of these already for poverty analysis and so we have the original SPSS datasets with all variables for Houeholds hh and for Individuals pp, as well as a consumption aggregate ca and a household income ic dataset, which are Stata datasets. This is for the year 2022. These are imported using the haven package.\n\n# Original SPSS datasets\n# Households (hh)\nhh &lt;- read_sav(\n  \"data/ARM-HH-survey/original-spss-files/ILCS-ARM-2022-Households.sav\")\n# Persons (pp)\npp &lt;- read_sav(\n  \"data/ARM-HH-survey/original-spss-files/ILCS-ARM-2022-Persons.sav\")\n\n# Processed WB datasets\n# Consumption aggregate at household level (ca)\nca  &lt;- read_dta(\"data/ARM-HH-survey/CONSAGG2022.dta\")\n# Processed income at household level (ic)\nic  &lt;- read_dta(\"data/ARM-HH-survey/totinc.dta\") \n\nWe will work non-destructively, meaning we will not rewrite these datasets and we will only create intermediate data frame objects to perform transformations, selections and other data management tasks.\nWe also have geographical information for level 1 in Shapefile format, which we import with the sf package. We rename the column with the name of the adminstrative region to match our household survey dataset conventions to ease mergers.\n\n# Geodata\n# Armenia marzes or administrative level 1 shapefile\nadm1 &lt;- read_sf(\"data/ARM-Geodata/ARM-ADM1.shp\") |&gt; \n  select(NAM_1, COD_HH_SVY, geometry)\nnames(adm1)[2] &lt;- \"hh_02\"",
+    "crumbs": [
+      "Home",
+      "Supporting materials",
+      "A guide to reweighting in R"
+    ]
   }
 ]

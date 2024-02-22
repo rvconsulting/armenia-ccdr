@@ -1,12 +1,12 @@
 ---
 title: "A guide to CCDR Poverty Analysis code"
-author: "Stata Code by Juan Manuel Monroy and Ercio Muñoz, interpreted by Renato Vargas"
+author: "Stata Code: Juan Manuel Monroy, Ercio Muñoz.\n\nInterpreted by Renato Vargas"
 
 format:
-  pdf:
-    toc: true
-    number-sections: true
-    colorlinks: true
+  # pdf:
+  #   toc: true
+  #   number-sections: true
+  #   colorlinks: true
   html:
     toc: true
     number-sections: true
