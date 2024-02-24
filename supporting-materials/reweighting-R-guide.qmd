@@ -71,6 +71,7 @@ library(haven)     # to read SPSS and Stata datasets
 library(readxl)    # to read from MS-Excel
 library(openxlsx)  # to write to MS-Excel.
 library(gt)        # pretty tables
+library(car)       # Companion to applied regression
 library(modelr)    # regression models
 library(janitor)   # pretty subtotals
 
