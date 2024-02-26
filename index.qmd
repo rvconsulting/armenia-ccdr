@@ -1,5 +1,6 @@
 ---
 title: "Armenia Country Climate and Development Report"
+editor: source
 ---
 
 This website contains background documents and guides created for Armenia's Country Climate and Development Report. Authorship is indicated in each document.
