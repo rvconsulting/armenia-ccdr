@@ -1,17 +1,13 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
-<head>
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
 
-<meta charset="utf-8" />
-<meta name="generator" content="quarto-1.4.549" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 
-<meta name="author" content="Renato Vargas" />
-<meta name="author" content="Natsuko Kiso Nozaki" />
-
-<title>Armenia CCDR – Household Assets and Fuelwood Use</title>
+<title>Armenia CCDR</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -26,7 +22,22 @@ ul.task-list li input[type="checkbox"] {
 }
 </style>
 
-<!-- htmldependencies:E3FAD763 -->
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -56,34 +67,32 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="../styles.css">
 </head>
 
-<body>
+<body class="nav-sidebar docked nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="/index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Armenia CCDR</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-  aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation"
-  onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="/index.html"> 
+    <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="/about.html"> 
+    <a class="nav-link" href="../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
@@ -94,16 +103,11 @@ ul.task-list li input[type="checkbox"] {
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn"
-      data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" 
-      aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation"
-      onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <h1 class="quarto-secondary-nav-title no-breadcrumbs"></h1>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" 
-        aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation"
-        onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -133,7 +137,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/bg-notes/hh-assets-and-fuelwood-use.html" class="sidebar-item-text sidebar-link active">
+  <a href="../bg-notes/hh-assets-and-fuelwood-use.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Household Assets and Fuelwood Use</span></a>
   </div>
 </li>
@@ -150,13 +154,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/supporting-materials/CCDR-poverty-code-explanation.html" class="sidebar-item-text sidebar-link">
+  <a href="../supporting-materials/CCDR-poverty-code-explanation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">A guide to CCDR Poverty Analysis code</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/supporting-materials/vulnerability-hh-level-impacts.html" class="sidebar-item-text sidebar-link">
+  <a href="../supporting-materials/vulnerability-hh-level-impacts.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Vulnerability Analysis Calculations</span></a>
   </div>
 </li>
@@ -165,77 +169,65 @@ ul.task-list li input[type="checkbox"] {
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" ></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <div id="quarto-toc-target"></div>
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#household-assets" id="toc-household-assets" class="nav-link active" data-scroll-target="#household-assets">Household assets</a></li>
+  <li><a href="#household-exposure-to-the-agricultural-sector" id="toc-household-exposure-to-the-agricultural-sector" class="nav-link" data-scroll-target="#household-exposure-to-the-agricultural-sector">Household exposure to the agricultural sector</a></li>
+  <li><a href="#household-reliance-on-firewood-for-heating" id="toc-household-reliance-on-firewood-for-heating" class="nav-link" data-scroll-target="#household-reliance-on-firewood-for-heating">Household reliance on firewood for heating</a>
+  <ul class="collapse">
+  <li><a href="#expenditure-elasticities-for-fuelwood" id="toc-expenditure-elasticities-for-fuelwood" class="nav-link" data-scroll-target="#expenditure-elasticities-for-fuelwood">Expenditure elasticities for fuelwood</a></li>
+  <li><a href="#determinants-of-fuelwood-consumption" id="toc-determinants-of-fuelwood-consumption" class="nav-link" data-scroll-target="#determinants-of-fuelwood-consumption">Determinants of fuelwood consumption</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Household Assets and Fuelwood Use</h1>
-</div>
 
 
-<div class="quarto-title-meta-author">
-  <div class="quarto-title-meta-heading">Authors</div>
-  <div class="quarto-title-meta-heading">Affiliations</div>
-  
-    <div class="quarto-title-meta-contents">
-    <p class="author">Renato Vargas <a href="mailto:renovargas@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
-  </div>
-  <div class="quarto-title-meta-contents">
-        <p class="affiliation">
-            Consultant
-          </p>
-      </div>
-    <div class="quarto-title-meta-contents">
-    <p class="author">Natsuko Kiso Nozaki <a href="mailto:nkiso@worldbank.org" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
-  </div>
-  <div class="quarto-title-meta-contents">
-        <p class="affiliation">
-            The World Bank
-          </p>
-      </div>
-  </div>
 
-<div class="quarto-title-meta">
-
-      
-  
-    
-  </div>
-  
-
-
-</header>
-
-<nav id="TOC" role="doc-toc">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#household-assets" id="toc-household-assets">Household assets</a></li>
-  <li><a href="#household-exposure-to-the-agricultural-sector" id="toc-household-exposure-to-the-agricultural-sector">Household exposure to the agricultural sector</a></li>
-  <li><a href="#household-reliance-on-firewood-for-heating" id="toc-household-reliance-on-firewood-for-heating">Household reliance on firewood for heating</a>
-  <ul>
-  <li><a href="#expenditure-elasticities-for-fuelwood" id="toc-expenditure-elasticities-for-fuelwood">Expenditure elasticities for fuelwood</a></li>
-  <li><a href="#determinants-of-fuelwood-consumption" id="toc-determinants-of-fuelwood-consumption">Determinants of fuelwood consumption</a></li>
-  </ul></li>
-  <li><a href="#references" id="toc-references">References</a></li>
-  </ul>
-</nav>
-<section id="household-assets" class="level2">
-<h2>Household assets</h2>
+<p><strong>Armenia: Background Note on Household Assets and Energy Use</strong></p>
+<p><strong>Renato Vargas</strong></p>
+<p><strong>Natsuko Kiso Nozaki</strong></p>
+<p><strong>DRAFT</strong></p>
+<p><strong>December, 2023</strong></p>
+<p><strong>Content</strong></p>
+<p><a href="#household-assets">1 Household assets 1</a></p>
+<p><a href="#household-exposure-to-the-agricultural-sector">2 Household exposure to the agricultural sector 2</a></p>
+<p><a href="#household-reliance-on-firewood-for-heating">3 Household reliance on firewood for heating 4</a></p>
+<p><a href="#expenditure-elasticities-for-fuelwood">3.1 Expenditure elasticities for fuelwood 4</a></p>
+<p><a href="#determinants-of-fuelwood-consumption">3.2 Determinants of fuelwood consumption 7</a></p>
+<p><a href="#references">4 References 9</a></p>
+<p><strong>Tables</strong></p>
+<p><a href="#_Ref100310659">Table 1. Imputed rent and average net present value (2050 horizon) for non-renters 2</a></p>
+<p><a href="#_Ref154750198">Table 2. Average agricultural income 3</a></p>
+<p><a href="#_Ref156594885">Table 3. Average shares of sources of income for households with and without agricultural land 3</a></p>
+<p><a href="#_Ref154909808">Table 4. Average fuelwood expenditure and quantity used annually and in the month prior to the survey 4</a></p>
+<p><a href="#_Ref154862129">Table 5. Expenditure elasticity of annual wood expenditure across deciles 6</a></p>
+<p><a href="#_Toc156819377">Table 6. Expenditure elasticity of natural gas expenditure across deciles 6</a></p>
+<p><a href="#_Ref156819358">Table 6. Expenditure elasticity of pressed dung expenditure across deciles 7</a></p>
+<p><a href="#_Ref154856082">Table 7. Hectares of forest per thousand inhabitants 8</a></p>
+<p><a href="#_Ref154854194">Table 8. Regression results on the determinants of fuelwood use 8</a></p>
+<p><strong>Figures</strong></p>
+<p><a href="#_Ref100306330">Figure 1. Dwelling ownership by Marz 1</a></p>
+<p><a href="#_Ref154834559">Figure 2. Annual wood expenditure distribution 4</a></p>
+<section id="household-assets" class="level1">
+<h1>Household assets</h1>
 <p><strong>Homes are perhaps the most important asset owned by households. In 2022,</strong> <strong>most of the 800,604 Armenian households owned their dwelling (about 89.4%)</strong>, as shown in Figure 1, with only about 5.9% of homes renting and 4.7% with other forms of tenure (ARMSTAT, 2023). Also, about 97% of households lived in houses or apartments, as opposed to hostel; railcar / container; other temporary lodging; or “other” (3% combined). Houses averaged 112.0 m<sup>2</sup>, while apartments averaged 68.3 m<sup>2</sup>. As expected, 96.2% of apartments were located in urban areas, with about half of them in Yerevan (55.3%). Houses, on the other hand, were located mostly in rural areas (65.8%), with about 13.4% of them located in Yerevan.</p>
 <p><span id="_Ref100306330" class="anchor"></span>Figure 1. Dwelling ownership by Marz</p>
 <p><span class="chart">[CHART]</span></p>
 <p>Source: Integrated Living Conditions Survey, 2022 (ARMSTAT, 2023).</p>
-<p><strong>The rental market is small and an urban phenomenon, with 92% of rentals occurring in that area.</strong> The average rent for a house was AMD 56,613.6 (about USD 143.1) with an average price of AMD 882.4 (USD 2.23) per square meter. Conversely, apartments were rented at a more expensive mean of AMD 82,124.2 (USD 207.6) with an average price of AMD 1,447.8 (USD 3.7) per square meter.</p>
-<p><strong>Owned dwellings are an asset from which households derive welfare. Non renters derived an average of AMD 54,338.1 (USD 137.33) in monthly imputed rent.</strong> The emergent rental market information was used to impute rent to non-renters using a log linear modeling approach described by Ceriani et al. (2019), in which imputed rent was predicted using a combination of household characteristics (urban/rural, Marz, number of rooms, presence of an indoor toilet, number of household, square meters, type of dwelling, members) and head of household characteristics (sex, highest completed schooling level, age group). These values are shown in Table 1 by decile and for the whole country. Net present value of that monthly imputed rent (for a 2050 horizon) was also estimated at AMD 17.3 million (USD 43,881.5), using a 5% annual discount rate and a 5% average inflation rate.</p>
+<p><strong>The rental market is small and an urban phenomenon, with 92% of rentals occurring in that area.</strong> The average rent for a house was AMD&nbsp;56,613.6 (about USD&nbsp;143.1) with an average price of AMD&nbsp;882.4 (USD&nbsp;2.23) per square meter. Conversely, apartments were rented at a more expensive mean of AMD&nbsp;82,124.2 (USD&nbsp;207.6) with an average price of AMD&nbsp;1,447.8 (USD&nbsp;3.7) per square meter.</p>
+<p><strong>Owned dwellings are an asset from which households derive welfare. Non renters derived an average of AMD&nbsp;54,338.1 (USD&nbsp;137.33) in monthly imputed rent.</strong> The emergent rental market information was used to impute rent to non-renters using a log linear modeling approach described by Ceriani et al.&nbsp;(2019), in which imputed rent was predicted using a combination of household characteristics (urban/rural, Marz, number of rooms, presence of an indoor toilet, number of household, square meters, type of dwelling, members) and head of household characteristics (sex, highest completed schooling level, age group). These values are shown in Table 1 by decile and for the whole country. Net present value of that monthly imputed rent (for a 2050 horizon) was also estimated at AMD&nbsp;17.3&nbsp;million (USD&nbsp;43,881.5), using a 5% annual discount rate and a 5% average inflation rate.</p>
 <p><span id="_Ref100310659" class="anchor"></span>Table 1. Imputed rent and average net present value (2050 horizon) for non-renters</p>
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th style="text-align: left;">Decile</th>
@@ -315,19 +307,19 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <p>Source: author based on log linear imputed rent approach (Ceriani et al., 2019)</p>
 <p><strong>A little over a third (288,718 or 36.1%) of households owned a car in 2022 and used it in the month prior to the survey.</strong> However, a higher percentage of homes in rural areas (47.5%) own a vehicle. Given the characteristics of rural areas and the availability of public transportation, it is a particularly important asset for household mobility. This also means that these households are exposed to energy transition risks derived from changes to prices of fuels and technological changes in car technologies (TNFD, 2023).</p>
-<p><strong>Armenians access water mainly through centralized water supply (95.6% or 765,728 households)</strong>, 2.7% of households have their own system of water supply, and the remaining 1.6% access water through spring water or well; delivered water; bought water; or “other”. Urban households spend an average of about AMD 2,506.5 (USD 6.3) on water, while rural households spend about AMD 1,790.1 (USD 4.5).</p>
-<p><strong>Most homes (99.8% or 798,835 households) access electricity through the national grid, with only a small share 0.2% using solar panels.</strong> Both urban and rural homes spend about the same average expenditure on electricity of about AMD 7,948.3 (USD 20.1).</p>
+<p><strong>Armenians access water mainly through centralized water supply (95.6% or 765,728 households)</strong>, 2.7% of households have their own system of water supply, and the remaining 1.6% access water through spring water or well; delivered water; bought water; or “other”. Urban households spend an average of about AMD&nbsp;2,506.5 (USD&nbsp;6.3) on water, while rural households spend about AMD&nbsp;1,790.1 (USD&nbsp;4.5).</p>
+<p><strong>Most homes (99.8% or 798,835 households) access electricity through the national grid, with only a small share 0.2% using solar panels.</strong> Both urban and rural homes spend about the same average expenditure on electricity of about AMD&nbsp;7,948.3 (USD&nbsp;20.1).</p>
 </section>
-<section id="household-exposure-to-the-agricultural-sector" class="level2">
-<h2>Household exposure to the agricultural sector</h2>
-<p><strong>About a fourth of all Armenian households (23.4%) had a monthly agricultural income component; a number that rises to 61% when discussing rural households, with that income representing an average 22.6% of total income.</strong> Overall, 91.3% of those 187,176 households that derived an agricultural income were located in rural areas. This income averaged AMD 72,275.2 (USD 182.67) and represented an average of 23.7% of total income for rural homes. These same figures averaged AMD 47,853.1 (USD 120.94) and 12.0% in urban areas, respectively. When it comes to deciles, perhaps unintuitively, the average share of total income that comes from agriculture rises from 20.7% for the first decile to 26.3% for the tenth, as shown in Table 2.</p>
+<section id="household-exposure-to-the-agricultural-sector" class="level1">
+<h1>Household exposure to the agricultural sector</h1>
+<p><strong>About a fourth of all Armenian households (23.4%) had a monthly agricultural income component; a number that rises to 61% when discussing rural households, with that income representing an average 22.6% of total income.</strong> Overall, 91.3% of those 187,176 households that derived an agricultural income were located in rural areas. This income averaged AMD&nbsp;72,275.2 (USD&nbsp;182.67) and represented an average of 23.7% of total income for rural homes. These same figures averaged AMD&nbsp;47,853.1 (USD&nbsp;120.94) and 12.0% in urban areas, respectively. When it comes to deciles, perhaps unintuitively, the average share of total income that comes from agriculture rises from 20.7% for the first decile to 26.3% for the tenth, as shown in Table 2.</p>
 <p><span id="_Ref154750198" class="anchor"></span>Table 2. Average agricultural income</p>
-<table style="width:98%;">
+<table class="table">
 <colgroup>
-<col style="width: 12%" />
-<col style="width: 19%" />
-<col style="width: 28%" />
-<col style="width: 37%" />
+<col style="width: 12%">
+<col style="width: 19%">
+<col style="width: 28%">
+<col style="width: 37%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -411,15 +403,15 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <p>Source: author based on Integrated Living Conditions Survey, 2022 (ARMSTAT, 2023).</p>
 <p>Note: column three is the average of the share calculated at the household level and weighted by population weights, not column two divided by column one.</p>
-<p><strong>While only 23.4% of households, derive income from the agricultural sector, exposure to agriculture is larger, since 41% of households use land for agricultural purposes (owned and/or rented).</strong> A total of 98% out of the 328,438 households that use agricultural land own their plots, and 5.3% of those (also) rented. The average area used by households for agricultural purposes is 7,329.9 m<sup>2</sup>, of which an average 70.6%, or 5,551.2 m<sup>2</sup>, is used for crops. This suggests that own consumption of agricultural output plays a role in Armenian incomes. Table 3 shows that for households without agricultural sales, 4.3% of income can be attributed to imputed use of agricultural products for own consumption. More generally, this table shows the shares of household income from different sources, for households with agricultural land, with or without deriving income from that land, compared with households without agricultural land. It is evident that public pensions and benefits plays a much bigger role (29.7%) for all households, along with hired employment (41.3%).</p>
+<p><strong>While only 23.4% of households, derive income from the agricultural sector, exposure to agriculture is larger, since 41% of households use land for agricultural purposes (owned and/or rented).</strong> A total of 98% out of the 328,438 households that use agricultural land own their plots, and 5.3% of those (also) rented. The average area used by households for agricultural purposes is 7,329.9&nbsp;m<sup>2</sup>, of which an average 70.6%, or 5,551.2&nbsp;m<sup>2</sup>, is used for crops. This suggests that own consumption of agricultural output plays a role in Armenian incomes. Table 3 shows that for households without agricultural sales, 4.3% of income can be attributed to imputed use of agricultural products for own consumption. More generally, this table shows the shares of household income from different sources, for households with agricultural land, with or without deriving income from that land, compared with households without agricultural land. It is evident that public pensions and benefits plays a much bigger role (29.7%) for all households, along with hired employment (41.3%).</p>
 <p><span id="_Ref156594885" class="anchor"></span>Table 3. Average shares of sources of income for households with and without agricultural land</p>
-<table style="width:96%;">
+<table class="table">
 <colgroup>
-<col style="width: 19%" />
-<col style="width: 19%" />
-<col style="width: 19%" />
-<col style="width: 19%" />
-<col style="width: 19%" />
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -453,7 +445,7 @@ ul.task-list li input[type="checkbox"] {
 <td></td>
 </tr>
 <tr class="even">
-<td><blockquote>
+<td><blockquote class="blockquote">
 <p>Sale of a gricultural products</p>
 </blockquote></td>
 <td>22.8%</td>
@@ -462,7 +454,7 @@ ul.task-list li input[type="checkbox"] {
 <td>5.3%</td>
 </tr>
 <tr class="odd">
-<td><blockquote>
+<td><blockquote class="blockquote">
 <p>Imputed use of a gricultural products for own</p>
 <p>consumption</p>
 </blockquote></td>
@@ -472,7 +464,7 @@ ul.task-list li input[type="checkbox"] {
 <td>3.2%</td>
 </tr>
 <tr class="even">
-<td><blockquote>
+<td><blockquote class="blockquote">
 <p>Hired</p>
 <p>employment</p>
 </blockquote></td>
@@ -482,7 +474,7 @@ ul.task-list li input[type="checkbox"] {
 <td>41.3%</td>
 </tr>
 <tr class="odd">
-<td><blockquote>
+<td><blockquote class="blockquote">
 <p>Self -employment</p>
 </blockquote></td>
 <td>10.2%</td>
@@ -491,7 +483,7 @@ ul.task-list li input[type="checkbox"] {
 <td>8.7%</td>
 </tr>
 <tr class="even">
-<td><blockquote>
+<td><blockquote class="blockquote">
 <p>Property (rent, interest, equity gain)</p>
 </blockquote></td>
 <td>0.1%</td>
@@ -500,7 +492,7 @@ ul.task-list li input[type="checkbox"] {
 <td>0.2%</td>
 </tr>
 <tr class="odd">
-<td><blockquote>
+<td><blockquote class="blockquote">
 <p>Public pensions and benefits</p>
 </blockquote></td>
 <td>22.2%</td>
@@ -509,7 +501,7 @@ ul.task-list li input[type="checkbox"] {
 <td>29.7%</td>
 </tr>
 <tr class="even">
-<td><blockquote>
+<td><blockquote class="blockquote">
 <p>Transfers</p>
 </blockquote></td>
 <td>7.2%</td>
@@ -518,7 +510,7 @@ ul.task-list li input[type="checkbox"] {
 <td>10.4%</td>
 </tr>
 <tr class="odd">
-<td><blockquote>
+<td><blockquote class="blockquote">
 <p>Other</p>
 </blockquote></td>
 <td>0.7%</td>
@@ -537,25 +529,25 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <p>Source: author based on Integrated Living Conditions Survey, 2022 (ARMSTAT, 2023).</p>
 </section>
-<section id="household-reliance-on-firewood-for-heating" class="level2">
-<h2>Household reliance on firewood for heating</h2>
-<section id="expenditure-elasticities-for-fuelwood" class="level3">
-<h3>Expenditure elasticities for fuelwood</h3>
-<p><strong>Most homes in Armenia use natural gas for heating (61.9% or 495,203 households), but an important 23.8% (190,884 households) use wood for heating, followed by 21.7% that use electricity and 8.2% pressed dung.</strong> Negligible percentages of households use liquefied gas or coal (0.2% and 0.9% respectively). In rural areas, 51.5% of rural homes (143,724 households) use wood for heating, which correlates with the 54.8% of rural households that have a self-made heater as main technology. Not only is wood used as heating source, but it is also used as an “energy carrier” (mainly cooking) by 11.3% of all households. In rural areas, 25.8% of homes use it for this purpose.</p>
-<p><strong>While there is a market for fuelwood, many homes do not pay for fuelwood annually.</strong> Figure 2 shows the distribution for this concept, showing a clear component of households paying zero Dram for their fuelwood consumption annually. This is possibly related to those households that collect wood for free. However, as shown in Table 4, homes that do pay for fuelwood spend an average of AMD 128,209.2 (about USD 317.8) annually, which is roughly 5.5% of total annual expenditure for the average household.</p>
+<section id="household-reliance-on-firewood-for-heating" class="level1">
+<h1>Household reliance on firewood for heating</h1>
+<section id="expenditure-elasticities-for-fuelwood" class="level2">
+<h2 class="anchored" data-anchor-id="expenditure-elasticities-for-fuelwood">Expenditure elasticities for fuelwood</h2>
+<p><strong>Most homes in Armenia use natural gas for heating (61.9% or 495,203 households), but an important 23.8%&nbsp;(190,884 households) use wood for heating, followed by 21.7% that use electricity and 8.2% pressed dung.</strong> Negligible percentages of households use liquefied gas or coal (0.2% and 0.9% respectively). In rural areas, 51.5% of rural homes (143,724 households) use wood for heating, which correlates with the 54.8% of rural households that have a self-made heater as main technology. Not only is wood used as heating source, but it is also used as an “energy carrier” (mainly cooking) by 11.3% of all households. In rural areas, 25.8% of homes use it for this purpose.</p>
+<p><strong>While there is a market for fuelwood, many homes do not pay for fuelwood annually.</strong> Figure 2 shows the distribution for this concept, showing a clear component of households paying zero Dram for their fuelwood consumption annually. This is possibly related to those households that collect wood for free. However, as shown in Table 4, homes that do pay for fuelwood spend an average of AMD&nbsp;128,209.2 (about USD&nbsp;317.8) annually, which is roughly 5.5% of total annual expenditure for the average household.</p>
 <p><span id="_Ref154834559" class="anchor"></span>Figure 2. Annual wood expenditure distribution</p>
-<p><img src="media/image1.png" style="width:6.28286in;height:3.79769in" /></p>
+<p><img src="media/image1.png" style="width:6.28286in;height:3.79769in"></p>
 <p>Source: Integrated Living Conditions Survey, 2022 (ARMSTAT, 2023).</p>
 <p><span id="_Ref154909808" class="anchor"></span>Table 4. Average fuelwood expenditure and quantity used annually and in the month prior to the survey</p>
-<table style="width:99%;">
+<table class="table">
 <colgroup>
-<col style="width: 3%" />
-<col style="width: 17%" />
-<col style="width: 18%" />
-<col style="width: 18%" />
-<col style="width: 19%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
+<col style="width: 3%">
+<col style="width: 17%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 19%">
+<col style="width: 11%">
+<col style="width: 11%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -564,9 +556,9 @@ ul.task-list li input[type="checkbox"] {
 <th style="text-align: left;">Average monthly household energy expenditure (Dram)</th>
 <th style="text-align: left;">Fuelwood expenditure in month prior to survey (Dram)</th>
 <th style="text-align: left;">Fuelwood quantity used in month prior to survey (m<sup>3</sup>)</th>
-<th style="text-align: left;">Fuelwood expenditure annually<br />
+<th style="text-align: left;">Fuelwood expenditure annually<br>
 (Dram)</th>
-<th style="text-align: left;">Fuelwood quantity used annually<br />
+<th style="text-align: left;">Fuelwood quantity used annually<br>
 (m<sup>3</sup>)</th>
 </tr>
 </thead>
@@ -605,7 +597,7 @@ ul.task-list li input[type="checkbox"] {
 <p>This interpretation would be consistent with a scenario where these households, perhaps due to their size or location, have not yet transitioned to other energy sources, which are often more accessible in urban settings or to wealthier households that can afford the initial investment in more modern heating systems. This considers the socio-economic context that might prevent a switch to alternative fuels, even when households have slightly more income. Issues such as availability of infrastructure, initial costs of switching to gas or electric heating, and cultural preferences for wood.</p>
 <p><strong>In rural areas for example, the availability of fuelwood and the lack of infrastructure for alternative energy sources can lead to a situation where households spend more on wood simply because it's one of the few options available to them, and not because they particularly prefer wood over other fuels.</strong> Indeed, when conducting this analysis across urban to rural, the elasticity value reaches 3.25 (growth of wood expenditure is three times the growth of total consumption across urban/rural), confirming that living in rural areas might be a big determinant of fuelwood use, simply because it’s the technology to which those homes have access and other infrastructure is lacking.</p>
 <p><span id="_Ref154862129" class="anchor"></span>Table 5. Expenditure elasticity of annual wood expenditure across deciles</p>
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th style="text-align: left;">Decile</th>
@@ -658,7 +650,7 @@ ul.task-list li input[type="checkbox"] {
 <p>Source: author based on Integrated Living Conditions Survey, 2022 (ARMSTAT, 2023).</p>
 <p>For comparison, the expenditure elasticity of natural gas expenditure (which has a more traditionally priced market) across income deciles suggest that natural gas is not consistently treated as a normal or inferior good across the income spectrum. The negative elasticities in higher deciles may indicate a trend of higher-income households either becoming more energy-efficient, having better-insulated homes, or switching to alternative fuels that are perceived as cleaner or more convenient. This might be consistent with the higher percentage of urban homes that use electricity for cooking and heating. The very high negative elasticity in decile 9 is particularly notable and could warrant a closer investigation to understand the underlying causes.</p>
 <p><span id="_Toc156819377" class="anchor"></span>Table 6. Expenditure elasticity of natural gas expenditure across deciles</p>
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th style="text-align: left;">Decile</th>
@@ -711,7 +703,7 @@ ul.task-list li input[type="checkbox"] {
 <p>Source: author based on Integrated Living Conditions Survey, 2022 (ARMSTAT, 2023).</p>
 <p>When comparing pressed dung, the elasticity behavior shows a component that responds much more to income levels. Table 7 shows the household expenditure elasticity of press dung expenditure across deciles, suggesting big leaps to lower levels of expenditure on pressed dung as households move from decile to decile, especially moving from decile 3 to 4, from decile 5 to 6 and then from 6 to 7.</p>
 <p><span id="_Ref156819358" class="anchor"></span>Table 7. Expenditure elasticity of pressed dung expenditure across deciles</p>
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th style="text-align: left;">Decile</th>
@@ -763,13 +755,13 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <p>Source: author based on Integrated Living Conditions Survey, 2022 (ARMSTAT, 2023).</p>
 </section>
-<section id="determinants-of-fuelwood-consumption" class="level3">
-<h3>Determinants of fuelwood consumption</h3>
+<section id="determinants-of-fuelwood-consumption" class="level2">
+<h2 class="anchored" data-anchor-id="determinants-of-fuelwood-consumption">Determinants of fuelwood consumption</h2>
 <p>There are various factors that influence fuelwood consumption by households. While income is important, it’s not the only determinant, and there are other factors, which include affordability and availability of fuels, scarcity of fuelwood supply, fuel preferences, and cost and performance of end-use equipment. Moreover, all these factors also on whether the household is in an urban or rural setting (Lefevre et al., 1997).</p>
 <p>To better understand this, a linear model was conducted on household data for Armenia (to explain annual wood quantity used by household as determined by Marz, urban/rural, total household income, dwelling size in square meters, hectares of forests per thousand inhabitants by Marz<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> (see Table 8), average price of natural gas in Marz and area (urban/rural), computed as the average of the division of total spent on natural gas by amount of natural gas used by households in that Marz and area (urban/rural); and average electricity bill in that Marz and Area.</p>
 <p>The explanatory power of the model is moderate<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> (Adjusted R-squared: 0.2668), but the results are interesting as shown in Table 9. The baseline level of annual wood consumption is high (with an intercept 26.51 cubic meters of wood). The effect of administrative division is small and statistically insignificant (ADM1 administrative division -0.0271). The effect of being in a rural area, compared to an urban area, is not significant. Results indicate that for each unit increase in total income, wood consumption increases by approximately 0.0000029 cubic meters per year. This effect is highly significant (p &lt; 2.26e-16), suggesting a positive relationship between income and wood consumption, which is counterintuitive. More in line with expectations is dwelling size, which is also highly significant, suggesting that higher dwelling sizes lead to higher fuelwood use. The number of hectares of forest by thousand inhabitants is a significant predictor. The coefficient indicates that more forest availability leads to higher wood consumption. Both the price of natural gas and average expenditure on electricity in Marz and area are non-significant.</p>
 <p><span id="_Ref154856082" class="anchor"></span>Table 8. Hectares of forest per thousand inhabitants</p>
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th style="text-align: left;">Marz</th>
@@ -873,7 +865,7 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <p>Source: author land use land cover information from ESA CCI Land Cover time-series v.2.0.7, 1992-2020 (ESA, 2023) and population data (ARMSTAT, 2020).</p>
 <p><span id="_Ref154854194" class="anchor"></span>Table 9. Regression results on the determinants of fuelwood use</p>
-<table>
+<table class="table">
 <thead>
 <tr class="header">
 <th></th>
@@ -895,11 +887,11 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
-<p>Coefficients: Estimate Std. Error t value Pr(&gt;|t|)<br />
-(Intercept) 6.19E+00 1.58E+01 0.391 0.696   ADM1 administrative divisions -2.71E-02 3.33E-02 -0.815 0.415<br />
-Urban/Rural 7.22E-02 2.02E-01 0.358 0.72<br />
-Dwelling size (m<sup>2</sup>) 2.08E-02 2.22E-03 9.4 &lt; 2e-16 *** Total income (Dram) 2.22E-06 3.14E-07 7.081 2.26E-12 *** Ha. of forest / 1000 inhabitants 3.28E-03 3.23E-04 10.145 &lt; 2e-16 *** Avg. price of natural gas (Dram/m<sup>3</sup>) -2.47E-02 1.14E-01 -0.217 0.828<br />
-Avg. electricity expenditure (Dram) -2.88E-06 9.76E-05 -0.03 0.976  </p>
+<p>Coefficients: Estimate Std. Error t value Pr(&gt;|t|)<br>
+(Intercept) 6.19E+00 1.58E+01 0.391 0.696 &nbsp; ADM1 administrative divisions -2.71E-02 3.33E-02 -0.815 0.415<br>
+Urban/Rural 7.22E-02 2.02E-01 0.358 0.72<br>
+Dwelling size (m<sup>2</sup>) 2.08E-02 2.22E-03 9.4 &lt; 2e-16 *** Total income (Dram) 2.22E-06 3.14E-07 7.081 2.26E-12 *** Ha. of forest / 1000 inhabitants 3.28E-03 3.23E-04 10.145 &lt; 2e-16 *** Avg. price of natural gas (Dram/m<sup>3</sup>) -2.47E-02 1.14E-01 -0.217 0.828<br>
+Avg. electricity expenditure (Dram) -2.88E-06 9.76E-05 -0.03 0.976 &nbsp;</p>
 <p>Significance codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ’ ’ 1</p>
 <p>Residual standard error: 2.808 on 1392 degrees of freedom (3784 observations deleted due to missingness)</p>
 <p>Multiple R-squared: 0.2704, Adjusted R-squared: 0.2668.</p>
@@ -907,33 +899,29 @@ Avg. electricity expenditure (Dram) -2.88E-06 9.76E-05 -0.03 0.976  </p>
 <p>Overall, it can be concluded that there is an income effect that is counter intuitive. Higher income is associated with increased wood consumption. Wealthier households probably consume more wood due to larger homes as captured in the effect of dwelling size, and a strong cultural preference for wood as a fuel source with probably limited alternatives due to infrastructure or other reasons. Forest availability is also a strong predictor, suggesting that more available forest resources lead to higher wood consumption. There's a tendency for wood consumption to decrease as natural gas prices increase, though this is almost insignificant and general electricity expenditure does not seem to be a significant determinant of wood consumption at all.</p>
 </section>
 </section>
-<section id="references" class="level2">
-<h2>References</h2>
+<section id="references" class="level1">
+<h1>References</h1>
 <p>ARMSTAT. (2020). <em>Marzes of the Republic of Armenia and Yerevan city in figures, 2020</em>.</p>
 <p>ARMSTAT. (2023). <em>Integrated Living Conditions Survey 2022</em> [dataset].</p>
 <p>Ceriani, L., Olivieri, S., &amp; Ranzani, M. (2019). Housing, imputed rent, and households’ welfare. <em>Poverty &amp; Equity Global Practice Working Papers</em>, <em>213</em>. https://documents1.worldbank.org/curated/pt/336451565194643402/pdf/Housing-Imputed-Rent-and-Households-Welfare.pdf</p>
 <p>ESA. (2023). <em>ESA CCI Land Cover time-series v.2.0.7 (1992-2020)</em>. European Space Agency.</p>
 <p>Lefevre, T., Todoc, J., &amp; Raj Timilsina, G. (1997). <em>The Role of Wood Energy in Asia</em>. Food and Agriculture Organization of the United Nations.</p>
 <p>TNFD. (2023). <em>Recommendations of the Taskforce on Nature-related Financial Disclosures</em>. Green Finance Institute.</p>
-<div id="quarto-navigation-envelope" class="hidden">
-<p><span class="hidden" data-render-id="quarto-int-sidebar-title">Armenia CCDR</span> <span class="hidden" data-render-id="quarto-int-navbar-title">Armenia CCDR</span> <span class="hidden" data-render-id="quarto-int-next">A guide to CCDR Poverty Analysis code</span> <span class="hidden" data-render-id="quarto-int-sidebar:quarto-sidebar-section-1">Background notes</span> <span class="hidden" data-render-id="quarto-int-sidebar:/bg-notes/hh-assets-and-fuelwood-use.htmlHousehold-Assets-and-Fuelwood-Use">Household Assets and Fuelwood Use</span> <span class="hidden" data-render-id="quarto-int-sidebar:quarto-sidebar-section-2">Supporting materials</span> <span class="hidden" data-render-id="quarto-int-sidebar:/supporting-materials/CCDR-poverty-code-explanation.htmlA-guide-to-CCDR-Poverty-Analysis-code">A guide to CCDR Poverty Analysis code</span> <span class="hidden" data-render-id="quarto-int-sidebar:/supporting-materials/vulnerability-hh-level-impacts.htmlVulnerability-Analysis-Calculations">Vulnerability Analysis Calculations</span> <span class="hidden" data-render-id="quarto-int-navbar:Home">Home</span> <span class="hidden" data-render-id="quarto-int-navbar:/index.html">/index.html</span> <span class="hidden" data-render-id="quarto-int-navbar:About">About</span> <span class="hidden" data-render-id="quarto-int-navbar:/about.html">/about.html</span> <span class="hidden" data-render-id="quarto-breadcrumbs-Background-notes">Background notes</span> <span class="hidden" data-render-id="quarto-breadcrumbs-Household-Assets-and-Fuelwood-Use">Household Assets and Fuelwood Use</span></p>
-</div>
-<div id="quarto-meta-markdown" class="hidden">
-<p><span class="hidden" data-render-id="quarto-metatitle">Armenia CCDR - Household Assets and Fuelwood Use</span> <span class="hidden" data-render-id="quarto-twittercardtitle">Armenia CCDR - Household Assets and Fuelwood Use</span> <span class="hidden" data-render-id="quarto-ogcardtitle">Armenia CCDR - Household Assets and Fuelwood Use</span> <span class="hidden" data-render-id="quarto-metasitename">Armenia CCDR</span> <span class="hidden" data-render-id="quarto-twittercarddesc"></span> <span class="hidden" data-render-id="quarto-ogcardddesc"></span></p>
-</div>
+
+
 </section>
-<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
-<hr />
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
 <ol>
 <li id="fn1"><p>This is calculated as: Decile Expenditure Elasticity of Demand = % Change in average expenditure from decile to decile / % Change in average Fuelwood Expenditure Demanded by (expenditure) decile.</p>
 <p>​<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2"><p>Author calculated this variable using land use land cover information from ESA CCI Land Cover time-series v.2.0.7, 1992-2020 (ESA, 2023) and population data (ARMSTAT, 2020).<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p>Moderate but robust. The model has been probed using the Variance Inflation Factor, showing that the model does not appear to suffer from sever multicollinearity. Correlations among variables are moderate or low as well. A concern about interaction between urban/rural and dwelling size, which removed the slight significance of a previous model without dwelling size was ruled out, testing a model with the interaction of these variables, which was not significant.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
-</section>
-
-</main> <!-- /main -->
-<script id = "quarto-html-after-body" type="application/javascript">
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -1322,6 +1310,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 </div> <!-- /content -->
 
-</body>
 
-</html>
+
+
+</body></html>
