@@ -1,31 +1,65 @@
----
-title: "Household Assets and Fuelwood Use"
-author:
-  - name: "Renato Vargas"
-    id: rv
-    email: renovargas@gmail.com
-    affiliation: 
-      - name: Consultant
-  - name: "Natsuko Kiso Nozaki"
-    id: nk
-    email: nkiso@worldbank.org
-    affiliation: 
-      - name: The World Bank
+**Armenia: Background Note on Household Assets and Energy Use**
 
-format:
-  html:
-    toc: true
-    code-fold: true
-  docx:
-    toc: true
-    number-sections: true
-    highlight-style: github
-  pdf:
-    toc: true
-    number-sections: true
-    colorlinks: true
----
-## Household assets
+**Renato Vargas**
+
+**Natsuko Kiso Nozaki**
+
+**DRAFT**
+
+**December, 2023**
+
+**Content**
+
+[1 Household assets 1](#household-assets)
+
+[2 Household exposure to the agricultural sector
+2](#household-exposure-to-the-agricultural-sector)
+
+[3 Household reliance on firewood for heating
+4](#household-reliance-on-firewood-for-heating)
+
+[3.1 Expenditure elasticities for fuelwood
+4](#expenditure-elasticities-for-fuelwood)
+
+[3.2 Determinants of fuelwood consumption
+7](#determinants-of-fuelwood-consumption)
+
+[4 References 9](#references)
+
+**Tables**
+
+[Table 1. Imputed rent and average net present value (2050 horizon) for
+non-renters 2](#_Ref100310659)
+
+[Table 2. Average agricultural income 3](#_Ref154750198)
+
+[Table 3. Average shares of sources of income for households with and
+without agricultural land 3](#_Ref156594885)
+
+[Table 4. Average fuelwood expenditure and quantity used annually and in
+the month prior to the survey 4](#_Ref154909808)
+
+[Table 5. Expenditure elasticity of annual wood expenditure across
+deciles 6](#_Ref154862129)
+
+[Table 6. Expenditure elasticity of natural gas expenditure across
+deciles 6](#_Toc156819377)
+
+[Table 6. Expenditure elasticity of pressed dung expenditure across
+deciles 7](#_Ref156819358)
+
+[Table 7. Hectares of forest per thousand inhabitants 8](#_Ref154856082)
+
+[Table 8. Regression results on the determinants of fuelwood use
+8](#_Ref154854194)
+
+**Figures**
+
+[Figure 1. Dwelling ownership by Marz 1](#_Ref100306330)
+
+[Figure 2. Annual wood expenditure distribution 4](#_Ref154834559)
+
+# Household assets
 
 **Homes are perhaps the most important asset owned by households. In
 2022,** **most of the 800,604 Armenian households owned their dwelling
@@ -107,7 +141,7 @@ the national grid, with only a small share 0.2% using solar panels.**
 Both urban and rural homes spend about the same average expenditure on
 electricity of about AMD 7,948.3 (USD 20.1).
 
-## Household exposure to the agricultural sector
+# Household exposure to the agricultural sector
 
 **About a fourth of all Armenian households (23.4%) had a monthly
 agricultural income component; a number that rises to 61% when
@@ -248,9 +282,9 @@ for households with and without agricultural land
 Source: author based on Integrated Living Conditions Survey, 2022
 (ARMSTAT, 2023).
 
-## Household reliance on firewood for heating 
+# Household reliance on firewood for heating 
 
-### Expenditure elasticities for fuelwood
+## Expenditure elasticities for fuelwood
 
 **Most homes in Armenia use natural gas for heating (61.9% or 495,203
 households), but an important 23.8% (190,884 households) use wood for
@@ -410,7 +444,7 @@ dung expenditure across deciles
 Source: author based on Integrated Living Conditions Survey, 2022
 (ARMSTAT, 2023).
 
-### Determinants of fuelwood consumption
+## Determinants of fuelwood consumption
 
 There are various factors that influence fuelwood consumption by
 households. While income is important, it's not the only determinant,
@@ -506,7 +540,7 @@ consumption to decrease as natural gas prices increase, though this is
 almost insignificant and general electricity expenditure does not seem
 to be a significant determinant of wood consumption at all.
 
-## References
+# References
 
 ARMSTAT. (2020). *Marzes of the Republic of Armenia and Yerevan city in
 figures, 2020*.
@@ -546,4 +580,3 @@ Financial Disclosures*. Green Finance Institute.
     of a previous model without dwelling size was ruled out, testing a
     model with the interaction of these variables, which was not
     significant.
-
