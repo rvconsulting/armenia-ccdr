@@ -4,3 +4,8 @@
 .Ruserdata
 
 /.quarto/
+
+docs/
+docs/site_libs/bootstrap/bootstrap.min.css
+docs/site_libs/quarto-html/quarto-syntax-highlighting.css
+docs/supporting-materials/vulnerability-hh-level-impacts.html
