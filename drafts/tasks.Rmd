@@ -1,0 +1,24 @@
+---
+title: "Tasks"
+author: "Renato Vargas"
+date: "2024-03-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Flood analysis
+
+- You will re-do the impact of flooding on imputed rent with the admin1 data attached (Data_AAL_AAE.xlsx) and with a duplication of households instead of random selection. We cannot calculate a poverty impact or income distribution impact, however showing who is affected more (poor vs non poor for example) is already a very useful story for the CCDR.
+
+- You will do the analysis of flooding on agriculture income using the average annual losses from the attached data (Data_AAL_AAE.xlsx) and with a duplication of households instead of random selection. For this one we can calculate an impact on poverty or income distribution. For example, are there households that fall into poverty because of the shocks?
+
+- For both these impacts it would be interesting to show the total impact for poor vs non poor (or other groups, for example urban vs rural) but also the impact relative to the households’ income for these same groups.
+ 
+
+# Climate change analysis
+
+I have attached the crop and livestock revenue losses at admin1 (the two files that start with ARM_). For this analysis unfortunately we need the baseline from the macro team but we still haven’t received it. Once we have it you can use the microsimulation model to simulate these yearly losses. For these yearly losses, I think we will need to smooth the losses curve with a 3 years or 5 years moving average before applying it to the microsimulation model (it’s just one realization of a random process so in theory we would need a lot more simulations but the IEc team hasn’t done it).
+
