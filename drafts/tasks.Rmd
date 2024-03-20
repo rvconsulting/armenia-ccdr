@@ -19,10 +19,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Follow up
 
-To improve the narrative, invert the sign of the loss (this is how many people would get out of poverty if measures to prevent flood damage were in place, as floods are already happening).
+[v] To improve the narrative, invert the sign of the loss (this is how many people would get out of poverty if measures to prevent flood damage were in place, as floods are already happening).
+
+
 For perspective on the poor and non-poor, show the share that the loss represents out of total consumption.
+
 Keep this and then do 100 year floods (no NPV but just monthly and poverty).
 If we were to make a disaster relief fund, how much would be the total money needed by Marz?
+
 As a double-check for imputed-rent, try the approach of moving the poverty line to keep the same poverty ratio and see if things change.
 
 Just to make sure, for the 100 years flood, you can keep this as a negative shock. We want to see what would happen if tomorrow each Marz was struck by the 100 years flood.
