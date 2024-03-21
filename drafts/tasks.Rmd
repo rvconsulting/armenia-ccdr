@@ -19,32 +19,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Follow up
 
-To improve the narrative, invert the sign of the loss (this is how many people would get out of poverty if measures to prevent flood damage were in place, as floods are already happening).
-For perspective on the poor and non-poor, show the share that the loss represents out of total consumption.
-Keep this and then do 100 year floods (no NPV but just monthly and poverty).
+[v] To improve the narrative, invert the sign of the loss (this is how many people would get out of poverty if measures to prevent flood damage were in place, as floods are already happening).
+
+[v] For perspective on the poor and non-poor, show the share that the loss represents out of total consumption.
+
+[v] Keep this and then do 100 year floods (no NPV but just monthly and poverty). Just to make sure, for the 100 years flood, you can keep this as a negative shock. We want to see what would happen if tomorrow each Marz was struck by the 100 years flood.
+ 
 If we were to make a disaster relief fund, how much would be the total money needed by Marz?
+
 As a double-check for imputed-rent, try the approach of moving the poverty line to keep the same poverty ratio and see if things change.
 
-Just to make sure, for the 100 years flood, you can keep this as a negative shock. We want to see what would happen if tomorrow each Marz was struck by the 100 years flood.
-
- 
 
 It would be good also to do a simulation where we combine losses for housing and agriculture.
 
- 
-
 In terms of reporting: it would be great if you could send a short paper (3-4 pages) focused on the results, with several graphs or maps that we can choose to include in the CCDR. For example, we could have maps that represent:
 
-The average share of losses (as a share of consumption of the people affected) per marz for housing, agriculture, and for both housing and agriculture combined
-The number of people that could get out of poverty if there was no flood, per marz, for housing and agriculture combined
-The number of people with dilapidated houses that are exposed to floods, per marz
- 
+The average share of losses (as a share of consumption of the people affected) per marz for housing, agriculture, and for both housing and agriculture combined The number of people that could get out of poverty if there was no flood, per marz, for housing and agriculture combined The number of people with dilapidated houses that are exposed to floods, per marz
 
 Your graph with the income distribution is also very nice, it would be good to have it for housing and agriculture combined (but with a shift to the right, if floods did not exist).
 
- 
-
 # Climate change analysis
 
-I have attached the crop and livestock revenue losses at admin1 (the two files that start with ARM_). For this analysis unfortunately we need the baseline from the macro team but we still haven’t received it. Once we have it you can use the microsimulation model to simulate these yearly losses. For these yearly losses, I think we will need to smooth the losses curve with a 3 years or 5 years moving average before applying it to the microsimulation model (it’s just one realization of a random process so in theory we would need a lot more simulations but the IEc team hasn’t done it).
-
+I have attached the crop and livestock revenue losses at admin1 (the two files that start with ARM\_). For this analysis unfortunately we need the baseline from the macro team but we still haven’t received it. Once we have it you can use the microsimulation model to simulate these yearly losses. For these yearly losses, I think we will need to smooth the losses curve with a 3 years or 5 years moving average before applying it to the microsimulation model (it’s just one realization of a random process so in theory we would need a lot more simulations but the IEc team hasn’t done it).
