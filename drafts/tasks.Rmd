@@ -11,11 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Flood analysis
 
-- You will re-do the impact of flooding on imputed rent with the admin1 data attached (Data_AAL_AAE.xlsx) and with a duplication of households instead of random selection. We cannot calculate a poverty impact or income distribution impact, however showing who is affected more (poor vs non poor for example) is already a very useful story for the CCDR.
+-   You will re-do the impact of flooding on imputed rent with the admin1 data attached (Data_AAL_AAE.xlsx) and with a duplication of households instead of random selection. We cannot calculate a poverty impact or income distribution impact, however showing who is affected more (poor vs non poor for example) is already a very useful story for the CCDR.
 
-- You will do the analysis of flooding on agriculture income using the average annual losses from the attached data (Data_AAL_AAE.xlsx) and with a duplication of households instead of random selection. For this one we can calculate an impact on poverty or income distribution. For example, are there households that fall into poverty because of the shocks?
+-   You will do the analysis of flooding on agriculture income using the average annual losses from the attached data (Data_AAL_AAE.xlsx) and with a duplication of households instead of random selection. For this one we can calculate an impact on poverty or income distribution. For example, are there households that fall into poverty because of the shocks?
 
-- For both these impacts it would be interesting to show the total impact for poor vs non poor (or other groups, for example urban vs rural) but also the impact relative to the households’ income for these same groups.
+-   For both these impacts it would be interesting to show the total impact for poor vs non poor (or other groups, for example urban vs rural) but also the impact relative to the households’ income for these same groups.
 
 # Follow up
 
@@ -24,11 +24,10 @@ knitr::opts_chunk$set(echo = TRUE)
 [v] For perspective on the poor and non-poor, show the share that the loss represents out of total consumption.
 
 [v] Keep this and then do 100 year floods (no NPV but just monthly and poverty). Just to make sure, for the 100 years flood, you can keep this as a negative shock. We want to see what would happen if tomorrow each Marz was struck by the 100 years flood.
- 
+
 If we were to make a disaster relief fund, how much would be the total money needed by Marz?
 
 As a double-check for imputed-rent, try the approach of moving the poverty line to keep the same poverty ratio and see if things change.
-
 
 It would be good also to do a simulation where we combine losses for housing and agriculture.
 
