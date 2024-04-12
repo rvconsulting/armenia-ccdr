@@ -1,0 +1,702 @@
+---
+title: "Armenia CCDR Microsimulation"
+author:
+  - name: "Renato Vargas"
+    id: rv
+    email: renovargas@gmail.com
+    affiliation: 
+      - name: Consultant
+  - name: "Julie Rozenberg"
+    id: jr
+    email: jrozenberg@worldbank.org
+    affiliation: 
+      - name: The World Bank
+  - name: "Colin Lenoble"
+    id: cl
+    email: clenoble@worldbank.org
+    affiliation: 
+      - name: The World Bank
+  - name: "Natsuko Kiso Nozaki"
+    id: nk
+    email: nkiso@worldbank.org
+    affiliation:
+      - name: The World Bank  
+  - name: "Thomas Farole"
+    id: tf
+    email: tfarole@worldbank.org
+    affiliation:
+      - name: The World Bank  
+            
+format:
+  html:
+    toc: true
+    number-sections: true
+    number-depth: 3
+    highlight-style: github
+  docx:
+    toc: true
+    number-sections: true
+    highlight-style: github
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+editor: source
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+csl: apa-6th-edition.csl
+---
+
+## Introduction
+
+In this calculation file, we "age" the household survey according to demographic projections and different macroeconomic scenarios to explore the impact of climate-related risks and policy measures on the consumption expenditure distribution.
+
+As a convention, code is presented in the following format in this guide:
+
+```{r eval=FALSE}
+# Some comment that is not evaluated by R
+some_variable <- some_function(some_object, some_parameter = TRUE)
+```
+
+We assume that the reader has created an Rstudio project and is familiar with basic R functions. Within that project we recommend the following file structure:
+
+``` txt
+root/
+├── scripts
+│   └── my_script.R
+├── data/
+|   ├── my_data.sav
+|   ├── my_data.dta
+|   └── my_data.csv
+└── output
+    ├── my_output1.csv
+    └── my_output2.xlsx
+```
+
+Using RStudio project makes it possible to not use `setwd()` to establish the root directory and refer to subdirectories in a relative manner, making interoperability easier within teams and not hard coding a particular computer's file structure into the code. If you are not using RStudio, just add `setwd(r'(C:\My\path\to\project\root)')` at the beginning of your coding session.
+
+## Preamble
+
+## Preamble
+
+We start with a clean environment, making sure that any objects from a previous session are not present. We take this opportunity to keep our country ISO code in a variable `iso` in case we need it later.
+
+```{r warning=FALSE, message=FALSE}
+# Clean workspace
+rm(list = ls())
+
+# Armenia country ISO code
+iso <- "ARM"
+
+# Survey year
+surveyyear <- 2022
+
+# Exchange rate USD per dram
+er <- 0.002310
+```
+
+We call the appropriate libraries.
+
+Rather than calling our libraries as we go, we will make sure we have everything we need from the beginning.
+
+```{r output=FALSE}
+# Load packages
+library(tidyverse) # includes dplyr, ggplot2 and others
+library(haven)     # to read SPSS and Stata datasets
+library(readxl)    # to read from MS-Excel
+library(openxlsx)  # to write to MS-Excel.
+library(gt)        # pretty tables
+library(car)       # Companion to applied regression
+library(modelr)    # regression models
+library(janitor)   # pretty subtotals
+library(purrr)     # map vectors (aggregation)
+
+# Geopackages
+library(sf)        # to read and write shapefile maps
+library(terra)     # to perform geocalculations
+library(tmap)      # for static and interactive maps
+```
+
+## Datasets
+
+We then load the datasets that we need for this study. We are lucky that the World Bank has processed some of these already for poverty analysis and so we have the original SPSS datasets with all variables for Households `hh` and for Individuals `pp`, as well as a consumption aggregate `ca` and a household income `ic` dataset, which are Stata datasets. This is for the year 2022. These are imported using the `haven` package. These are based on Armenia Integrated Living Conditions Survey 2022 [@armstat_integrated_2023].
+
+```{r output=FALSE}
+# Original SPSS datasets
+# Households (hh)
+hh <- read_sav(
+  "data/ARM-HH-survey/original-spss-files/ILCS-ARM-2022-Households.sav")
+# Persons (pp)
+pp <- read_sav(
+  "data/ARM-HH-survey/original-spss-files/ILCS-ARM-2022-Persons.sav")
+
+# Processed WB datasets
+# Consumption aggregate at household level (ca)
+ca  <- read_dta("data/ARM-HH-survey/CONSAGG2022.dta")
+# Processed income at household level (ic)
+ic  <- read_dta("data/ARM-HH-survey/totinc.dta") 
+```
+
+We will work non-destructively, meaning we will not rewrite these data sets and we will only create intermediate data frame objects from them to perform transformations, selections and other data management tasks. For example, we will keep household assignment to poverty status and consumption deciles handy by creating a subset of our `ca` data with only our household identifiers, deciles, and poverty.
+
+```{r warning=FALSE, message=FALSE}
+# From the WB processed dataset, we extract deciles and poverty
+deciles <- ca |> 
+  select( hhid, decile, poor_Avpovln2022, 
+          poor_Foodpovln2022, poor_Lpovln2022, poor_Upovln2022)
+
+```
+
+Our population data comes from UN's projections.
+
+```{r warning=FALSE, message=FALSE}
+# Population projections UN 2022
+pop_proj <- read_dta("data/UN2022_population.dta") |> 
+  filter(country == iso)
+```
+
+Economic sectors.
+
+```{r}
+sectors <- read_xlsx("data/ARM-HH-survey/economic_activity_codes.xlsx")
+```
+
+We also have geographical information for level 1 in Shapefile format, which we import with the `sf` package. We rename the column with the name of the administrative region to match our household survey data set conventions to ease mergers. The `dplyr` package from the `tidyverse` meta package allows us to "pipe" or link processing steps using the `|>` pipe, which can be inserted using **Ctrl + m.** Although there is no geoprocessing in this analysis, this will come in handy for graphical presentations. Let's have a look at it.
+
+```{r warning=FALSE, message=FALSE}
+# Geodata
+# Armenia marzes or administrative level 1 shapefile
+adm1 <- read_sf("data/ARM-Geodata/ARM-ADM1.shp") |> 
+  select(NAM_1, COD_HH_SVY, geometry) |> 
+    # Make sure that names match the rest of datasets
+  mutate(NAM_1 = if_else(NAM_1 == "Gergharkunik", "Gegharkunik", NAM_1))
+names(adm1)[2] <- "hh_02"
+
+tm_shape(adm1)+
+  tm_polygons("NAM_1", legend.show = FALSE) +
+  tm_text("NAM_1", size = 3/4)
+```
+
+Marzes names are more accurate in the shapefile than in the survey. We will use them from here on instead of the survey factor labels.
+
+```{r warning=FALSE, message=FALSE}
+hh <- hh |> 
+  left_join(adm1, join_by(hh_02 == hh_02)) |> 
+  select(-geometry)
+
+ic <- ic |> 
+  left_join(adm1, join_by(hh_02 == hh_02)) |> 
+  select(-geometry)
+```
+
+Finally, but not least important, we have our vulnerability information.
+
+```{r warning=FALSE, message=FALSE}
+buildings_aal <- 
+  read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
+            sheet = "Building_AAL") |> 
+    # Make sure that names match the rest of datasets
+  mutate(NAM_1 = if_else(NAM_1 == "Gergharkunik", "Gegharkunik", NAM_1))
+buildings_1in100 <-
+  read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
+            sheet = "Building_1in100")
+crops_productivity <- 
+  read.csv("data/ARM-Vulnerability-Analysis/ARM_crops_combined_REF_shock_admin1.csv") |> 
+  rename(NAM_1 = Province)
+crops_aal <- 
+  read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
+            sheet = "Agriculture_AAL")
+crops_1in100 <-
+  read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
+            sheet = "Agriculture_1in100")
+```
+
+## Data preparation income outliers and missings
+
+### Household consumption aggregates and characteristics
+
+Initial necessary variables.
+
+```{r}
+consumption_aggregates <- ca |> 
+  mutate(rural = ifelse(urb_rur == 2, 1, 0),  # Create rural indicator
+         yhh = totc,              # Total household expenditure
+         wgt_adj = pweight) |>        # Make a copy of the weight variable 
+  select(hhid, rural, hhsize,hhsize_R, marz, aepc, yhh, wgt_adj, weight, 
+         Foodpovln2022, Lpovln2022, Upovln2022, Avpovln2022, 
+         poor_Foodpovln2022, poor_Lpovln2022, poor_Upovln2022, 
+         poor_Avpovln2022, decile )  # Keep only necessary columns
+```
+
+### Demographic characteristics, education, Labor Force
+
+Here the original code calls for Zone data, which is not present in our dataset, due to the different administrative structure of Armenia. However, we use urban/rural for this purpose.
+
+```{r}
+# Zone data
+zone_data <- hh |> 
+  select(interview__key, hh_01_code, hh_02, hh_03) |> 
+  mutate(
+    hhid = interview__key,
+    zone = hh_01_code,
+    marz = hh_02,
+    urb_rur = hh_03
+  )
+```
+
+Demographic data, merge with zone data Note that ed_03 (educy) below is not years of education, but education level (primary, general, secondary, etc.) However, it is ordered in a way that higher levels imply more years of education. We perform several steps within the first pipe call.
+
+```{r}
+demographics <- pp |>
+  rename(hhid = interview__key) |> 
+  left_join(zone_data, join_by( hhid == hhid))  |>  
+  mutate(# Demographic characteristics
+         pid = paste0(interview__key, "-", 
+                      str_pad(mem_001__id, 2, pad = "0")), # Unique person id
+         gender = mem_02,
+         age = mem_05,
+         head = ifelse(mem_03 == 1, 1, 0),
+         # Education level
+         educy = ifelse(is.na(ed_03) | ed_03 == 8, 0, ed_03),
+         # Labor Force Status
+         lstatus = case_when(
+           est_03 == 1 | est_04 == 1 | est_05 == 1 | est_06 == 1 | est_09 < 7 ~ 1L,
+           est_10 == 1 ~ 2L,
+           est_10 == 2 ~ 3L,
+           .default = 4L # Default to OLF
+         ),
+         employed = (lstatus == 1),
+         # Salaried status (1. paid employee; 2 self-employed)
+         salaried = ifelse(!is.na(emp_11a), 1L, 
+                           ifelse(is.na(emp_11a) & employed == TRUE, 0L, NA_integer_))
+         ) |>
+  rename(rel = mem_03) # |> 
+  # select(hhid, pid, gender, age, head, rel, zone, marz, urb_rur, educy,
+  #        lstatus, employed, salaried, )  
+```
+
+Count the number of employed persons by household.
+
+```{r}
+demographics <- demographics |> 
+  mutate(employed = (lstatus == 1)) |> 
+  group_by(hhid) |> 
+  mutate(employed_hh = sum(employed, na.rm = TRUE)) |>  # Count within each household 
+  ungroup() 
+```
+
+Here the original Stata code calculates income variables and aggregates them by household. We skip that because the dataset "ic" already has these elements calculated by the WB poverty team. We'll add them later.
+
+**Primary and Secondary Job income**
+
+-   **emp_11** 11.How much was %rostertitle%'s payment for wages/salary/income for last month?
+-   **emp_12** 12.What period of time was the wage/income for?
+-   **emp_25** 25.How much was %rostertitle%'s payment for wages/salary/income for last month?
+-   **emp_26** 26.What period of time was the wage/income for?
+
+Bonus, In-Kind, and food from job was not asked in Armenia, If it were, you should add a mutate() statement like the ones below for each subcategory.
+
+```{r}
+demographics <- demographics |> 
+  # Labor income primary job
+  mutate(annual_labor_income_primary = case_when(
+    emp_12 == 1 ~ emp_11 * 365,
+    emp_12 == 2 ~ (emp_11/7) * 365,  # Assuming weekly rate 
+    emp_12 == 3 ~ (emp_11/14) * 365,
+    emp_12 == 4 ~ emp_11 * 12,
+    emp_12 == 5 ~ emp_11 * 2,
+    emp_12 == 6 ~ emp_11,
+    emp_12 == 7 ~ NA
+  ))   |> 
+  # Labor income secondary job
+  mutate(annual_labor_income_secondary = case_when(
+    emp_26 == 1 ~ emp_25 * 365,
+    emp_26 == 2 ~ (emp_25/7) * 365,  # Assuming weekly rate 
+    emp_26 == 3 ~ (emp_25/14) * 365,
+    emp_26 == 4 ~ emp_25 * 12,
+    emp_26 == 5 ~ emp_25 * 2,
+    emp_26 == 6 ~ emp_25,
+    emp_26 == 7 ~ NA
+  )) |> 
+  # Annual labor total in thousands of dram
+  mutate(annual_labor_total = (coalesce(annual_labor_income_primary, 0) + 
+           coalesce(annual_labor_income_secondary, 0))/1000) 
+```
+
+26.23% employed with no labor income reported. We calculate this way:
+
+```{r}
+total_employed_no_income <- demographics |>
+  filter(employed == 1 & annual_labor_total == 0) |> 
+  nrow()
+
+total_employed <- demographics |>
+  filter(employed == 1) |>
+  nrow()
+
+percent_employed_no_income <- (total_employed_no_income / total_employed) * 100
+
+print(percent_employed_no_income)
+
+```
+
+Let's flag outliers now
+
+```{r}
+demographics <- demographics  |> 
+  # Filter for employed and positive income 
+  filter(employed == 1 & annual_labor_total > 0) |> 
+  mutate(
+    sd = sd(annual_labor_total, na.rm = TRUE),   # Calculate standard deviation
+    d = annual_labor_total / sd,                
+    # Combined outlier condition
+    outlier = (d > 5) | (employed == 1 & annual_labor_total == 0), 
+    # Mark potential missings
+    missings = (employed == 1 & annual_labor_total == 0)           
+  ) 
+```
+
+Economic sector
+
+```{r}
+demographics <- demographics |>
+  mutate(emp_04 = as.integer(emp_04)) |> 
+  left_join(sectors, join_by("emp_04" == "economic_activity_code") ) |> 
+  rename(sector = ea_shortcode)
+```
+
+Impute sector for those with missing employed by hh head sector.
+
+Step 1: Impute sector for missing employed by the hh head sector. Adjusting the code to impute 'sector' based on the household head's 'sector'.
+
+```{r}
+demographics <- demographics |>
+  group_by(hhid) |>
+  mutate(
+    # Convert 'head_sector' to numeric; 'sector' remains numeric
+    head_sector = if_else(head == 1, sector, NA_real_)
+  ) |>
+  fill(head_sector, .direction = "downup") |>
+  mutate(
+    # Impute missing 'sector' values based on the household head's 'sector'
+    # Ensure 'sector' is treated as numeric throughout
+    sector = if_else(is.na(sector) & employed == 1, head_sector, sector)
+  ) |>
+  select(-head_sector) |>
+  ungroup()
+```
+
+Step 2: Assign a specific value for missing sectors for those employed.
+
+```{r}
+demographics <- demographics |>
+  mutate(sector = if_else(is.na(sector) & employed == 1, 2, sector))
+```
+
+Step 3: Replace sector with NA based on lstatus,
+
+```{r}
+demographics <- demographics |>
+  mutate(sector = if_else(lstatus == 2 | lstatus == 3, NA_real_, sector))
+```
+
+Step 4: Label the sector variable. In R, factors are used to handle categorical variables with labels.
+
+```{r}
+demographics <- demographics |>
+  mutate(sector = factor(sector, levels = c(0, 1, 2, 3),
+                         labels = c("Unemployed", "Agriculture", "Manufacturing", "Services")))
+```
+
+Step 5: No sector for OLF and clonevar industry=sector.
+
+```{r}
+demographics <- demographics |>
+  mutate(lstatus = as.numeric(lstatus),
+         sector = if_else(lstatus == 4, as.character(NA), as.character(sector)),
+         industry = as.factor(sector))
+```
+
+### The regression
+
+Prepare the data.
+
+```{r}
+demographics <- demographics |>
+  mutate(
+    educy2 = educy^2,
+    age2 = age^2,
+    male = case_when(
+      gender == 1 ~ 1,
+      gender == 2 ~ 0
+    ),
+    lnlab = log(annual_labor_total),
+    simuli = NA_real_ # Initialize simuli
+  )
+```
+
+Filter the data for regression conditions.
+
+```{r}
+regression_data <- demographics |>
+  filter(employed == 1 & outlier == 0 & missings == 0)
+```
+
+Regression model.
+
+```{r}
+model <- lm(lnlab ~ age + gender + educy + age2 + marz + emp_11a + sector, 
+            data = regression_data)
+```
+
+Predict for specific conditions
+
+```{r}
+demographics <- demographics |>
+  mutate(
+    condition = employed == 1 & (outlier == 1 | missings == 1)
+  )
+```
+
+Applying predictions.
+
+Note: The 'predict' function in R does not directly support conditions within the function call, so we handle this by filtering or subsetting the data as needed.
+
+temp2 equivalent - Note: 'type = "response"' might be needed depending on model type.
+
+```{r}
+demographics$simuli[demographics$condition] <- exp(
+  predict(model, demographics[demographics$condition, ], type = "response"))
+```
+
+Handling negative values in 'simuli'.
+
+```{r}
+demographics <- demographics |>
+  mutate(
+    simuli = if_else(simuli < 0, 0, simuli)
+  )
+```
+
+There were 8 observations that met the criteria:
+
+`(employed==1 & (outlier==1 | missings == 1)).`
+
+We will replace `annual_labor_total` with this value for those observations.
+
+```{r}
+demographics <- demographics |>
+  mutate(annual_labor_total = if_else(
+    employed == 1 & (outlier == 1 | missings == 1),
+    simuli, annual_labor_total))
+```
+
+Merging datasets.
+
+```{r}
+demographics <- demographics |>
+  left_join(consumption_aggregates, by = "hhid")
+```
+
+### Total income and shares
+
+Total labor income at HH level.
+
+```{r}
+demographics <- demographics |>
+  group_by(hhid) |>
+  mutate(lab_hh = sum(annual_labor_total, na.rm = TRUE)) |>
+  ungroup()
+```
+
+Monthly incomes come from the `ic` data set.
+
+```{r}
+incomes <- ic |> 
+  select(interview__key, inc1, inc2, inc3, inc4, inc5, inc6, inc7, inc8)
+```
+
+Total income at HH level (the commented out portion was a less efficient way of accomplishing the same result of coalescing NAs to 0 so that the sum can be performed). Note that here we need to use the magittr pipe `%>%` instead of the newer Native Pipe `|>` , because we need to reference the correct scope with the dot `.`.
+
+```{r}
+demographics <- demographics %>%
+  left_join(incomes, by = c("hhid" = "interview__key")) %>%
+  mutate(across(inc5:inc8, ~replace_na(., 0))) %>%
+  mutate(nli_hh = 12 * rowSums(select(., inc5:inc8), na.rm = TRUE)) %>%
+  mutate(income_hh = lab_hh + nli_hh)
+
+# demographics <- demographics |>
+#   left_join(incomes, join_by(hhid == interview__key)) |> 
+#   mutate(nli_hh = (  coalesce(inc5) + 
+#                      coalesce(inc6) +
+#                      coalesce(inc7) +
+#                      coalesce(inc8)) * 12) |> 
+#   mutate(income_hh = lab_hh + nli_hh)
+```
+
+Calculating shares:
+
+```{r}
+demographics <- demographics |>
+  mutate(
+    s_lab = lab_hh / income_hh,
+    s_nli = nli_hh / income_hh,
+    lny = log(income_hh),
+    lnc = log(yhh), # comes from consumption aggregates
+    mpc = yhh / income_hh
+  )
+```
+
+Shares of labor and non-labor income, and additional calculations.
+
+```{r}
+demographics <- demographics |>
+  mutate(
+    share = if_else(employed == 1, annual_labor_total / lab_hh, NA_real_),
+    ylb = yhh * s_lab,
+    ynl = yhh * (1 - s_lab),
+    ylbi = if_else(employed == 1, ylb * share, NA_real_)
+  )
+```
+
+Final subset of data.
+
+```{r}
+demographics <- demographics |>
+  select(hhid, pid, industry, yhh, ylb, ynl, ylbi, salaried,
+         rural, hhsize,hhsize_R, marz.x, aepc, yhh, wgt_adj, weight, 
+         Foodpovln2022, Lpovln2022, Upovln2022, Avpovln2022, 
+         poor_Foodpovln2022, poor_Lpovln2022, poor_Upovln2022, 
+         poor_Avpovln2022, decile, zone, urb_rur,
+         gender, age, head, rel, zone, educy) |> 
+  rename(marz = marz.x)
+
+# Exporting to Stata
+write_dta(demographics, path = "outputs/MAG_assigned.dta", version = 10)
+```
+
+Exporting to Stata is necessary because we will use a custom Stata function.
+
+## UN Population Projections and Macroeconomic Model
+
+Now we are ready to move to our demographic projections and macroeconomic model information.
+
+First, filtering based on country (our `iso` variable).
+
+```{r}
+pop_proj_processed <- pop_proj  |>  
+  filter(country == iso)
+```
+
+Collapsing data by summing up variables starting with "yf" and "ym" and reshaping data to long format.
+
+```{r}
+pop_proj_processed <- pop_proj_processed %>%
+  group_by(Variant, country) %>%
+  summarise(across(starts_with(c("yf", "ym")), sum)) %>%
+  ungroup()
+
+pop_proj_processed <- pivot_longer(pop_proj_processed,
+                              cols = starts_with(c("yf", "ym")),
+                              names_to = c(".value", "year"),
+                              names_pattern = "(yf|ym)(.*)")
+```
+
+Creating new variable `pop` as the sum of `yf` and `ym`. Dropping `yf`, `ym` and `country` variables.
+
+```{r}
+pop_proj_processed <- pop_proj_processed %>%
+  mutate(pop = yf + ym) %>%
+  select(-yf, -ym, -country)
+```
+
+Summarizing the year to find the range.
+
+```{r}
+summary_years <- pop_proj_processed %>%
+  summarize(minyear = min(year, na.rm = TRUE), maxyear = max(year, na.rm = TRUE))
+
+minyear <- surveyyear # Make sure `surveyyear` is correctly defined
+maxyear <- summary_years$maxyear
+
+# Print the year range as a check
+print(paste("Min Year:", minyear, "- Max Year:", maxyear))
+```
+
+```{r}
+# Assuming minyear and maxyear are defined
+# Initialize a list to store growth data
+pop_growth <- list()
+
+# Loop over variants
+variants <- c("Medium", "Low", "High", "Constant-fertility", "Instant-replacement", "Momentum", "Instant-replacement-zero-migration", "Constant-mortality", "No-change")
+v <- 1  # To keep track of variant indexing
+
+for (variant in variants) {
+  for (t in minyear:maxyear) {
+    
+    # Calculate population for year t
+    pop_t <- pop_proj_processed %>%
+      filter(year == t, Variant == variant) %>%
+      summarise(sum_pop = sum(pop)) %>%
+      pull(sum_pop)
+    
+    # Calculate population for base year
+    pop_base <- pop_proj_processed %>%
+      filter(year == minyear, Variant == variant) %>%
+      summarise(sum_pop = sum(pop)) %>%
+      pull(sum_pop)
+    
+    # Calculate growth rate and store in list with dynamic naming
+    pop_growth[[paste0("pop_growth_t", t, "_v", v)]] <- pop_t / pop_base
+  }
+  
+  v <- v + 1  # Increment variant index
+}
+
+# Convert list to dataframe if needed for further analysis or visualization
+pop_growth_df <- bind_rows(lapply(names(pop_growth), function(x) tibble(variant_index = x, growth_rate = pop_growth[[x]])), .id = "variant_label")
+
+# View results
+print(pop_growth_df)
+```
+
+We load elasticities.
+
+```{r}
+elasticities <- c(0.82, 0.9, 0.79) # Agr, Manuf, Services
+yearsto <- c(2022, 2030, 2050)
+```
+
+The following code accomplishes the following:
+
+-   Import data from Excel sheets corresponding to each scenario and combine them into one data frame.
+-   Rename columns, create a 'scenid' to identify scenarios, and merge with population projections.
+-   Calculate real wages and consumption per capita.
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
