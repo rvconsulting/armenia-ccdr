@@ -630,7 +630,11 @@ print(paste("Min Year:", minyear, "- Max Year:", maxyear))
 pop_growth <- list()
 
 # Loop over variants
-variants <- c("Medium", "Low", "High", "Constant-fertility", "Instant-replacement", "Momentum", "Instant-replacement-zero-migration", "Constant-mortality", "No-change")
+variants <- unique(pop_proj_processed$Variant)
+# variants <- c("Medium", "Low", "High", "Constant-fertility", 
+#               "Instant-replacement", "Momentum", 
+#               "Instant-replacement-zero-migration", 
+#               "Constant-mortality", "No-change")
 v <- 1  # To keep track of variant indexing
 
 for (variant in variants) {
@@ -649,7 +653,7 @@ for (variant in variants) {
       pull(sum_pop)
     
     # Calculate growth rate and store in list with dynamic naming
-    pop_growth[[paste0("pop_growth_t", t, "_v", v)]] <- pop_t / pop_base
+    pop_growth[[paste0("pop_growth_", t, "_", variant)]] <- pop_t / pop_base
   }
   
   v <- v + 1  # Increment variant index
@@ -657,9 +661,6 @@ for (variant in variants) {
 
 # Convert list to dataframe if needed for further analysis or visualization
 pop_growth_df <- bind_rows(lapply(names(pop_growth), function(x) tibble(variant_index = x, growth_rate = pop_growth[[x]])), .id = "variant_label")
-
-# View results
-print(pop_growth_df)
 ```
 
 We load elasticities.
@@ -677,6 +678,55 @@ The following code accomplishes the following:
 
 
 ```{r}
+scenario_file <- r"(data\ARM-Microsimulation\ARM_MacroScenarioInformation.xlsx)" 
+sheets <- excel_sheets(scenario_file)
+
+# Define the names of the scenarios and the variants to match your specific file and scenarios.
+scenarios <- sheets[c(1)] # modify list with the tab numbers or names with scenarios
+variants
+
+# Create an empty list to store data frames for each scenario
+scen_data_list <- list()
+
+# Import data for each scenario and store it in the list
+for (i in seq_along(scenarios)) {
+  sheet_data <- read_excel(scenario_file, sheet = scenarios[i])
+  sheet_data$scenid <- i
+  scen_data_list[[i]] <- sheet_data
+}
+
+# Combine all data frames into one
+combined_data <- bind_rows(scen_data_list)
+
+# Remove observations with missing year
+combined_data <- combined_data %>% 
+  filter(!is.na(year))
+
+# Calculate real wages
+combined_data <- combined_data %>%
+  mutate(rwage = wages_th_lcu / cpi)
+
+# Assign variants to each scenid
+combined_data <- combined_data %>%
+  mutate(Variant = variants[scenid])
+
+# Fix pop_proj_processed type
+pop_proj_processed <- pop_proj_processed |> 
+  mutate(year = as.numeric(year))
+
+# Merge the combined data with population projections
+final_data <- combined_data %>%
+  left_join(pop_proj_processed, by = c("year", "Variant"))
+
+# Sort the final data by scenid and year
+final_data <- final_data %>%
+  arrange(scenid, year)
+
+# Calculate consumption per capita
+final_data <- final_data %>%
+  mutate(consumption_pc = consumption_lcu / (pop * 10^2))
+
+# Now, `final_data` contains the combined and computed data from all scenarios
 
 ```
 
