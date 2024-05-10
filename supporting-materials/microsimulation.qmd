@@ -78,8 +78,6 @@ Using RStudio project makes it possible to not use `setwd()` to establish the ro
 
 ## Preamble
 
-## Preamble
-
 We start with a clean environment, making sure that any objects from a previous session are not present. We take this opportunity to keep our country ISO code in a variable `iso` in case we need it later.
 
 ```{r warning=FALSE, message=FALSE}
@@ -109,8 +107,10 @@ library(openxlsx)  # to write to MS-Excel.
 library(gt)        # pretty tables
 library(car)       # Companion to applied regression
 library(modelr)    # regression models
+library(ebal)      # Entropy reweighting
 library(janitor)   # pretty subtotals
 library(purrr)     # map vectors (aggregation)
+
 
 # Geopackages
 library(sf)        # to read and write shapefile maps
@@ -118,9 +118,18 @@ library(terra)     # to perform geocalculations
 library(tmap)      # for static and interactive maps
 ```
 
+Stata integration
+
+```{r}
+library(RStata)    # stata integration for wentropy function
+options("RStata.StataPath" = "\"C:\\Program Files (x86)\\Stata11\\StataMP\"")
+options("RStata.StataVersion" = 11)
+```
+
+
 ## Datasets
 
-We then load the datasets that we need for this study. We are lucky that the World Bank has processed some of these already for poverty analysis and so we have the original SPSS datasets with all variables for Households `hh` and for Individuals `pp`, as well as a consumption aggregate `ca` and a household income `ic` dataset, which are Stata datasets. This is for the year 2022. These are imported using the `haven` package. These are based on Armenia Integrated Living Conditions Survey 2022 [@armstat_integrated_2023].
+We then load the datasets that we need for this study. The World Bank has processed some of these already for poverty analysis and so we have the original SPSS datasets with all variables for Households `hh` and for Individuals `pp`, as well as a consumption aggregate `ca` and a household income `ic` dataset, which are Stata datasets. This is for the year 2022. These are imported using the `haven` package. These are based on Armenia Integrated Living Conditions Survey 2022 [@armstat_integrated_2023].
 
 ```{r output=FALSE}
 # Original SPSS datasets
@@ -155,6 +164,15 @@ Our population data comes from UN's projections.
 pop_proj <- read_dta("data/UN2022_population.dta") |> 
   filter(country == iso)
 ```
+
+Macro scenario dataset
+
+```{r}
+scenario_file <- r"(data\ARM-Microsimulation\ARM_MacroScenarioInformation.xlsx)"
+scenario_varlist <- read_xlsx(
+  "data/ARM-Microsimulation/ARM_Macro_varlist.xlsx")
+```
+
 
 Economic sectors.
 
@@ -231,17 +249,17 @@ consumption_aggregates <- ca |>
 
 ### Demographic characteristics, education, Labor Force
 
-Here the original code calls for Zone data, which is not present in our dataset, due to the different administrative structure of Armenia. However, we use urban/rural for this purpose.
+Here the original code calls for Zone data, which is not present in our dataset, due to the different administrative structure of Armenia. However, we use `hh_01_code` (settlement) for this purpose.
 
 ```{r}
 # Zone data
 zone_data <- hh |> 
   select(interview__key, hh_01_code, hh_02, hh_03) |> 
   mutate(
-    hhid = interview__key,
-    zone = hh_01_code,
-    marz = hh_02,
-    urb_rur = hh_03
+    hhid = interview__key, # Household id
+    zone = hh_01_code,     # Settlement
+    marz = hh_02,          # Marz
+    urb_rur = hh_03        # Urban / rural
   )
 ```
 
@@ -275,6 +293,24 @@ demographics <- pp |>
   # select(hhid, pid, gender, age, head, rel, zone, marz, urb_rur, educy,
   #        lstatus, employed, salaried, )  
 ```
+
+Later, when we conduct the reweighting of the dataset, we need to summarize into three levels of education.
+
+```{r}
+demographics <- demographics %>%
+  mutate(calif = case_when(
+    educy >= 0 & educy <= 2 ~ "None - General",
+    educy > 3 & educy <= 7 ~ "Secondary - Vocational",
+    educy > 7 & educy <= 11 ~ "Higher +",
+    TRUE ~ NA_character_  # This handles any values outside the specified ranges
+  ))
+
+# View the first few rows to confirm the recoding
+head(demographics[,c("calif")])
+
+```
+
+
 
 Count the number of employed persons by household.
 
@@ -406,7 +442,9 @@ Step 4: Label the sector variable. In R, factors are used to handle categorical 
 ```{r}
 demographics <- demographics |>
   mutate(sector = factor(sector, levels = c(0, 1, 2, 3),
-                         labels = c("Unemployed", "Agriculture", "Manufacturing", "Services")))
+                         labels = c("Unemployed", "Agriculture", 
+                                    "Manufacturing", "Services"))) |> 
+  mutate(sector_code = as.integer(sector))
 ```
 
 Step 5: No sector for OLF and clonevar industry=sector.
@@ -569,7 +607,7 @@ demographics <- demographics |>
          Foodpovln2022, Lpovln2022, Upovln2022, Avpovln2022, 
          poor_Foodpovln2022, poor_Lpovln2022, poor_Upovln2022, 
          poor_Avpovln2022, decile, zone, urb_rur,
-         gender, age, head, rel, zone, educy) |> 
+         gender, age, head, rel, zone, educy, calif, sector, sector_code) |> 
   rename(marz = marz.x)
 
 # Exporting to Stata
@@ -618,25 +656,19 @@ summary_years <- pop_proj_processed %>%
   summarize(minyear = min(year, na.rm = TRUE), maxyear = max(year, na.rm = TRUE))
 
 minyear <- surveyyear # Make sure `surveyyear` is correctly defined
-maxyear <- summary_years$maxyear
+maxyear <- as.numeric(summary_years$maxyear)
 
 # Print the year range as a check
 print(paste("Min Year:", minyear, "- Max Year:", maxyear))
 ```
 
 ```{r}
-# Assuming minyear and maxyear are defined
+# With minyear and maxyear defined above
 # Initialize a list to store growth data
 pop_growth <- list()
 
 # Loop over variants
 variants <- unique(pop_proj_processed$Variant)
-# variants <- c("Medium", "Low", "High", "Constant-fertility", 
-#               "Instant-replacement", "Momentum", 
-#               "Instant-replacement-zero-migration", 
-#               "Constant-mortality", "No-change")
-v <- 1  # To keep track of variant indexing
-
 for (variant in variants) {
   for (t in minyear:maxyear) {
     
@@ -653,21 +685,40 @@ for (variant in variants) {
       pull(sum_pop)
     
     # Calculate growth rate and store in list with dynamic naming
-    pop_growth[[paste0("pop_growth_", t, "_", variant)]] <- pop_t / pop_base
+    growth_rate <- pop_t / pop_base
+    pop_growth[[paste0(t, "_", variant)]] <- list(
+      growth_rate = growth_rate, pop_t = pop_t
+      )
   }
-  
-  v <- v + 1  # Increment variant index
 }
 
-# Convert list to dataframe if needed for further analysis or visualization
-pop_growth_df <- bind_rows(lapply(names(pop_growth), function(x) tibble(variant_index = x, growth_rate = pop_growth[[x]])), .id = "variant_label")
+# Convert list to dataframe
+pop_growth_df <- do.call(rbind, lapply(names(pop_growth), function(x) {
+  # Extract year and variant from the name
+  parts <- unlist(strsplit(x, "_"))
+  year <- as.integer(parts[1])
+  variant <- parts[2]
+  
+  # Create a tibble for each entry
+  tibble(year = year, 
+         variant = variant, 
+         total_population = pop_growth[[x]]$pop_t,
+         pop_growth_rate = pop_growth[[x]]$growth_rate)
+}))
+
+# Arrange the dataframe for better readability
+pop_growth_df <- arrange(pop_growth_df, variant, year)
+
+# Display the first few rows of the dataframe
+head(pop_growth_df)
+
 ```
 
 We load elasticities.
 
 ```{r}
 elasticities <- c(0.82, 0.9, 0.79) # Agr, Manuf, Services
-yearsto <- c(2022, 2030, 2050)
+yearsto <- c(2022, 2026, 2030)
 ```
 
 The following code accomplishes the following:
@@ -678,10 +729,10 @@ The following code accomplishes the following:
 
 
 ```{r}
-scenario_file <- r"(data\ARM-Microsimulation\ARM_MacroScenarioInformation.xlsx)" 
+# Macro Scenario File imported in "Datasets" section (scenario_file) 
 sheets <- excel_sheets(scenario_file)
 
-# Define the names of the scenarios and the variants to match your specific file and scenarios.
+# Define the names of the scenarios and the variants 
 scenarios <- sheets[c(1)] # modify list with the tab numbers or names with scenarios
 variants
 
@@ -690,9 +741,14 @@ scen_data_list <- list()
 
 # Import data for each scenario and store it in the list
 for (i in seq_along(scenarios)) {
-  sheet_data <- read_excel(scenario_file, sheet = scenarios[i])
-  sheet_data$scenid <- i
+  sheet_data <- read_excel(scenario_file, 
+                           sheet = scenarios[i], 
+                           range = "B3:AT41",
+                           col_names = FALSE)
+  sheet_data$scenario_id <- scenarios[i]
+  colnames(sheet_data) <- scenario_varlist$var_short_name
   scen_data_list[[i]] <- sheet_data
+  
 }
 
 # Combine all data frames into one
@@ -702,46 +758,374 @@ combined_data <- bind_rows(scen_data_list)
 combined_data <- combined_data %>% 
   filter(!is.na(year))
 
+# Remove population_m from the data set because we will use 
+# UN pop projections from the other data set.
+combined_data <- combined_data |> 
+  rename(population_m_macrodata = population_m)
+
 # Calculate real wages
 combined_data <- combined_data %>%
-  mutate(rwage = wages_th_lcu / cpi)
+  mutate(rwage_agr_m_amd = wage_agr_m_amd / cpi,
+         rwage_man_m_amd = wage_man_m_amd / cpi,
+         rwage_ser_m_amd = wage_ser_m_amd / cpi)
 
-# Assign variants to each scenid
-combined_data <- combined_data %>%
-  mutate(Variant = variants[scenid])
+# # Assign variants to each scenid
+# combined_data <- combined_data %>%
+#   mutate(Variant = variants[scenario_id])
 
 # Fix pop_proj_processed type
 pop_proj_processed <- pop_proj_processed |> 
   mutate(year = as.numeric(year))
 
+# Filter population data to macro model years
+pop_growth_df <- pop_growth_df |> 
+  filter(year <= max(combined_data$year))
 # Merge the combined data with population projections
-final_data <- combined_data %>%
-  left_join(pop_proj_processed, by = c("year", "Variant"))
+final_data <- pop_growth_df %>%
+  full_join(combined_data, by = c("year"))
 
-# Sort the final data by scenid and year
+# Calculate consumption per capita and other totals
 final_data <- final_data %>%
-  arrange(scenid, year)
+  mutate(
+    consumption_pc = consumption_b_amd / (total_population),
+    total_employment = lab_agr_1000p + lab_man_1000p + lab_ser_1000p,
+    employment_rate = working_age_pop_m / total_population
+    )
 
-# Calculate consumption per capita
-final_data <- final_data %>%
-  mutate(consumption_pc = consumption_lcu / (pop * 10^2))
+# Function to add growth rate columns directly in the dataframe
+calculate_growth <- function(data, value_column) {
+  growth_col_name <- paste0(value_column, "_growth") # dynamic name for growth column
+  data %>%
+    arrange(year) %>%
+    group_by(variant, scenario_id) %>%
+    mutate(
+      base_value = first(!!sym(value_column)),
+      !!sym(growth_col_name) := !!sym(value_column) / base_value
+    ) %>%
+    select(-base_value) |> # optionally remove base_value column if not needed
+    ungroup()
+}
 
-# Now, `final_data` contains the combined and computed data from all scenarios
+# Columns to calculate growth for
+value_columns <- c(
+  "gdp_b_amd",           # GDP
+  "consumption_b_amd",   # Consumption
+  "consumption_pc",      # Consumption PC
+  "remittances_b_amd",   # Remittances
+  "total_employment",    # Employment
+  "employment_rate",     # Employment rate
+  "working_age_pop_m",   # Working age population
+  "va_agr_b_amd",        # Value added agriculture
+  "va_man_b_amd",        # Value added manufacturing
+  "va_ser_b_amd",        # Value added services
+  "wage_agr_m_amd",      # Nominal wage agriculture
+  "wage_man_m_amd",      # Nominal wage manufacturing
+  "wage_ser_m_amd",      # Nominal wage services
+  "rwage_agr_m_amd",     # Real wage agriculture
+  "rwage_man_m_amd",     # Real wage manufacturing
+  "rwage_ser_m_amd"      # Real wage services
+  )
+
+# Applying the growth calculation to the final_data for each column
+for (col in value_columns) {
+  final_data <- calculate_growth(final_data, col)
+}
+
+# Now `final_data` will have growth rate columns for each of the variables listed
+# We rearrange the dataset for clarity
+final_data <- final_data |> 
+  relocate(scenario_id, variant, .before = year) |> 
+  arrange(scenario_id, variant, year)
+
+```
+
+## Reweighting of the dataset
+
+### Aggregation of population data
+
+This is based on a custom command to reweight the survey according to macroeconomic data for every possible combination of variant, year, and country. In the macro data we know they only used the "medium" variant and we only need to reweight for a specific year (2030) for Armenia (ARM), so we will conduct the reweighting directly with these parameters.
+
+
+```{r}
+pop_data <- pop_proj %>%
+  filter(country == "ARM", Variant == "Medium") %>%
+  # Recoding cohorts into ordered factors
+  mutate(cohort = factor(case_when(
+    cohort %in% c("P0004", "P0509") ~ "P0009",
+    cohort %in% c("P1014", "P1519") ~ "P1019",
+    cohort %in% c("P2024", "P2529") ~ "P2029",
+    cohort %in% c("P3034", "P3539") ~ "P3039",
+    cohort %in% c("P4044", "P4549") ~ "P4049",
+    cohort %in% c("P5054", "P5559") ~ "P5059",
+    cohort %in% c("P6064", "P6569") ~ "P6069",
+    cohort %in% c("P7074", "P7579", "P8084", "P8589", "P9094", "P9599", "P100up") ~ "P70up"
+  ), levels = c("P0009", "P1019", "P2029", "P3039", "P4049", "P5059", "P6069", "P70up"))) %>%
+  # Convert factor 'cohort' to numeric codes
+  mutate(cohort_code = as.integer(cohort)) %>%
+  # Pivoting longer to turn year columns into rows
+  pivot_longer(
+    cols = starts_with("y"),
+    names_to = "year_gender",
+    values_to = "population"
+  ) %>%
+  # Extracting year and gender from the combined column
+  mutate(
+    year = readr::parse_number(year_gender),
+    gender = if_else(str_detect(year_gender, "ym"), "male", "female"),
+    year_gender = NULL  # Removing the combined column
+  ) %>%
+  # Grouping by cohort, year, and gender to summarize
+  group_by(cohort, year, gender) %>%
+  summarise(
+    total_population = sum(population, na.rm = TRUE),
+    .groups = 'drop'
+  ) %>%
+  # Spreading gender to create separate columns for males and females
+  pivot_wider(
+    names_from = gender,
+    values_from = total_population
+  ) %>%
+  # Calculate the total population as the sum of male and female
+  mutate(
+    total = male + female
+  )
+
+# Checking the resulting dataset
+print(pop_data)
+
+```
+
+The guidance Stata code creates a popdatatot file, but we already created `pop_proj_processed` with that information before in this code, so we will use that and just filter by variant when it's time to use it. 
+
+Then some checks are performed.
+
+```{r}
+# Filter out missing education data
+demographics <- demographics %>%
+  filter(!is.na(calif))  # Keeps only rows where 'calif' is not NA
+
+# Check if the target year is within the specified range
+target_year <- 2030  # Example target year
+if(target_year < 1991 || target_year > 2100) {
+  stop("Target year is out of range.")
+}
 
 ```
 
 
+Let's now create cohorts in our `demographics` data to match our population projection data.
+
+```{r}
+# Convert 'age' into 'cohort' factor with levels ordered as specified
+demographics <- demographics %>%
+  mutate(cohort = factor(case_when(
+    age >= 0 & age <= 9 ~ "P0009",
+    age >= 10 & age <= 19 ~ "P1019",
+    age >= 20 & age <= 29 ~ "P2029",
+    age >= 30 & age <= 39 ~ "P3039",
+    age >= 40 & age <= 49 ~ "P4049",
+    age >= 50 & age <= 59 ~ "P5059",
+    age >= 60 & age <= 69 ~ "P6069",
+    age >= 70 ~ "P70up"
+  ), levels = c("P0009", "P1019", "P2029", "P3039", "P4049", "P5059", "P6069", "P70up")))
+
+# Convert the 'cohort' factor to numeric codes
+demographics <- demographics %>%
+  mutate(cohort_code = as.integer(cohort))
+```
+
+We also need demographic targets for 2030
+
+```{r}
+# Ensure pop_targets_2030 is correctly prepared
+pop_targets_2030 <- pop_data %>%
+  filter(year == 2030) %>%
+  select(cohort, male, female)
+
+# Join demographic targets with demographics
+demographics <- demographics %>%
+  left_join(pop_targets_2030, by = "cohort")
+```
+
+And economic targets from our macroeconomic scenario data.
+
+```{r}
+economic_targets_2030 <- final_data %>%
+  filter(year == 2030, variant == "Medium", scenario_id == "baseline") %>%
+  summarise(
+    target_lab_agr = sum(lab_agr_1000p * 1000),
+    target_lab_man = sum(lab_man_1000p * 1000),
+    target_lab_ser = sum(lab_ser_1000p * 1000)
+  )
+```
 
 
+We create our demographic targets
+
+```{r}
+# Adjust weights for demographic targets
+demographics <- demographics %>%
+  mutate(
+    sector = as.character(sector),  # Convert sector to character for direct comparison
+    adj_ratio_male = ifelse(gender == 1, male / sum(weight * (gender == 1)), 1),
+    adj_ratio_female = ifelse(gender == 2, female / sum(weight * (gender == 2)), 1)
+  ) %>%
+  mutate(
+    adjusted_weight = weight * case_when(
+      gender == 1 ~ adj_ratio_male,
+      gender == 2 ~ adj_ratio_female,
+      TRUE ~ 1  # Default case if gender isn't 1 or 2
+    )
+  )
+
+# Add economic targets and adjust weights for sector
+demographics <- demographics %>%
+  mutate(
+    target_lab_agr = economic_targets_2030$target_lab_agr,
+    target_lab_man = economic_targets_2030$target_lab_man,
+    target_lab_ser = economic_targets_2030$target_lab_ser
+  ) %>%
+  group_by(sector) %>%
+  mutate(
+    total_lab_force = sum(adjusted_weight),
+    adjusted_weight = case_when(
+      sector == "Agriculture" ~ adjusted_weight * (target_lab_agr / total_lab_force),
+      sector == "Manufacturing" ~ adjusted_weight * (target_lab_man / total_lab_force),
+      sector == "Services" ~ adjusted_weight * (target_lab_ser / total_lab_force),
+      TRUE ~ adjusted_weight  # Keep weights for non-labor force sectors unchanged
+    )
+  ) %>%
+  ungroup()
+```
 
 
+### Wentropy in Stata
+
+We need to prepare our dataset for wentropy in Stata. First we check our weights
+
+```{r}
+# Verify adjusted totals by sector
+check_totals <- demographics %>%
+  group_by(sector) %>%
+  summarise(
+    total_weight = sum(adjusted_weight),
+    .groups = 'drop'
+  )
+
+# Print out the check totals to see if they match with economic_targets_2030
+print(check_totals)
+
+```
+
+And save as Stata dataset.
+
+```{r}
+# Save the adjusted demographics to a .dta file
+write_dta(demographics, path = "outputs/demographics_2030.dta", version = 10)
+```
+
+Now we create the constraints matrix.
+
+```{r}
+# Assuming 'demographics' has been properly prepared with 'cohort_code', 'sector_code', 'gender' as numeric and 'adjusted_weight'
+# Calculate the total adjusted weights for each combination of cohort, sector, and gender
+constraints_matrix <- demographics %>%
+  group_by(cohort_code, sector_code, gender) %>%
+  summarise(
+    total_weight = sum(adjusted_weight),
+    .groups = 'drop'
+  ) %>%
+  pivot_longer(
+    cols = total_weight,
+    names_to = "constraint",
+    values_to = "weight"
+  ) %>%
+  # Ensure the matrix is a single column of weights
+  select(weight)
+
+# Print the constraints matrix to check it
+print(constraints_matrix)
+
+# Save the constraints matrix to a .dta file for use in Stata
+write_dta(constraints_matrix, path = "outputs/constraints_matrix_2030.dta", version = 10)
+
+# This single-column format should now be directly usable in Stata's wentropy command
 
 
+# Assuming demographics data has been prepared with adjusted weights
+# and contains 'cohort_code', 'sector_code', 'gender', and 'adjusted_weight'
+
+# Calculate the total adjusted weights for each combination
+constraints_matrix <- demographics %>%
+  group_by(cohort_code, sector_code, gender) %>%
+  summarise(
+    total_weight = sum(adjusted_weight),
+    .groups = 'drop'
+  ) %>%
+  arrange(cohort_code, sector_code, gender) %>%
+  # Ensure it's a column vector for Stata
+  transmute(constraint_value = total_weight)
+
+# Print the constraints matrix to check it
+print(constraints_matrix)
+
+# Save the constraints matrix to a .dta file for use in Stata
+write_dta(constraints_matrix, path = "outputs/constraints_matrix_2030.dta", version = 10)
 
 
+```
 
+Let's use raking to recalculate weights
 
+```{r}
 
+library(anesrake)
+library(dplyr)
+
+# Calculate target proportions -----------------------
+
+# Cohort proportions (male and female within cohorts)
+cohort_targets_prop <- pop_targets_2030 %>% 
+  mutate(across(where(is.numeric), proportions)) %>%
+  rename(cohort_code = cohort)
+
+# Sector proportions (single value for all cohorts)
+sector_targets_prop <- economic_targets_2030 %>% 
+  mutate(across(where(is.numeric), proportions)) %>%
+  summarise(across(where(is.numeric), mean)) %>%  # Calculate mean across sectors
+  mutate(sector_code = mean(c(2, 3, 4))) 
+
+# Function for iterative raking within cohorts ---------
+rake_within_cohort <- function(df_cohort, cohort_prop, sector_mean) {
+  # Get the matching cohort proportions 
+  cohort_row <- cohort_prop[cohort_prop$cohort_code == df_cohort$cohort[1], ] 
+
+  # Create the 'targets' list (renamed for clarity)
+  raking_targets <- list(gender = cohort_row[["male"]], 
+                  sector_code = sector_mean) 
+
+  raked_weights <- anesrake(targets = raking_targets, # Pass the renamed list
+                          dat = df_cohort, 
+                          caseid = "hhid", 
+                          weightvec = df_cohort$weight, 
+                          verbose = FALSE, 
+                          cap = 5, 
+                          choosemethod = "total", 
+                          type = "pctlim", 
+                          pctlim = 0.05, 
+                          iterate = TRUE) 
+  df_cohort$raked_weights <- raked_weights$weightvec
+  return(df_cohort)
+}
+
+# Apply raking to each cohort --------------------------
+demographics <- demographics %>% 
+  group_by(cohort) %>%  # Using 'cohort' here (matches pop_targets_2030)
+  do(rake_within_cohort(., cohort_targets_prop, mean(sector_targets_prop$sector_code)))
+
+# Reminder: Validate the raked weights (demographics$raked_weights) to ensure they match expectations!
+ 
+```
 
 
 
