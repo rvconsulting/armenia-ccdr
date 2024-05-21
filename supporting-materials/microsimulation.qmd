@@ -814,11 +814,11 @@ pop_data <- pop_data |>
   filter(year <= max(combined_data$year),
          Variant == variants[7])
 # Merge the combined data with population projections
-final_data <- combined_data %>%
+macro_data <- combined_data %>%
   left_join(pop_data, by = c("year"))
 
 # Calculate consumption per capita and other totals
-final_data <- final_data %>%
+macro_data <- macro_data %>%
   mutate(
     consumption_pc = consumption_b_amd / (total_population),
     total_employment = lab_agr_1000p + lab_man_1000p + lab_ser_1000p,
@@ -859,14 +859,14 @@ value_columns <- c(
   "rwage_ser_m_amd"      # Real wage services
   )
 
-# Applying the growth calculation to the final_data for each column
+# Applying the growth calculation to the macro_data for each column
 for (col in value_columns) {
-  final_data <- calculate_growth(final_data, col)
+  macro_data <- calculate_growth(macro_data, col)
 }
 
-# Now `final_data` will have growth rate columns for each of the variables listed
+# Now `macro_data` will have growth rate columns for each of the variables listed
 # We rearrange the dataset for clarity
-final_data <- final_data |> 
+macro_data <- macro_data |> 
   relocate(scenario_id, Variant, .before = year) |> 
   arrange(scenario_id, Variant, year)
 
@@ -965,7 +965,7 @@ pop_targets_2030 <- pop_targets_2030 |>
 And economic targets from our macroeconomic scenario data.
 
 ```{r}
-economic_targets_2030 <- final_data %>%
+economic_targets_2030 <- macro_data %>%
   filter(year == 2030, Variant == "Medium", scenario_id == "baseline") %>%
   summarise(
     target_lab_agr = sum(lab_agr_1000p * 1000),
@@ -975,7 +975,7 @@ economic_targets_2030 <- final_data %>%
 ```
 
 
-### Reweigting with `anesrake` in R
+### Reweigting
 
 We use anesrake to calculate targets from known future proportions of sex, age, economic sector. We first create a target list.
 
@@ -1309,7 +1309,7 @@ ca_microsim_cc <- ca_microsim_cc |>
          poor_cc_max = 
            if_else(aec_r_cc_max < 52883, 1, 0))
 
-
+# We make a table to see who became poor. 
 test <- ca_microsim_cc
 test$ones <- 1
 
@@ -1324,7 +1324,22 @@ test|>
 ```
 
 
+### Food prices
 
+We start by looking at the differences of food prices between scenarios. 
+
+```{r}
+scenarios <- unique(macro_data$scenario_id)
+
+
+food_prices <- macro_data 
+  for (i in 0:length(scenarios)) {
+    food_data <- macro_data 
+  }
+  
+  
+  
+```
 
 
 
