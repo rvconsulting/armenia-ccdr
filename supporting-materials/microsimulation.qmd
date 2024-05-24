@@ -172,7 +172,7 @@ population_projections <- read_dta("data/UN2022_population.dta") %>%
 Macro scenario dataset
 
 ```{r}
-scenario_file <- r"(data\ARM-Microsimulation\ARM_MacroScenarioInformation.xlsx)"
+scenario_file <- "dataARM-Microsimulation/ARM_MacroScenarioInformation.xlsx)"
 scenario_varlist <- read_xlsx(
   "data/ARM-Microsimulation/ARM_Macro_varlist.xlsx")
 prices_2030 <- 
@@ -217,7 +217,7 @@ ic <- ic %>%
 Labor productivity
 
 ```{r}
-file <- r"(data\ARM-Microsimulation\LaborProductivityChanges.xlsx)"
+file <- r"(data/ARM-Microsimulation/LaborProductivityChanges.xlsx)"
 sheets <- excel_sheets(file)
 
 # Use lapply to read and process each sheet
@@ -657,7 +657,7 @@ pp_microsim <- pp_microsim %>%
   rename(marz = marz.x)
 
 # Exporting to Stata (might be necessary for reweigthing with wentropy)
-write_dta(pp_microsim, path = "outputs/pp_microsim.dta", version = 10)
+# write_dta(pp_microsim, path = "outputs/pp_microsim.dta", version = 10)
 ```
 
 
@@ -1083,7 +1083,7 @@ table <- rakedata %>%
               sum(annual_labor_total * weightvec, na.rm = TRUE)) %>% 
   ungroup()
 
-write.table(table, "clipboard", sep="\t", row.names=FALSE)
+#write.table(table, "clipboard", sep="\t", row.names=FALSE)
 
 
 pp_microsim <- tibble(rakedata)
@@ -1593,7 +1593,7 @@ test <- test%>%
   summarise(no_hh = round(sum(weight, na.rm = TRUE)),
             no_pp = round(sum(weight*hhsize, na.rm = TRUE)))
 
-write.table(test, "clipboard", sep="\t", row.names=FALSE)
+#write.table(test, "clipboard", sep="\t", row.names=FALSE)
 
 ```
 
@@ -1618,7 +1618,7 @@ fp <-foodpoor %>%
   mutate(label = paste0(NAM_1," (", new_poor, ")"))
 
 
-write.table(fp, "clipboard", sep="\t", row.names=FALSE)
+#write.table(fp, "clipboard", sep="\t", row.names=FALSE)
 fp_map <- adm1 |> 
   left_join(fp, join_by(NAM_1 == NAM_1))
 
