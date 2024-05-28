@@ -172,7 +172,7 @@ population_projections <- read_dta("data/UN2022_population.dta") %>%
 Macro scenario dataset
 
 ```{r}
-scenario_file <- "data/ARM-Microsimulation/ARM_MacroScenarioInformation.xlsx)"
+scenario_file <- "data/ARM-Microsimulation/ARM_MacroScenarioInformation.xlsx"
 scenario_varlist <- read_xlsx(
   "data/ARM-Microsimulation/ARM_Macro_varlist.xlsx")
 prices_2030 <- 
