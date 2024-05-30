@@ -365,6 +365,7 @@ Here the original Stata code calculates income variables and aggregates them by 
 
 Bonus, In-Kind, and food from job was not asked in Armenia, If it were, you should add a mutate() statement like the ones below for each subcategory.
 
+
 ```{r}
 pp_microsim <- pp_microsim %>% 
   # Labor income primary job
@@ -1254,7 +1255,8 @@ test <- ca_microsim %>%
             no_pp = round(sum(weight * hhsize, na.rm = TRUE))) %>% 
   ungroup()
 
-
+test %>% 
+  gt()
 #write.table(test, "clipboard", sep="\t", row.names=FALSE)
 
 ```
@@ -1575,7 +1577,7 @@ ca_microsim_cc <- ca_microsim_cc %>%
          log_aec_r = log(aec_r))
 
 # Check for missing values and data distribution
-summary(ca_microsim_cc)
+#summary(ca_microsim_cc)
 
 # summarise the data for variability within each decile
 ca_summary <- ca_microsim_cc %>%
@@ -1757,6 +1759,9 @@ test <- test%>%
   group_by(poor_original, poor_cc) %>% 
   summarise(no_hh = round(sum(weight, na.rm = TRUE)),
             no_pp = round(sum(weight*hhsize, na.rm = TRUE)))
+
+test %>% 
+  gt()
 
 #write.table(test, "clipboard", sep="\t", row.names=FALSE)
 
