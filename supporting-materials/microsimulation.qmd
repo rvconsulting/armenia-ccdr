@@ -310,7 +310,7 @@ pp_microsim <- pp %>%
          # Labor Force Status
          lstatus = case_when(
            # 1. Employed
-           est_03 == 1 | est_04 == 1 | est_05 == 1 | est_06 == 1 | est_09 < 7 ~ 1L,
+           est_03 == 1 | est_04 == 1 | est_05 == 1 | est_06 == 1 | est_08 == 1 ~ 1L,
            # 2. Unemployed (available, and searching)
            est_10 == 1 ~ 2L,
            # 3. Inactive (available, not searching)
@@ -533,7 +533,7 @@ Predict for specific conditions
 ```{r}
 pp_microsim <- pp_microsim %>%
   mutate(
-    condition = (employed == TRUE & (outlier == TRUE | missings == TRUE))
+    condition = (lstatus == 1 & (outlier == TRUE | missings == TRUE))
   )
 ```
 
@@ -983,6 +983,35 @@ economic_targets_2030 <- macro_data %>%
   )
 ```
 
+For a better representation of the labor market, we will take into account the combination between labor status and economic sector of the employed and adjust that combination according to the macrodata so that we can accurately model changes in total employment, sector distribution of the employed and overall population changes.
+
+```{r}
+pp_microsim <- pp_microsim %>% 
+  mutate(lmarket = case_when(
+    lstatus == 1 & sector_w  == 1  ~ 1,   # Agriculture
+    lstatus == 1 & sector_w  == 2  ~ 2,   # Manufactures
+    lstatus == 1 & sector_w  == 3  ~ 3,   # Services
+    lstatus == 2 & is.na(sector_w) ~ 4,   # Unemployed
+    lstatus == 3 & is.na(sector_w) ~ 4,   # Unemployed
+    lstatus == 4 & is.na(sector_w) ~ 5,   # OLF
+    
+  ))
+```
+
+And we check the values.
+
+```{r}
+write.table(
+  pp_microsim %>% 
+  group_by(lmarket) %>% 
+  summarise(total_pp = sum(weight, na.rm = TRUE)) %>% 
+    ungroup(), 
+  "clipboard", sep="\t", row.names=FALSE
+  )
+```
+
+Note that the differences between the totals of the survey and the macro file for the base year are very much different. We'll adjust the survey only with relative growth instead of total numbers so that labor income doesn't change completely.
+
 
 ### Reweigting
 
@@ -999,18 +1028,19 @@ gender_code <- c(
 
 cohort_code <- pop_targets_2030$pct_total
 
-# sector <- as.vector(as.matrix(economic_targets_2030/sum(economic_targets_2030)))
+#lmarket <- c(0.1345, 0.05, 0.26, 0.2490, 0.3065)
+lmarket <- c(0.1341, 0.0494, 0.2611, 0.2472, 0.3082)
 
 # Target list
 
 targets <- list(gender_code
                 , cohort_code
-                #, sector
+                , lmarket
                 )
 
 names(targets) <- c("gender_code", 
-                    "cohort_code"#, 
-                    #"sector"
+                    "cohort_code", 
+                    "lmarket"
                     )
 
 # Since this uses base R, we need to turn the data frame into base R object
@@ -1048,9 +1078,15 @@ n  <- length(rakedata$sector)
 # Calculate the sum of original weights
 original_weight_sum <- sum(rakedata$weight)
 
-# Target scaling for original weights
-original_weight_scaling_factor <- pop_data$total_population[pop_data$year == 2030] /
-  pop_data$total_population[pop_data$year == 2022]
+# # Target scaling for original weights
+# In a first version, we used the population scaling from UN,
+# But to match with the labor market given by the scenario, we take
+# the total population from the macro scenario information.
+# original_weight_scaling_factor <- pop_data$total_population[pop_data$year == 2030] /
+#   pop_data$total_population[pop_data$year == 2022]
+
+# For year 2030 (Calculated in Excel, but need a more elegant solution from dataset)
+original_weight_scaling_factor <- 0.992805755
 
 # Scaled original weights
 original_weight_sum <- (original_weight_sum 
@@ -1072,28 +1108,157 @@ rakedata <- rakedata %>%
   relocate(weightvec, .after = weight) %>% 
   mutate(hh_weight = weightvec / hhsize)
 
-
-# Check weighted sum of wages.
-rakedata <- rakedata %>% 
-  mutate(new_weights2030 = weightvec / hhsize) 
-
-table <- rakedata %>% 
-  group_by(marz) %>% 
-  summarise(annual_labor_total = 
-              sum(annual_labor_total * weightvec, na.rm = TRUE)) %>% 
-  ungroup()
-
-#write.table(table, "clipboard", sep="\t", row.names=FALSE)
-
+# We calculate new weights for households in the hh database
+weights_2030 <- rakedata %>% 
+  group_by(hhid) %>%
+  summarise(hh_weight_2030 = sum(hh_weight, na.rm = TRUE))
 
 pp_microsim <- tibble(rakedata)
+rm(rakedata)
 
 ```
+
+As a last step, we rescale labor income according to changes in the wage bill in the macro scenario.
+
+```{r}
+# Wage rescale factor by sector from macro (Agriculture, Manufacturing, Services)
+wrf <- c(1.269821454, 1.284834838, 1.328623737)
+
+# We check the wage bill by sector
+wages_by_sector <- pp_microsim %>% 
+  group_by(sector_w, .drop = TRUE) %>% 
+  summarise(
+    wages_2022 = sum(annual_labor_total * weight, na.rm = TRUE),
+    wages_2030 = sum(annual_labor_total * weightvec, na.rm = TRUE)
+  )
+
+wages_by_sector <- wages_by_sector[c(-4),]
+
+# Compare how much it changed with reweighting with how it should have changed
+# Derive coefficients (wtc_2030) from that
+wages_by_sector <- wages_by_sector %>% 
+  mutate(wages_target_2030 = case_when(
+      sector_w == 1 ~ wages_2022 * wrf[1],
+      sector_w == 2 ~ wages_2022 * wrf[2],
+      sector_w == 3 ~ wages_2022 * wrf[3],
+      .default = NA
+    ),
+    wtc_2030 = wages_target_2030 / wages_2030) 
+
+wages_by_sector %>%
+  gt()
+
+```
+
+We then add the coefficient to rescale each weight by sector
+
+```{r}
+# Assign rescale the annual and monthly wage depending on the sector
+pp_microsim <- pp_microsim %>% 
+  rename(monthly_labor_income_old = monthly_labor_income,
+         annual_labor_total_old = annual_labor_total) %>% 
+  mutate(
+    monthly_labor_income = case_when(
+      sector_w == 1 ~ monthly_labor_income_old * wages_by_sector$wtc_2030[1],
+      sector_w == 2 ~ monthly_labor_income_old * wages_by_sector$wtc_2030[2],
+      sector_w == 3 ~ monthly_labor_income_old * wages_by_sector$wtc_2030[3],
+      TRUE ~ NA
+    ),
+    annual_labor_total = case_when(
+      sector_w == 1 ~ annual_labor_total_old * wages_by_sector$wtc_2030[1],
+      sector_w == 2 ~ annual_labor_total_old * wages_by_sector$wtc_2030[2],
+      sector_w == 3 ~ annual_labor_total_old * wages_by_sector$wtc_2030[3],
+      TRUE ~ NA
+    )
+    )
+
+# This takes care of different household members coming from different sectors
+hh_li_baseline <- pp_microsim %>% 
+  group_by(hhid) %>% 
+  summarise(mli_2022 = sum(monthly_labor_income_old),
+            mli_2030 = sum(monthly_labor_income),
+            mli_coef_2030 = mli_2030 / mli_2022) %>% 
+  select(hhid, mli_coef_2030)
+  
+ic_microsim <- ic %>% 
+  left_join(hh_li_baseline, join_by(interview__key == hhid)) %>%
+  rename(inc2_old = inc2,
+         inc3_old = inc3,
+         totalinc_old = totalinc) %>% 
+  mutate(mli_coef_2030 = if_else(is.na(mli_coef_2030), 1,mli_coef_2030)) %>% 
+  mutate(inc2 = inc2_old * mli_coef_2030,
+         inc3 = inc3_old * mli_coef_2030) %>% 
+  mutate(totalinc = totalinc_old - coalesce(inc2_old,0) - coalesce(inc3_old,0)
+                         + coalesce(inc2,0) + coalesce(inc3,0)) %>% 
+  mutate(totinc_coef_2030 = if_else(totalinc_old == 0, 1, totalinc / totalinc_old)) %>% 
+  mutate(totinc_coef_2030 = if_else(is.na(totinc_coef_2030), 1, totinc_coef_2030))
+
+ic_coef_2030 <- ic_microsim %>% 
+  select(interview__key, totinc_coef_2030)
+```
+
+
 
 
 ## Microsimulation
 
 We now implement different shocks according to various scenarios.
+
+### Baseline
+
+For the baseline we only adjust labor income according to the reweighting procedure and rescaling of the wage bill.
+
+```{r}
+ca_microsim <- ca %>% 
+  left_join(weights_2030, join_by(hhid == hhid)) %>% 
+  left_join(ic_coef_2030, join_by(hhid == interview__key)) %>% 
+  # We adjust total consumption by the income coefficient
+  # Make sure to remember that totc is baseline 2030
+  rename(totc_old = totc,
+         # Make sure to remember that pov2022 is baseline 2030
+         poor_Avpovln2022_old = poor_Avpovln2022) %>% 
+  mutate(totc = totc_old * totinc_coef_2030 )
+```
+
+And recalculate poverty.
+
+```{r}
+ca_microsim <- ca_microsim %>% 
+  rename(aec_r_old = aec_r,
+         weight_old = weight,
+         weight = hh_weight_2030) %>% 
+  mutate(aec_r = totc / ae_r / PI) %>% 
+  mutate(poor_Avpovln2022 = 
+           if_else(aec_r < 52883, 1, 0)
+         )
+```
+
+
+
+Test 
+
+```{r}
+test <- ca_microsim %>%
+  rename(poor_original = poor_Avpovln2022_old,
+         poor_2030 = poor_Avpovln2022) %>%
+  group_by(poor_2030) %>% 
+  summarise(no_hh = round(sum(weight, na.rm = TRUE)),
+            no_pp = round(sum(weight * hhsize, na.rm = TRUE))) %>% 
+  ungroup()
+
+test <- ca_microsim %>%
+  rename(poor_original = poor_Avpovln2022_old,
+         poor_2030 = poor_Avpovln2022) %>%
+  group_by(poor_original) %>% 
+  summarise(no_hh = round(sum(weight_old, na.rm = TRUE)),
+            no_pp = round(sum(weight_old * hhsize, na.rm = TRUE))) %>% 
+  ungroup()
+
+
+#write.table(test, "clipboard", sep="\t", row.names=FALSE)
+
+```
+ 
 
 ### Climate change
 
@@ -1206,7 +1371,7 @@ pp_microsim_cc <- pp_microsim %>%
   left_join(lab_loss_max, join_by(NAM_1==ADM1_EN))
 
 # Household income processed dataset
-ic_microsim_cc <- ic %>%
+ic_microsim_cc <- ic_microsim %>%
   left_join(ag_pdcvty_loss, join_by(NAM_1==NAM_1)) 
 
 ```
@@ -1299,7 +1464,7 @@ income_losses <- ic_microsim_cc %>%
   select(interview__key,totalinc_cc_avg_coef, totalinc_cc_max_coef)
 
 
-ca_microsim_cc <- ca %>% 
+ca_microsim_cc <- ca_microsim %>% 
   left_join(income_losses, join_by(hhid == interview__key))
 
 # And now reduce total consumption
@@ -1315,16 +1480,16 @@ ca_microsim_cc <- ca_microsim_cc %>%
            if_else(aec_r_cc_max < 52883, 1, 0))
 
 # We make a table to see who became poor. 
-test <- ca_microsim_cc
-test$ones <- 1
 
-test%>%
-  rename(old_poor = poor_Avpovln2022,
-         new_poor = poor_cc_avg) %>%
-  group_by(old_poor,new_poor) %>% 
-  summarise(number_hh = sum(n(), na.rm = TRUE),
-            pct =  number_hh / sum(test$weight)) %>%
-  gt()
+test <- ca_microsim_cc %>%
+  rename(poor_original = poor_Avpovln2022,
+         poor_cc = poor_cc_avg) %>%
+  group_by(poor_original, poor_cc) %>% 
+  summarise(no_hh = round(sum(weight, na.rm = TRUE)),
+            no_pp = round(sum(weight * hhsize, na.rm = TRUE))) %>% 
+  ungroup()
+
+#write.table(test, "clipboard", sep="\t", row.names=FALSE)
 
 ```
 
@@ -1400,20 +1565,20 @@ Since we don't have quantities for the aggregate food expenditure category or fo
 ```{r}
 
 # Calculate implicit price as total expenditure on food divided by food consumption
-ca <- ca %>%
+ca_microsim_cc <- ca_microsim_cc %>%
   mutate(implicit_price = aec_r / food1)
 
 # Log-transform the relevant variables
-ca <- ca %>%
+ca_microsim_cc <- ca_microsim_cc %>%
   mutate(log_food1 = log(food1),
          log_implicit_price = log(implicit_price),
          log_aec_r = log(aec_r))
 
 # Check for missing values and data distribution
-summary(ca)
+summary(ca_microsim_cc)
 
 # summarise the data for variability within each decile
-ca_summary <- ca %>%
+ca_summary <- ca_microsim_cc %>%
   group_by(decile) %>%
   summarise(
     log_food1_mean = mean(log_food1, na.rm = TRUE),
@@ -1425,7 +1590,7 @@ ca_summary <- ca %>%
 print(ca_summary)
 
 # Visual inspection
-ggplot(ca, aes(x = log_implicit_price, y = log_food1)) +
+ggplot(ca_microsim_cc, aes(x = log_implicit_price, y = log_food1)) +
   geom_point() +
   facet_wrap(~ decile) +
   labs(title = "Log Food Consumption vs. Log Implicit Price by Decile",
@@ -1438,7 +1603,7 @@ fit_model <- function(data) {
 }
 
 # Apply the simplified model fitting function by decile
-decile_models <- ca %>%
+decile_models <- ca_microsim_cc %>%
   group_by(decile) %>%
   nest() %>%
   mutate(model = map(data, fit_model)) %>%
@@ -1629,16 +1794,61 @@ fp_map <-tm_shape(fp_map)+
             title= "Additional Poor Dry-Hot Scenario", 
             title.position = c('left', 'bottom'),
             title.size = 0.9)
-
+fp_map
 
 ```
 
 
 
 ```{r}
-pp_microsim_cc %>% 
-  group_by(lstatus,sector_w) %>% 
-  summarise(total_pp = sum(weight, na.rm = TRUE))
+# We check that our reweighting was successful
+table <- pp_microsim_cc %>% 
+  group_by(lmarket,sector_w) %>% 
+  summarise(total_pp = sum(weightvec, na.rm = TRUE)) %>%
+  ungroup()
+
+table %>% 
+  gt() %>% 
+  fmt_number(columns = total_pp, decimals = 0)
+
+write.table(
+  table, 
+  "clipboard", sep="\t", row.names=FALSE
+  )
+
 ```
 
+
+## End
+
+Tasks for today:
+
+Reweight the dataset
+
+* Determine the numbers for the labor market reweighting for 2030. [v]
+* Reweight and rescale the weights. [v]
+* Determine by how much to rescale the wage bill. [v]
+* Recalculate labor income. [v]
+* Recalculate total income. [v]
+* Determine delta total income and change total expenditure. [v]
+* Poverty [v]
+
+Review price elasticities
+
+* Look for average prices in underlying data.
+* Reestimate based on adjusted food expenditure by family members.
+* Rerun elasticities.
+* Reestimate poverty.
+
+Bring back poverty to people's dataset.
+
+* Evaluate poverty among women.
+* Poverty among urban rural.
+* Poverty by marz.
+* Youth?
+
+Write draft.
+
+* Make tables of everything.
+* Make maps of everything.
 
