@@ -1,0 +1,41 @@
+﻿year,decile,scenario,index,commodity_group
+2030,1,baseline,1.00984,food
+2030,2,baseline,1.01022,food
+2030,3,baseline,1.01032,food
+2030,4,baseline,1.01036,food
+2030,5,baseline,1.00965,food
+2030,6,baseline,1.00978,food
+2030,7,baseline,1.00963,food
+2030,8,baseline,1.00995,food
+2030,9,baseline,1.00973,food
+2030,10,baseline,1.01038,food
+2030,1,Dry-hot scenario,1.07500,food
+2030,2,Dry-hot scenario,1.07610,food
+2030,3,Dry-hot scenario,1.07655,food
+2030,4,Dry-hot scenario,1.07737,food
+2030,5,Dry-hot scenario,1.07420,food
+2030,6,Dry-hot scenario,1.07493,food
+2030,7,Dry-hot scenario,1.07433,food
+2030,8,Dry-hot scenario,1.07589,food
+2030,9,Dry-hot scenario,1.07490,food
+2030,10,Dry-hot scenario,1.07769,food
+2030,1,baseline,1.09844,energy
+2030,2,baseline,1.10387,energy
+2030,3,baseline,1.11329,energy
+2030,4,baseline,1.12624,energy
+2030,5,baseline,1.12525,energy
+2030,6,baseline,1.12466,energy
+2030,7,baseline,1.13174,energy
+2030,8,baseline,1.13662,energy
+2030,9,baseline,1.15647,energy
+2030,10,baseline,1.17524,energy
+2030,1,Dry-hot scenario,1.09278,energy
+2030,2,Dry-hot scenario,1.09846,energy
+2030,3,Dry-hot scenario,1.10829,energy
+2030,4,Dry-hot scenario,1.12181,energy
+2030,5,Dry-hot scenario,1.12078,energy
+2030,6,Dry-hot scenario,1.12017,energy
+2030,7,Dry-hot scenario,1.12755,energy
+2030,8,Dry-hot scenario,1.13265,energy
+2030,9,Dry-hot scenario,1.15337,energy
+2030,10,Dry-hot scenario,1.17297,energy

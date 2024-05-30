@@ -489,5 +489,77 @@
       "Supporting materials",
       "A guide to CCDR Poverty Analysis code"
     ]
+  },
+  {
+    "objectID": "supporting-materials/microsimulation.html",
+    "href": "supporting-materials/microsimulation.html",
+    "title": "Armenia CCDR Microsimulation",
+    "section": "",
+    "text": "In this calculation file, we “age” the household survey according to demographic projections and different macroeconomic scenarios to explore the impact of climate-related risks and policy measures on the consumption expenditure distribution.\nAs a convention, code is presented in the following format in this guide:\n\n# Some comment that is not evaluated by R\nsome_variable &lt;- some_function(some_object, some_parameter = TRUE)\n\nWe assume that the reader has created an Rstudio project and is familiar with basic R functions. Within that project we recommend the following file structure:\nroot/\n├── scripts\n│   └── my_script.R\n├── data/\n|   ├── my_data.sav\n|   ├── my_data.dta\n|   └── my_data.csv\n└── output\n    ├── my_output1.csv\n    └── my_output2.xlsx\nUsing RStudio project makes it possible to not use setwd() to establish the root directory and refer to subdirectories in a relative manner, making interoperability easier within teams and not hard coding a particular computer’s file structure into the code. If you are not using RStudio, just add setwd(r'(C:\\My\\path\\to\\project\\root)') at the beginning of your coding session.",
+    "crumbs": [
+      "Home",
+      "Supporting materials",
+      "Armenia CCDR Microsimulation"
+    ]
+  },
+  {
+    "objectID": "supporting-materials/microsimulation.html#introduction",
+    "href": "supporting-materials/microsimulation.html#introduction",
+    "title": "Armenia CCDR Microsimulation",
+    "section": "",
+    "text": "In this calculation file, we “age” the household survey according to demographic projections and different macroeconomic scenarios to explore the impact of climate-related risks and policy measures on the consumption expenditure distribution.\nAs a convention, code is presented in the following format in this guide:\n\n# Some comment that is not evaluated by R\nsome_variable &lt;- some_function(some_object, some_parameter = TRUE)\n\nWe assume that the reader has created an Rstudio project and is familiar with basic R functions. Within that project we recommend the following file structure:\nroot/\n├── scripts\n│   └── my_script.R\n├── data/\n|   ├── my_data.sav\n|   ├── my_data.dta\n|   └── my_data.csv\n└── output\n    ├── my_output1.csv\n    └── my_output2.xlsx\nUsing RStudio project makes it possible to not use setwd() to establish the root directory and refer to subdirectories in a relative manner, making interoperability easier within teams and not hard coding a particular computer’s file structure into the code. If you are not using RStudio, just add setwd(r'(C:\\My\\path\\to\\project\\root)') at the beginning of your coding session.",
+    "crumbs": [
+      "Home",
+      "Supporting materials",
+      "Armenia CCDR Microsimulation"
+    ]
+  },
+  {
+    "objectID": "supporting-materials/microsimulation.html#preamble",
+    "href": "supporting-materials/microsimulation.html#preamble",
+    "title": "Armenia CCDR Microsimulation",
+    "section": "2 Preamble",
+    "text": "2 Preamble",
+    "crumbs": [
+      "Home",
+      "Supporting materials",
+      "Armenia CCDR Microsimulation"
+    ]
+  },
+  {
+    "objectID": "supporting-materials/microsimulation.html#preamble-1",
+    "href": "supporting-materials/microsimulation.html#preamble-1",
+    "title": "Armenia CCDR Microsimulation",
+    "section": "3 Preamble",
+    "text": "3 Preamble\nWe start with a clean environment, making sure that any objects from a previous session are not present. We take this opportunity to keep our country ISO code in a variable iso in case we need it later.\n\n# Clean workspace\nrm(list = ls())\n\n# Armenia country ISO code\niso &lt;- \"ARM\"\n\n# Exchange rate USD per dram\ner &lt;- 0.002310\n\nWe call the appropriate libraries.\nRather than calling our libraries as we go, we will make sure we have everything we need from the beginning.\n\n# Load packages\nlibrary(tidyverse) # includes dplyr, ggplot2 and others\nlibrary(haven)     # to read SPSS and Stata datasets\nlibrary(readxl)    # to read from MS-Excel\nlibrary(openxlsx)  # to write to MS-Excel.\nlibrary(gt)        # pretty tables\nlibrary(car)       # Companion to applied regression\nlibrary(modelr)    # regression models\nlibrary(janitor)   # pretty subtotals\nlibrary(purrr)     # map vectors (aggregation)\n\n# Geopackages\nlibrary(sf)        # to read and write shapefile maps\nlibrary(terra)     # to perform geocalculations\nlibrary(tmap)      # for static and interactive maps",
+    "crumbs": [
+      "Home",
+      "Supporting materials",
+      "Armenia CCDR Microsimulation"
+    ]
+  },
+  {
+    "objectID": "supporting-materials/microsimulation.html#datasets",
+    "href": "supporting-materials/microsimulation.html#datasets",
+    "title": "Armenia CCDR Microsimulation",
+    "section": "4 Datasets",
+    "text": "4 Datasets\nWe then load the datasets that we need for this study. We are lucky that the World Bank has processed some of these already for poverty analysis and so we have the original SPSS datasets with all variables for Households hh and for Individuals pp, as well as a consumption aggregate ca and a household income ic dataset, which are Stata datasets. This is for the year 2022. These are imported using the haven package. These are based on Armenia Integrated Living Conditions Survey 2022 (ARMSTAT, 2023).\n\n# Original SPSS datasets\n# Households (hh)\nhh &lt;- read_sav(\n  \"data/ARM-HH-survey/original-spss-files/ILCS-ARM-2022-Households.sav\")\n# Persons (pp)\npp &lt;- read_sav(\n  \"data/ARM-HH-survey/original-spss-files/ILCS-ARM-2022-Persons.sav\")\n\n# Processed WB datasets\n# Consumption aggregate at household level (ca)\nca  &lt;- read_dta(\"data/ARM-HH-survey/CONSAGG2022.dta\")\n# Processed income at household level (ic)\nic  &lt;- read_dta(\"data/ARM-HH-survey/totinc.dta\") \n\nWe will work non-destructively, meaning we will not rewrite these data sets and we will only create intermediate data frame objects from them to perform transformations, selections and other data management tasks. For example, we will keep household assignment to poverty status and consumption deciles handy by creating a subset of our ca data with only our household identifiers, deciles, and poverty.\n\n# From the WB processed dataset, we extract deciles and poverty\ndeciles &lt;- ca |&gt; \n  select( hhid, decile, poor_Avpovln2022, \n          poor_Foodpovln2022, poor_Lpovln2022, poor_Upovln2022)\n\nOur population data comes from UN’s projections.\n\n# Population projections UN 2022\npop_proj &lt;- read_dta(\"data/UN2022_population.dta\") |&gt; \n  filter(country == iso)\n\nWe also have geographical information for level 1 in Shapefile format, which we import with the sf package. We rename the column with the name of the administrative region to match our household survey data set conventions to ease mergers. The dplyr package from the tidyverse meta package allows us to “pipe” or link processing steps using the |&gt; pipe, which can be inserted using Ctrl + m. Although there is no geoprocessing in this analysis, this will come in handy for graphical presentations. Let’s have a look at it.\n\n# Geodata\n# Armenia marzes or administrative level 1 shapefile\nadm1 &lt;- read_sf(\"data/ARM-Geodata/ARM-ADM1.shp\") |&gt; \n  select(NAM_1, COD_HH_SVY, geometry) |&gt; \n    # Make sure that names match the rest of datasets\n  mutate(NAM_1 = if_else(NAM_1 == \"Gergharkunik\", \"Gegharkunik\", NAM_1))\nnames(adm1)[2] &lt;- \"hh_02\"\n\ntm_shape(adm1)+\n  tm_polygons(\"NAM_1\", legend.show = FALSE) +\n  tm_text(\"NAM_1\", size = 3/4)\n\n\n\n\n\n\n\n\nMarzes names are more accurate in the shapefile than in the survey. We will use them from here on instead of the survey factor labels.\n\nhh &lt;- hh |&gt; \n  left_join(adm1, join_by(hh_02 == hh_02)) |&gt; \n  select(-geometry)\n\nic &lt;- ic |&gt; \n  left_join(adm1, join_by(hh_02 == hh_02)) |&gt; \n  select(-geometry)\n\nFinally, but not least important, we have our vulnerability information.\n\nbuildings_aal &lt;- \n  read_xlsx(\"data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx\",\n            sheet = \"Building_AAL\") |&gt; \n    # Make sure that names match the rest of datasets\n  mutate(NAM_1 = if_else(NAM_1 == \"Gergharkunik\", \"Gegharkunik\", NAM_1))\nbuildings_1in100 &lt;-\n  read_xlsx(\"data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx\",\n            sheet = \"Building_1in100\")\ncrops_productivity &lt;- \n  read.csv(\"data/ARM-Vulnerability-Analysis/ARM_crops_combined_REF_shock_admin1.csv\") |&gt; \n  rename(NAM_1 = Province)\ncrops_aal &lt;- \n  read_xlsx(\"data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx\",\n            sheet = \"Agriculture_AAL\")\ncrops_1in100 &lt;-\n  read_xlsx(\"data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx\",\n            sheet = \"Agriculture_1in100\")",
+    "crumbs": [
+      "Home",
+      "Supporting materials",
+      "Armenia CCDR Microsimulation"
+    ]
+  },
+  {
+    "objectID": "supporting-materials/microsimulation.html#data-preparation-income-outliers-and-missings",
+    "href": "supporting-materials/microsimulation.html#data-preparation-income-outliers-and-missings",
+    "title": "Armenia CCDR Microsimulation",
+    "section": "5 Data preparation income outliers and missings",
+    "text": "5 Data preparation income outliers and missings\n\n5.1 1.1 Household consumption aggregates and characteristics\nThis section was done outside the text environment, so for clarification, please read the inline comments at this time. It will be fixed later.\n\n# =========================================================\n#  1. DATAPREP\n# =========================================================\n#  1.1 Household consumption aggregates and characteristics\n# =========================================================\n\nconsumption_aggregates &lt;- ca |&gt; \n  mutate(rural = ifelse(urb_rur == 2, 1, 0),  # Create rural indicator\n         yhh = totc,              # Total household expenditure\n         wgt_adj = pweight) |&gt;        # Make a copy of the weight variable \n  select(hhid, rural, hhsize,hhsize_R, marz, aepc, yhh, wgt_adj, weight, \n         Foodpovln2022, Lpovln2022, Upovln2022, Avpovln2022, \n         poor_Foodpovln2022, poor_Lpovln2022, poor_Upovln2022, \n         poor_Avpovln2022, decile )  # Keep only necessary columns\n\n\n\n5.2 1.2 Demographic characteristics, education, Labor Force\nHere the original code calls for Zone data, which is not present in our dataset, due to the different administrative structure of Armenia. However, we use urban/rural for this purpose.\n\n# Zone data\nzone_data &lt;- hh |&gt; \n  select(interview__key, hh_01_code, hh_02, hh_03) |&gt; \n  mutate(\n    hhid = interview__key,\n    zone = hh_01_code,\n    marz = hh_02,\n    urb_rur = hh_03\n  )\n\nDemographic data, merge with zone data Note that ed_03 (educy) below is not years of education, but education level (primary, general, secondary, etc.) However, it is ordered in a way that higher levels imply more years of education. We perform several steps within the first pipe call.\n\ndemographics &lt;- pp |&gt;\n  rename(hhid = interview__key) |&gt; \n  left_join(zone_data, join_by( hhid == hhid))  |&gt;  \n  mutate(# Demographic characteristics\n         pid = paste0(interview__key, \"-\", \n                      str_pad(mem_001__id, 2, pad = \"0\")), # Unique person id\n         gender = mem_02,\n         age = mem_05,\n         head = ifelse(mem_03 == 1, 1, 0),\n         # Education level\n         educy = ifelse(is.na(ed_03) | ed_03 == 8, 0, ed_03),\n         # Labor Force Status\n         lstatus = case_when(\n           est_03 == 1 | est_04 == 1 | est_05 == 1 | est_06 == 1 | est_09 &lt; 7 ~ 1L,\n           est_10 == 1 ~ 2L,\n           est_10 == 2 ~ 3L,\n           .default = 4L # Default to OLF\n         ),\n         employed = (lstatus == 1),\n         # Salaried status (1. paid employee; 2 self-employed)\n         salaried = ifelse(!is.na(emp_11a), 1L, \n                           ifelse(is.na(emp_11a) & employed == TRUE, 0L, NA_integer_))\n         ) |&gt;\n  rename(rel = mem_03) # |&gt; \n  # select(hhid, pid, gender, age, head, rel, zone, marz, urb_rur, educy,\n  #        lstatus, employed, salaried, )  \n\nCount the number of employed persons by household.\n\ndemographics &lt;- demographics |&gt; \n  mutate(employed = (lstatus == 1)) |&gt; \n  group_by(hhid) |&gt; \n  mutate(employed_hh = sum(employed, na.rm = TRUE)) |&gt;  # Count within each household \n  ungroup() \n\nHere the original Stata code calculates income variables and aggregates them by household. We skip that because the dataset “ic” already has these elements calculated by the WB poverty team. We’ll add them later.\nPrimary and Secondary Job income\n\nemp_11 11.How much was %rostertitle%’s payment for wages/salary/income for last month?\nemp_12 12.What period of time was the wage/income for?\nemp_25 25.How much was %rostertitle%’s payment for wages/salary/income for last month?\nemp_26 26.What period of time was the wage/income for?\n\nBonus, In-Kind, and food from job was not asked in Armenia, If it were, you should add a mutate() statement like the ones below for each subcategory.",
+    "crumbs": [
+      "Home",
+      "Supporting materials",
+      "Armenia CCDR Microsimulation"
+    ]
   }
 ]
