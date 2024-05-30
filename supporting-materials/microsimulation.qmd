@@ -1028,7 +1028,7 @@ gender_code <- c(
 
 cohort_code <- pop_targets_2030$pct_total
 
-#lmarket <- c(0.1345, 0.05, 0.26, 0.2490, 0.3065)
+# Four digits are better than two in this case, raking is quite accurate.
 lmarket <- c(0.1341, 0.0494, 0.2611, 0.2472, 0.3082)
 
 # Target list
@@ -1250,8 +1250,8 @@ test <- ca_microsim %>%
   rename(poor_original = poor_Avpovln2022_old,
          poor_2030 = poor_Avpovln2022) %>%
   group_by(poor_original) %>% 
-  summarise(no_hh = round(sum(weight_old, na.rm = TRUE)),
-            no_pp = round(sum(weight_old * hhsize, na.rm = TRUE))) %>% 
+  summarise(no_hh = round(sum(weight, na.rm = TRUE)),
+            no_pp = round(sum(weight * hhsize, na.rm = TRUE))) %>% 
   ungroup()
 
 
