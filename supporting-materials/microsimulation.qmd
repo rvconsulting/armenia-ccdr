@@ -149,6 +149,10 @@ pp <- read_sav(
 ca  <- read_dta("data/ARM-HH-survey/CONSAGG2022.dta")
 # Processed income at household level (ic)
 ic  <- read_dta("data/ARM-HH-survey/totinc.dta") 
+
+# Food diary
+food_with_prices <- read_dta("data/ARM-HH-survey/FOOD_with_prices.dta")
+
 ```
 
 We will work non-destructively, meaning we will not rewrite these data sets and we will only create intermediate data frame objects from them to perform transformations, selections and other data management tasks. For example, we will keep household assignment to poverty status and consumption deciles handy by creating a subset of our `ca` data with only our household identifiers, deciles, and poverty.
@@ -1562,75 +1566,55 @@ ca_microsim_cc <- ca_microsim_cc %>%
   left_join(price_data_yearsto, join_by(decile==decile))
 ```
 
-Since we don't have quantities for the aggregate food expenditure category or for the aggregate energy bundle, we assume a price of 1 in the survey year. We estimate elasticitiesand assign them to homes by decile.
+Since we don't have quantities for the aggregate food expenditure category or for the aggregate energy bundle, we assume a price of 1 in the survey year.
+
+We will estimate price elasticities for a single "food" commodity from the consumption aggregate `FOOD_with_prices` dataset. We add decile data to the original.
 
 ```{r}
+food_summary <- food_with_prices %>% 
+  left_join(deciles, join_by(hhid))
 
-# Calculate implicit price as total expenditure on food divided by food consumption
-ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(implicit_price = aec_r / food1)
-
-# Log-transform the relevant variables
-ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(log_food1 = log(food1),
-         log_implicit_price = log(implicit_price),
-         log_aec_r = log(aec_r))
-
-# Check for missing values and data distribution
-#summary(ca_microsim_cc)
-
-# summarise the data for variability within each decile
-ca_summary <- ca_microsim_cc %>%
-  group_by(decile) %>%
+# Step 1: Summarize the data at the household level
+food_summary <- food_summary %>%
+  group_by(hhid, decile) %>%
   summarise(
-    log_food1_mean = mean(log_food1, na.rm = TRUE),
-    log_food1_sd = sd(log_food1, na.rm = TRUE),
-    log_implicit_price_mean = mean(log_implicit_price, na.rm = TRUE),
-    log_implicit_price_sd = sd(log_implicit_price, na.rm = TRUE)
+    total_quantity = sum(q, na.rm = TRUE),
+    weighted_price = sum(avrpr_mean * q, na.rm = TRUE) / sum(q, na.rm = TRUE),
+    .groups = 'drop'
   )
 
-print(ca_summary)
-
-# Visual inspection
-ggplot(ca_microsim_cc, aes(x = log_implicit_price, y = log_food1)) +
-  geom_point() +
-  facet_wrap(~ decile) +
-  labs(title = "Log Food Consumption vs. Log Implicit Price by Decile",
-       x = "Log Implicit Price", y = "Log Food Consumption")
-
-# Create a function to fit the simplified model and extract the price elasticity
+# Define a function to fit the model and extract the elasticity
 fit_model <- function(data) {
-  model <- lm(log_food1 ~ log_implicit_price, data = data)
-  tidy(model)
+  model <- lm(log(total_quantity) ~ log(weighted_price), data = data)
+  coef(model)["log(weighted_price)"]
 }
 
-# Apply the simplified model fitting function by decile
-decile_models <- ca_microsim_cc %>%
+# Apply the model fitting function by decile
+decile_models <- food_summary %>%
   group_by(decile) %>%
   nest() %>%
-  mutate(model = map(data, fit_model)) %>%
-  unnest(model) %>%
-  filter(term == "log_implicit_price") %>%
-  select(decile, price_elasticity = estimate)
+  mutate(price_elasticity = map_dbl(data, fit_model)) %>%
+  select(decile, price_elasticity) %>% 
+  mutate(price_elasticity = if_else(price_elasticity >0,
+                                    price_elasticity *(-1),
+                                    price_elasticity))
 
-# Extracting the price elasticity for each decile
-food_decile_elasticities <- decile_models %>%
-  select(decile, price_elasticity)
-
-# Print the results
-print(food_decile_elasticities)
+decile_models
 
 ```
+
+Let's add back the elasticity data to the analysis dataset.
+
+```{r}
+ca_microsim_cc <- ca_microsim_cc %>%
+  left_join(decile_models, by = "decile")
+```
+
 
 
 Let's apply the elasticities to the new data.
 
 ```{r}
-
-# Merge elasticities
-ca_microsim_cc <- ca_microsim_cc %>%
-  left_join(food_decile_elasticities, by = "decile")
-
 # Calculate the implicit price
 # Assuming implicit_price can be calculated from the expenditure (food1)
 # If we assume baseline quantity consumed is proportional to expenditure/price
@@ -1645,8 +1629,11 @@ ca_microsim_cc <- ca_microsim_cc %>%
 
 # Estimate the new food consumption levels
 ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(food_q1_sim = food_quantity * (1 + food_1_dprice * price_elasticity),
-         food_q2_sim = food_quantity * (1 + food_2_dprice * price_elasticity))
+  mutate(
+    food_q1_sim = food_quantity * 
+      (1 + food_1_dprice * price_elasticity),
+    food_q2_sim = food_quantity * 
+      (1 + food_2_dprice * price_elasticity))
 
 # Calculate the new expenditure levels
 ca_microsim_cc <- ca_microsim_cc %>%
@@ -1749,14 +1736,12 @@ And now we see who became poor
 # We make a table to see who became poor. 
 test <- ca_microsim_cc
 
-test$ones <- 1
-
 test <- test%>%
   rename(poor_original = poor_Avpovln2022,
          poor_cc = poor_cc_avg,
          poor_cc_food1 = poor_cc_avg_food1,
          poor_cc_food2 = poor_cc_avg_food2) %>%
-  group_by(poor_original, poor_cc) %>% 
+  group_by(poor_original, poor_cc_food1) %>% 
   summarise(no_hh = round(sum(weight, na.rm = TRUE)),
             no_pp = round(sum(weight*hhsize, na.rm = TRUE)))
 
@@ -1826,34 +1811,5 @@ write.table(
 
 ## End
 
-Tasks for today:
 
-Reweight the dataset
-
-* Determine the numbers for the labor market reweighting for 2030. [v]
-* Reweight and rescale the weights. [v]
-* Determine by how much to rescale the wage bill. [v]
-* Recalculate labor income. [v]
-* Recalculate total income. [v]
-* Determine delta total income and change total expenditure. [v]
-* Poverty [v]
-
-Review price elasticities
-
-* Look for average prices in underlying data.
-* Reestimate based on adjusted food expenditure by family members.
-* Rerun elasticities.
-* Reestimate poverty.
-
-Bring back poverty to people's dataset.
-
-* Evaluate poverty among women.
-* Poverty among urban rural.
-* Poverty by marz.
-* Youth?
-
-Write draft.
-
-* Make tables of everything.
-* Make maps of everything.
 

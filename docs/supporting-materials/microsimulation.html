@@ -426,7 +426,10 @@ div.csl-indent {
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Consumption aggregate at household level (ca)</span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>ca  <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"data/ARM-HH-survey/CONSAGG2022.dta"</span>)</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Processed income at household level (ic)</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>ic  <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"data/ARM-HH-survey/totinc.dta"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>ic  <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"data/ARM-HH-survey/totinc.dta"</span>) </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Food diary</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>food_with_prices <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"data/ARM-HH-survey/FOOD_with_prices.dta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We will work non-destructively, meaning we will not rewrite these data sets and we will only create intermediate data frame objects from them to perform transformations, selections and other data management tasks. For example, we will keep household assignment to poverty status and consumption deciles handy by creating a subset of our <code>ca</code> data with only our household identifiers, deciles, and poverty.</p>
 <div class="cell">
@@ -1563,23 +1566,23 @@ Total           0</code></pre>
 <span id="cb82-25"><a href="#cb82-25" aria-hidden="true" tabindex="-1"></a>wages_by_sector <span class="sc">%&gt;%</span></span>
 <span id="cb82-26"><a href="#cb82-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="goyujzfzpm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#goyujzfzpm table {
+<div id="tcdqdptkhg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tcdqdptkhg table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#goyujzfzpm thead, #goyujzfzpm tbody, #goyujzfzpm tfoot, #goyujzfzpm tr, #goyujzfzpm td, #goyujzfzpm th {
+#tcdqdptkhg thead, #tcdqdptkhg tbody, #tcdqdptkhg tfoot, #tcdqdptkhg tr, #tcdqdptkhg td, #tcdqdptkhg th {
   border-style: none;
 }
 
-#goyujzfzpm p {
+#tcdqdptkhg p {
   margin: 0;
   padding: 0;
 }
 
-#goyujzfzpm .gt_table {
+#tcdqdptkhg .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1605,12 +1608,12 @@ Total           0</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_caption {
+#tcdqdptkhg .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#goyujzfzpm .gt_title {
+#tcdqdptkhg .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1622,7 +1625,7 @@ Total           0</code></pre>
   border-bottom-width: 0;
 }
 
-#goyujzfzpm .gt_subtitle {
+#tcdqdptkhg .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1634,7 +1637,7 @@ Total           0</code></pre>
   border-top-width: 0;
 }
 
-#goyujzfzpm .gt_heading {
+#tcdqdptkhg .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1646,13 +1649,13 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_bottom_border {
+#tcdqdptkhg .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_col_headings {
+#tcdqdptkhg .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1667,7 +1670,7 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_col_heading {
+#tcdqdptkhg .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1687,7 +1690,7 @@ Total           0</code></pre>
   overflow-x: hidden;
 }
 
-#goyujzfzpm .gt_column_spanner_outer {
+#tcdqdptkhg .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1699,15 +1702,15 @@ Total           0</code></pre>
   padding-right: 4px;
 }
 
-#goyujzfzpm .gt_column_spanner_outer:first-child {
+#tcdqdptkhg .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#goyujzfzpm .gt_column_spanner_outer:last-child {
+#tcdqdptkhg .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#goyujzfzpm .gt_column_spanner {
+#tcdqdptkhg .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1719,11 +1722,11 @@ Total           0</code></pre>
   width: 100%;
 }
 
-#goyujzfzpm .gt_spanner_row {
+#tcdqdptkhg .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#goyujzfzpm .gt_group_heading {
+#tcdqdptkhg .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1749,7 +1752,7 @@ Total           0</code></pre>
   text-align: left;
 }
 
-#goyujzfzpm .gt_empty_group_heading {
+#tcdqdptkhg .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1764,15 +1767,15 @@ Total           0</code></pre>
   vertical-align: middle;
 }
 
-#goyujzfzpm .gt_from_md > :first-child {
+#tcdqdptkhg .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#goyujzfzpm .gt_from_md > :last-child {
+#tcdqdptkhg .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#goyujzfzpm .gt_row {
+#tcdqdptkhg .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1791,7 +1794,7 @@ Total           0</code></pre>
   overflow-x: hidden;
 }
 
-#goyujzfzpm .gt_stub {
+#tcdqdptkhg .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1804,7 +1807,7 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#goyujzfzpm .gt_stub_row_group {
+#tcdqdptkhg .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1818,15 +1821,15 @@ Total           0</code></pre>
   vertical-align: top;
 }
 
-#goyujzfzpm .gt_row_group_first td {
+#tcdqdptkhg .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#goyujzfzpm .gt_row_group_first th {
+#tcdqdptkhg .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#goyujzfzpm .gt_summary_row {
+#tcdqdptkhg .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1836,16 +1839,16 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#goyujzfzpm .gt_first_summary_row {
+#tcdqdptkhg .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_first_summary_row.thick {
+#tcdqdptkhg .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#goyujzfzpm .gt_last_summary_row {
+#tcdqdptkhg .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1855,7 +1858,7 @@ Total           0</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_grand_summary_row {
+#tcdqdptkhg .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1865,7 +1868,7 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#goyujzfzpm .gt_first_grand_summary_row {
+#tcdqdptkhg .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1875,7 +1878,7 @@ Total           0</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_last_grand_summary_row_top {
+#tcdqdptkhg .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1885,11 +1888,11 @@ Total           0</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_striped {
+#tcdqdptkhg .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#goyujzfzpm .gt_table_body {
+#tcdqdptkhg .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1898,7 +1901,7 @@ Total           0</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_footnotes {
+#tcdqdptkhg .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1912,7 +1915,7 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_footnote {
+#tcdqdptkhg .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1921,7 +1924,7 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#goyujzfzpm .gt_sourcenotes {
+#tcdqdptkhg .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1935,7 +1938,7 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#goyujzfzpm .gt_sourcenote {
+#tcdqdptkhg .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1943,63 +1946,63 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#goyujzfzpm .gt_left {
+#tcdqdptkhg .gt_left {
   text-align: left;
 }
 
-#goyujzfzpm .gt_center {
+#tcdqdptkhg .gt_center {
   text-align: center;
 }
 
-#goyujzfzpm .gt_right {
+#tcdqdptkhg .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#goyujzfzpm .gt_font_normal {
+#tcdqdptkhg .gt_font_normal {
   font-weight: normal;
 }
 
-#goyujzfzpm .gt_font_bold {
+#tcdqdptkhg .gt_font_bold {
   font-weight: bold;
 }
 
-#goyujzfzpm .gt_font_italic {
+#tcdqdptkhg .gt_font_italic {
   font-style: italic;
 }
 
-#goyujzfzpm .gt_super {
+#tcdqdptkhg .gt_super {
   font-size: 65%;
 }
 
-#goyujzfzpm .gt_footnote_marks {
+#tcdqdptkhg .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#goyujzfzpm .gt_asterisk {
+#tcdqdptkhg .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#goyujzfzpm .gt_indent_1 {
+#tcdqdptkhg .gt_indent_1 {
   text-indent: 5px;
 }
 
-#goyujzfzpm .gt_indent_2 {
+#tcdqdptkhg .gt_indent_2 {
   text-indent: 10px;
 }
 
-#goyujzfzpm .gt_indent_3 {
+#tcdqdptkhg .gt_indent_3 {
   text-indent: 15px;
 }
 
-#goyujzfzpm .gt_indent_4 {
+#tcdqdptkhg .gt_indent_4 {
   text-indent: 20px;
 }
 
-#goyujzfzpm .gt_indent_5 {
+#tcdqdptkhg .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2138,23 +2141,23 @@ Total           0</code></pre>
 <span id="cb86-17"><a href="#cb86-17" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span> </span>
 <span id="cb86-18"><a href="#cb86-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="vipxgqsjys" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#vipxgqsjys table {
+<div id="ieaqviyidd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ieaqviyidd table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#vipxgqsjys thead, #vipxgqsjys tbody, #vipxgqsjys tfoot, #vipxgqsjys tr, #vipxgqsjys td, #vipxgqsjys th {
+#ieaqviyidd thead, #ieaqviyidd tbody, #ieaqviyidd tfoot, #ieaqviyidd tr, #ieaqviyidd td, #ieaqviyidd th {
   border-style: none;
 }
 
-#vipxgqsjys p {
+#ieaqviyidd p {
   margin: 0;
   padding: 0;
 }
 
-#vipxgqsjys .gt_table {
+#ieaqviyidd .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2180,12 +2183,12 @@ Total           0</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_caption {
+#ieaqviyidd .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#vipxgqsjys .gt_title {
+#ieaqviyidd .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2197,7 +2200,7 @@ Total           0</code></pre>
   border-bottom-width: 0;
 }
 
-#vipxgqsjys .gt_subtitle {
+#ieaqviyidd .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2209,7 +2212,7 @@ Total           0</code></pre>
   border-top-width: 0;
 }
 
-#vipxgqsjys .gt_heading {
+#ieaqviyidd .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2221,13 +2224,13 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_bottom_border {
+#ieaqviyidd .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_col_headings {
+#ieaqviyidd .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2242,7 +2245,7 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_col_heading {
+#ieaqviyidd .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2262,7 +2265,7 @@ Total           0</code></pre>
   overflow-x: hidden;
 }
 
-#vipxgqsjys .gt_column_spanner_outer {
+#ieaqviyidd .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2274,15 +2277,15 @@ Total           0</code></pre>
   padding-right: 4px;
 }
 
-#vipxgqsjys .gt_column_spanner_outer:first-child {
+#ieaqviyidd .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#vipxgqsjys .gt_column_spanner_outer:last-child {
+#ieaqviyidd .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#vipxgqsjys .gt_column_spanner {
+#ieaqviyidd .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2294,11 +2297,11 @@ Total           0</code></pre>
   width: 100%;
 }
 
-#vipxgqsjys .gt_spanner_row {
+#ieaqviyidd .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#vipxgqsjys .gt_group_heading {
+#ieaqviyidd .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2324,7 +2327,7 @@ Total           0</code></pre>
   text-align: left;
 }
 
-#vipxgqsjys .gt_empty_group_heading {
+#ieaqviyidd .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2339,15 +2342,15 @@ Total           0</code></pre>
   vertical-align: middle;
 }
 
-#vipxgqsjys .gt_from_md > :first-child {
+#ieaqviyidd .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#vipxgqsjys .gt_from_md > :last-child {
+#ieaqviyidd .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#vipxgqsjys .gt_row {
+#ieaqviyidd .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2366,7 +2369,7 @@ Total           0</code></pre>
   overflow-x: hidden;
 }
 
-#vipxgqsjys .gt_stub {
+#ieaqviyidd .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2379,7 +2382,7 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#vipxgqsjys .gt_stub_row_group {
+#ieaqviyidd .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2393,15 +2396,15 @@ Total           0</code></pre>
   vertical-align: top;
 }
 
-#vipxgqsjys .gt_row_group_first td {
+#ieaqviyidd .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#vipxgqsjys .gt_row_group_first th {
+#ieaqviyidd .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#vipxgqsjys .gt_summary_row {
+#ieaqviyidd .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2411,16 +2414,16 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#vipxgqsjys .gt_first_summary_row {
+#ieaqviyidd .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_first_summary_row.thick {
+#ieaqviyidd .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#vipxgqsjys .gt_last_summary_row {
+#ieaqviyidd .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2430,7 +2433,7 @@ Total           0</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_grand_summary_row {
+#ieaqviyidd .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2440,7 +2443,7 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#vipxgqsjys .gt_first_grand_summary_row {
+#ieaqviyidd .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2450,7 +2453,7 @@ Total           0</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_last_grand_summary_row_top {
+#ieaqviyidd .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2460,11 +2463,11 @@ Total           0</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_striped {
+#ieaqviyidd .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#vipxgqsjys .gt_table_body {
+#ieaqviyidd .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2473,7 +2476,7 @@ Total           0</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_footnotes {
+#ieaqviyidd .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2487,7 +2490,7 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_footnote {
+#ieaqviyidd .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2496,7 +2499,7 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#vipxgqsjys .gt_sourcenotes {
+#ieaqviyidd .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2510,7 +2513,7 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#vipxgqsjys .gt_sourcenote {
+#ieaqviyidd .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2518,63 +2521,63 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#vipxgqsjys .gt_left {
+#ieaqviyidd .gt_left {
   text-align: left;
 }
 
-#vipxgqsjys .gt_center {
+#ieaqviyidd .gt_center {
   text-align: center;
 }
 
-#vipxgqsjys .gt_right {
+#ieaqviyidd .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#vipxgqsjys .gt_font_normal {
+#ieaqviyidd .gt_font_normal {
   font-weight: normal;
 }
 
-#vipxgqsjys .gt_font_bold {
+#ieaqviyidd .gt_font_bold {
   font-weight: bold;
 }
 
-#vipxgqsjys .gt_font_italic {
+#ieaqviyidd .gt_font_italic {
   font-style: italic;
 }
 
-#vipxgqsjys .gt_super {
+#ieaqviyidd .gt_super {
   font-size: 65%;
 }
 
-#vipxgqsjys .gt_footnote_marks {
+#ieaqviyidd .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#vipxgqsjys .gt_asterisk {
+#ieaqviyidd .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#vipxgqsjys .gt_indent_1 {
+#ieaqviyidd .gt_indent_1 {
   text-indent: 5px;
 }
 
-#vipxgqsjys .gt_indent_2 {
+#ieaqviyidd .gt_indent_2 {
   text-indent: 10px;
 }
 
-#vipxgqsjys .gt_indent_3 {
+#ieaqviyidd .gt_indent_3 {
   text-indent: 15px;
 }
 
-#vipxgqsjys .gt_indent_4 {
+#ieaqviyidd .gt_indent_4 {
   text-indent: 20px;
 }
 
-#vipxgqsjys .gt_indent_5 {
+#ieaqviyidd .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2854,23 +2857,23 @@ Total           0</code></pre>
 the `.groups` argument.</code></pre>
 </div>
 <div class="cell-output-display">
-<div id="sjxqcsobva" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#sjxqcsobva table {
+<div id="rspiukduuq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rspiukduuq table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#sjxqcsobva thead, #sjxqcsobva tbody, #sjxqcsobva tfoot, #sjxqcsobva tr, #sjxqcsobva td, #sjxqcsobva th {
+#rspiukduuq thead, #rspiukduuq tbody, #rspiukduuq tfoot, #rspiukduuq tr, #rspiukduuq td, #rspiukduuq th {
   border-style: none;
 }
 
-#sjxqcsobva p {
+#rspiukduuq p {
   margin: 0;
   padding: 0;
 }
 
-#sjxqcsobva .gt_table {
+#rspiukduuq .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2896,12 +2899,12 @@ the `.groups` argument.</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_caption {
+#rspiukduuq .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#sjxqcsobva .gt_title {
+#rspiukduuq .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2913,7 +2916,7 @@ the `.groups` argument.</code></pre>
   border-bottom-width: 0;
 }
 
-#sjxqcsobva .gt_subtitle {
+#rspiukduuq .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2925,7 +2928,7 @@ the `.groups` argument.</code></pre>
   border-top-width: 0;
 }
 
-#sjxqcsobva .gt_heading {
+#rspiukduuq .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2937,13 +2940,13 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_bottom_border {
+#rspiukduuq .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_col_headings {
+#rspiukduuq .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2958,7 +2961,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_col_heading {
+#rspiukduuq .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2978,7 +2981,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#sjxqcsobva .gt_column_spanner_outer {
+#rspiukduuq .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2990,15 +2993,15 @@ the `.groups` argument.</code></pre>
   padding-right: 4px;
 }
 
-#sjxqcsobva .gt_column_spanner_outer:first-child {
+#rspiukduuq .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#sjxqcsobva .gt_column_spanner_outer:last-child {
+#rspiukduuq .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#sjxqcsobva .gt_column_spanner {
+#rspiukduuq .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3010,11 +3013,11 @@ the `.groups` argument.</code></pre>
   width: 100%;
 }
 
-#sjxqcsobva .gt_spanner_row {
+#rspiukduuq .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#sjxqcsobva .gt_group_heading {
+#rspiukduuq .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3040,7 +3043,7 @@ the `.groups` argument.</code></pre>
   text-align: left;
 }
 
-#sjxqcsobva .gt_empty_group_heading {
+#rspiukduuq .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3055,15 +3058,15 @@ the `.groups` argument.</code></pre>
   vertical-align: middle;
 }
 
-#sjxqcsobva .gt_from_md > :first-child {
+#rspiukduuq .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#sjxqcsobva .gt_from_md > :last-child {
+#rspiukduuq .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#sjxqcsobva .gt_row {
+#rspiukduuq .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3082,7 +3085,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#sjxqcsobva .gt_stub {
+#rspiukduuq .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3095,7 +3098,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#sjxqcsobva .gt_stub_row_group {
+#rspiukduuq .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3109,15 +3112,15 @@ the `.groups` argument.</code></pre>
   vertical-align: top;
 }
 
-#sjxqcsobva .gt_row_group_first td {
+#rspiukduuq .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#sjxqcsobva .gt_row_group_first th {
+#rspiukduuq .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#sjxqcsobva .gt_summary_row {
+#rspiukduuq .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3127,16 +3130,16 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#sjxqcsobva .gt_first_summary_row {
+#rspiukduuq .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_first_summary_row.thick {
+#rspiukduuq .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#sjxqcsobva .gt_last_summary_row {
+#rspiukduuq .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3146,7 +3149,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_grand_summary_row {
+#rspiukduuq .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3156,7 +3159,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#sjxqcsobva .gt_first_grand_summary_row {
+#rspiukduuq .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3166,7 +3169,7 @@ the `.groups` argument.</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_last_grand_summary_row_top {
+#rspiukduuq .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3176,11 +3179,11 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_striped {
+#rspiukduuq .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#sjxqcsobva .gt_table_body {
+#rspiukduuq .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3189,7 +3192,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_footnotes {
+#rspiukduuq .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3203,7 +3206,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_footnote {
+#rspiukduuq .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3212,7 +3215,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#sjxqcsobva .gt_sourcenotes {
+#rspiukduuq .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3226,7 +3229,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#sjxqcsobva .gt_sourcenote {
+#rspiukduuq .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3234,63 +3237,63 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#sjxqcsobva .gt_left {
+#rspiukduuq .gt_left {
   text-align: left;
 }
 
-#sjxqcsobva .gt_center {
+#rspiukduuq .gt_center {
   text-align: center;
 }
 
-#sjxqcsobva .gt_right {
+#rspiukduuq .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#sjxqcsobva .gt_font_normal {
+#rspiukduuq .gt_font_normal {
   font-weight: normal;
 }
 
-#sjxqcsobva .gt_font_bold {
+#rspiukduuq .gt_font_bold {
   font-weight: bold;
 }
 
-#sjxqcsobva .gt_font_italic {
+#rspiukduuq .gt_font_italic {
   font-style: italic;
 }
 
-#sjxqcsobva .gt_super {
+#rspiukduuq .gt_super {
   font-size: 65%;
 }
 
-#sjxqcsobva .gt_footnote_marks {
+#rspiukduuq .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#sjxqcsobva .gt_asterisk {
+#rspiukduuq .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#sjxqcsobva .gt_indent_1 {
+#rspiukduuq .gt_indent_1 {
   text-indent: 5px;
 }
 
-#sjxqcsobva .gt_indent_2 {
+#rspiukduuq .gt_indent_2 {
   text-indent: 10px;
 }
 
-#sjxqcsobva .gt_indent_3 {
+#rspiukduuq .gt_indent_3 {
   text-indent: 15px;
 }
 
-#sjxqcsobva .gt_indent_4 {
+#rspiukduuq .gt_indent_4 {
   text-indent: 20px;
 }
 
-#sjxqcsobva .gt_indent_5 {
+#rspiukduuq .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -3359,143 +3362,103 @@ the `.groups` argument.</code></pre>
 <span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span> </span>
 <span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(price_data_yearsto, <span class="fu">join_by</span>(decile<span class="sc">==</span>decile))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Since we don’t have quantities for the aggregate food expenditure category or for the aggregate energy bundle, we assume a price of 1 in the survey year. We estimate elasticitiesand assign them to homes by decile.</p>
+<p>Since we don’t have quantities for the aggregate food expenditure category or for the aggregate energy bundle, we assume a price of 1 in the survey year.</p>
+<p>We will estimate price elasticities for a single “food” commodity from the consumption aggregate <code>FOOD_with_prices</code> dataset. We add decile data to the original.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate implicit price as total expenditure on food divided by food consumption</span></span>
-<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">implicit_price =</span> aec_r <span class="sc">/</span> food1)</span>
-<span id="cb102-4"><a href="#cb102-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb102-5"><a href="#cb102-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Log-transform the relevant variables</span></span>
-<span id="cb102-6"><a href="#cb102-6" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb102-7"><a href="#cb102-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log_food1 =</span> <span class="fu">log</span>(food1),</span>
-<span id="cb102-8"><a href="#cb102-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">log_implicit_price =</span> <span class="fu">log</span>(implicit_price),</span>
-<span id="cb102-9"><a href="#cb102-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">log_aec_r =</span> <span class="fu">log</span>(aec_r))</span>
-<span id="cb102-10"><a href="#cb102-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb102-11"><a href="#cb102-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for missing values and data distribution</span></span>
-<span id="cb102-12"><a href="#cb102-12" aria-hidden="true" tabindex="-1"></a><span class="co">#summary(ca_microsim_cc)</span></span>
-<span id="cb102-13"><a href="#cb102-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb102-14"><a href="#cb102-14" aria-hidden="true" tabindex="-1"></a><span class="co"># summarise the data for variability within each decile</span></span>
-<span id="cb102-15"><a href="#cb102-15" aria-hidden="true" tabindex="-1"></a>ca_summary <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb102-16"><a href="#cb102-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(decile) <span class="sc">%&gt;%</span></span>
-<span id="cb102-17"><a href="#cb102-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb102-18"><a href="#cb102-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_food1_mean =</span> <span class="fu">mean</span>(log_food1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb102-19"><a href="#cb102-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_food1_sd =</span> <span class="fu">sd</span>(log_food1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb102-20"><a href="#cb102-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_implicit_price_mean =</span> <span class="fu">mean</span>(log_implicit_price, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb102-21"><a href="#cb102-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_implicit_price_sd =</span> <span class="fu">sd</span>(log_implicit_price, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb102-22"><a href="#cb102-22" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb102-23"><a href="#cb102-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb102-24"><a href="#cb102-24" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ca_summary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 5
-   decile log_food1_mean log_food1_sd log_implicit_price_mean
-    &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;                   &lt;dbl&gt;
- 1      1           11.1        0.415                 -0.562 
- 2      2           11.1        0.459                 -0.397 
- 3      3           11.2        0.510                 -0.329 
- 4      4           11.3        0.528                 -0.250 
- 5      5           11.3        0.541                 -0.153 
- 6      6           11.3        0.577                 -0.0370
- 7      7           11.3        0.580                 -0.0258
- 8      8           11.3        0.592                  0.0875
- 9      9           11.3        0.620                  0.283 
-10     10           11.2        0.582                  0.761 
-# ℹ 1 more variable: log_implicit_price_sd &lt;dbl&gt;</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visual inspection</span></span>
-<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ca_microsim_cc, <span class="fu">aes</span>(<span class="at">x =</span> log_implicit_price, <span class="at">y =</span> log_food1)) <span class="sc">+</span></span>
-<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> decile) <span class="sc">+</span></span>
-<span id="cb104-5"><a href="#cb104-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Log Food Consumption vs. Log Implicit Price by Decile"</span>,</span>
-<span id="cb104-6"><a href="#cb104-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Log Implicit Price"</span>, <span class="at">y =</span> <span class="st">"Log Food Consumption"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="microsimulation_files/figure-html/unnamed-chunk-72-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a function to fit the simplified model and extract the price elasticity</span></span>
-<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>fit_model <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
-<span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">lm</span>(log_food1 <span class="sc">~</span> log_implicit_price, <span class="at">data =</span> data)</span>
-<span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(model)</span>
-<span id="cb105-5"><a href="#cb105-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb105-6"><a href="#cb105-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb105-7"><a href="#cb105-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply the simplified model fitting function by decile</span></span>
-<span id="cb105-8"><a href="#cb105-8" aria-hidden="true" tabindex="-1"></a>decile_models <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb105-9"><a href="#cb105-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(decile) <span class="sc">%&gt;%</span></span>
-<span id="cb105-10"><a href="#cb105-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb105-11"><a href="#cb105-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">model =</span> <span class="fu">map</span>(data, fit_model)) <span class="sc">%&gt;%</span></span>
-<span id="cb105-12"><a href="#cb105-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(model) <span class="sc">%&gt;%</span></span>
-<span id="cb105-13"><a href="#cb105-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"log_implicit_price"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb105-14"><a href="#cb105-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(decile, <span class="at">price_elasticity =</span> estimate)</span>
-<span id="cb105-15"><a href="#cb105-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb105-16"><a href="#cb105-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting the price elasticity for each decile</span></span>
-<span id="cb105-17"><a href="#cb105-17" aria-hidden="true" tabindex="-1"></a>food_decile_elasticities <span class="ot">&lt;-</span> decile_models <span class="sc">%&gt;%</span></span>
-<span id="cb105-18"><a href="#cb105-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(decile, price_elasticity)</span>
-<span id="cb105-19"><a href="#cb105-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb105-20"><a href="#cb105-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the results</span></span>
-<span id="cb105-21"><a href="#cb105-21" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(food_decile_elasticities)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>food_summary <span class="ot">&lt;-</span> food_with_prices <span class="sc">%&gt;%</span> </span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(deciles, <span class="fu">join_by</span>(hhid))</span>
+<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb102-4"><a href="#cb102-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Summarize the data at the household level</span></span>
+<span id="cb102-5"><a href="#cb102-5" aria-hidden="true" tabindex="-1"></a>food_summary <span class="ot">&lt;-</span> food_summary <span class="sc">%&gt;%</span></span>
+<span id="cb102-6"><a href="#cb102-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(hhid, decile) <span class="sc">%&gt;%</span></span>
+<span id="cb102-7"><a href="#cb102-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb102-8"><a href="#cb102-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_quantity =</span> <span class="fu">sum</span>(q, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb102-9"><a href="#cb102-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">weighted_price =</span> <span class="fu">sum</span>(avrpr_mean <span class="sc">*</span> q, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">sum</span>(q, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb102-10"><a href="#cb102-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">'drop'</span></span>
+<span id="cb102-11"><a href="#cb102-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb102-12"><a href="#cb102-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb102-13"><a href="#cb102-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a function to fit the model and extract the elasticity</span></span>
+<span id="cb102-14"><a href="#cb102-14" aria-hidden="true" tabindex="-1"></a>fit_model <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb102-15"><a href="#cb102-15" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(total_quantity) <span class="sc">~</span> <span class="fu">log</span>(weighted_price), <span class="at">data =</span> data)</span>
+<span id="cb102-16"><a href="#cb102-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(model)[<span class="st">"log(weighted_price)"</span>]</span>
+<span id="cb102-17"><a href="#cb102-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb102-18"><a href="#cb102-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb102-19"><a href="#cb102-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply the model fitting function by decile</span></span>
+<span id="cb102-20"><a href="#cb102-20" aria-hidden="true" tabindex="-1"></a>decile_models <span class="ot">&lt;-</span> food_summary <span class="sc">%&gt;%</span></span>
+<span id="cb102-21"><a href="#cb102-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(decile) <span class="sc">%&gt;%</span></span>
+<span id="cb102-22"><a href="#cb102-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb102-23"><a href="#cb102-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">price_elasticity =</span> <span class="fu">map_dbl</span>(data, fit_model)) <span class="sc">%&gt;%</span></span>
+<span id="cb102-24"><a href="#cb102-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(decile, price_elasticity) <span class="sc">%&gt;%</span> </span>
+<span id="cb102-25"><a href="#cb102-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">price_elasticity =</span> <span class="fu">if_else</span>(price_elasticity <span class="sc">&gt;</span><span class="dv">0</span>,</span>
+<span id="cb102-26"><a href="#cb102-26" aria-hidden="true" tabindex="-1"></a>                                    price_elasticity <span class="sc">*</span>(<span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb102-27"><a href="#cb102-27" aria-hidden="true" tabindex="-1"></a>                                    price_elasticity))</span>
+<span id="cb102-28"><a href="#cb102-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb102-29"><a href="#cb102-29" aria-hidden="true" tabindex="-1"></a>decile_models</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 10 × 2
 # Groups:   decile [10]
    decile price_elasticity
     &lt;dbl&gt;            &lt;dbl&gt;
- 1      9           -0.964
- 2      7           -0.971
- 3      2           -0.980
- 4      4           -0.977
- 5     10           -0.759
- 6      8           -0.968
- 7      5           -0.984
- 8      6           -0.977
- 9      3           -0.972
-10      1           -0.929</code></pre>
+ 1     10         -0.206  
+ 2      8         -0.00939
+ 3      2         -0.360  
+ 4      3         -0.428  
+ 5      1         -0.483  
+ 6      9         -0.118  
+ 7      6         -0.116  
+ 8      4         -0.299  
+ 9      5         -0.253  
+10      7         -0.0598 </code></pre>
 </div>
+</div>
+<p>Let’s add back the elasticity data to the analysis dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(decile_models, <span class="at">by =</span> <span class="st">"decile"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let’s apply the elasticities to the new data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge elasticities</span></span>
-<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(food_decile_elasticities, <span class="at">by =</span> <span class="st">"decile"</span>)</span>
-<span id="cb107-4"><a href="#cb107-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb107-5"><a href="#cb107-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the implicit price</span></span>
-<span id="cb107-6"><a href="#cb107-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming implicit_price can be calculated from the expenditure (food1)</span></span>
-<span id="cb107-7"><a href="#cb107-7" aria-hidden="true" tabindex="-1"></a><span class="co"># If we assume baseline quantity consumed is proportional to expenditure/price</span></span>
-<span id="cb107-8"><a href="#cb107-8" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb107-9"><a href="#cb107-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">implicit_price =</span> food1 <span class="sc">/</span> food1,  <span class="co"># This is 1 as we don't have baseline price</span></span>
-<span id="cb107-10"><a href="#cb107-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_quantity =</span> food1 <span class="sc">/</span> implicit_price)</span>
-<span id="cb107-11"><a href="#cb107-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb107-12"><a href="#cb107-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the percentage change in prices for each decile</span></span>
-<span id="cb107-13"><a href="#cb107-13" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb107-14"><a href="#cb107-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food_1_dprice =</span> (food_1_2030 <span class="sc">-</span> <span class="dv">1</span>),</span>
-<span id="cb107-15"><a href="#cb107-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_2_dprice =</span> (food_2_2030 <span class="sc">-</span> <span class="dv">1</span>))</span>
-<span id="cb107-16"><a href="#cb107-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb107-17"><a href="#cb107-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate the new food consumption levels</span></span>
-<span id="cb107-18"><a href="#cb107-18" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb107-19"><a href="#cb107-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food_q1_sim =</span> food_quantity <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">+</span> food_1_dprice <span class="sc">*</span> price_elasticity),</span>
-<span id="cb107-20"><a href="#cb107-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_q2_sim =</span> food_quantity <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">+</span> food_2_dprice <span class="sc">*</span> price_elasticity))</span>
-<span id="cb107-21"><a href="#cb107-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb107-22"><a href="#cb107-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the new expenditure levels</span></span>
-<span id="cb107-23"><a href="#cb107-23" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb107-24"><a href="#cb107-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food_exp1_sim =</span> food_q1_sim <span class="sc">*</span> food_1_2030,</span>
-<span id="cb107-25"><a href="#cb107-25" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_exp2_sim =</span> food_q2_sim <span class="sc">*</span> food_2_2030)</span>
-<span id="cb107-26"><a href="#cb107-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb107-27"><a href="#cb107-27" aria-hidden="true" tabindex="-1"></a><span class="co"># View the results</span></span>
-<span id="cb107-28"><a href="#cb107-28" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ca_microsim_cc <span class="sc">%&gt;%</span> <span class="fu">select</span>(decile, food1, food_1_2030, food_1_dprice, food_q1_sim, food_exp1_sim, food_2_dprice, food_q2_sim, food_exp2_sim))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the implicit price</span></span>
+<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming implicit_price can be calculated from the expenditure (food1)</span></span>
+<span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a><span class="co"># If we assume baseline quantity consumed is proportional to expenditure/price</span></span>
+<span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb105-5"><a href="#cb105-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">implicit_price =</span> food1 <span class="sc">/</span> food1,  <span class="co"># This is 1 as we don't have baseline price</span></span>
+<span id="cb105-6"><a href="#cb105-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_quantity =</span> food1 <span class="sc">/</span> implicit_price)</span>
+<span id="cb105-7"><a href="#cb105-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-8"><a href="#cb105-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the percentage change in prices for each decile</span></span>
+<span id="cb105-9"><a href="#cb105-9" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb105-10"><a href="#cb105-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food_1_dprice =</span> (food_1_2030 <span class="sc">-</span> <span class="dv">1</span>),</span>
+<span id="cb105-11"><a href="#cb105-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_2_dprice =</span> (food_2_2030 <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb105-12"><a href="#cb105-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-13"><a href="#cb105-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate the new food consumption levels</span></span>
+<span id="cb105-14"><a href="#cb105-14" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb105-15"><a href="#cb105-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb105-16"><a href="#cb105-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">food_q1_sim =</span> food_quantity <span class="sc">*</span> </span>
+<span id="cb105-17"><a href="#cb105-17" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">+</span> food_1_dprice <span class="sc">*</span> price_elasticity),</span>
+<span id="cb105-18"><a href="#cb105-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">food_q2_sim =</span> food_quantity <span class="sc">*</span> </span>
+<span id="cb105-19"><a href="#cb105-19" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">+</span> food_2_dprice <span class="sc">*</span> price_elasticity))</span>
+<span id="cb105-20"><a href="#cb105-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-21"><a href="#cb105-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the new expenditure levels</span></span>
+<span id="cb105-22"><a href="#cb105-22" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb105-23"><a href="#cb105-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food_exp1_sim =</span> food_q1_sim <span class="sc">*</span> food_1_2030,</span>
+<span id="cb105-24"><a href="#cb105-24" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_exp2_sim =</span> food_q2_sim <span class="sc">*</span> food_2_2030)</span>
+<span id="cb105-25"><a href="#cb105-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-26"><a href="#cb105-26" aria-hidden="true" tabindex="-1"></a><span class="co"># View the results</span></span>
+<span id="cb105-27"><a href="#cb105-27" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ca_microsim_cc <span class="sc">%&gt;%</span> <span class="fu">select</span>(decile, food1, food_1_2030, food_1_dprice, food_q1_sim, food_exp1_sim, food_2_dprice, food_q2_sim, food_exp2_sim))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5,184 × 9
    decile   food1 food_1_2030 food_1_dprice food_q1_sim food_exp1_sim
     &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt;
- 1      9  92178.        1.07        0.0749      85520.        91925.
- 2      7 105290.        1.07        0.0743      97691.       104953.
- 3      2  22733.        1.08        0.0761      21039.        22640.
- 4      2 163379.        1.08        0.0761     151199.       162705.
- 5      4 102718.        1.08        0.0774      94956.       102303.
- 6     10 208995.        1.08        0.0777     196678.       211958.
- 7      8 116151.        1.08        0.0759     107620.       115788.
- 8      5  67911.        1.07        0.0742      62954.        67626.
- 9      6 152144.        1.07        0.0749     141003.       151568.
-10      8  80033.        1.08        0.0759      74155.        79783.
+ 1      9  92178.        1.07        0.0749      91365.        98208.
+ 2      7 105290.        1.07        0.0743     104822.       112613.
+ 3      2  22733.        1.08        0.0761      22111.        23794.
+ 4      2 163379.        1.08        0.0761     158905.       170998.
+ 5      4 102718.        1.08        0.0774     100342.       108105.
+ 6     10 208995.        1.08        0.0777     205650.       221627.
+ 7      8 116151.        1.08        0.0759     116068.       124876.
+ 8      5  67911.        1.07        0.0742      66634.        71578.
+ 9      6 152144.        1.07        0.0749     150818.       162119.
+10      8  80033.        1.08        0.0759      79976.        86045.
 # ℹ 5,174 more rows
 # ℹ 3 more variables: food_2_dprice &lt;dbl&gt;, food_q2_sim &lt;dbl&gt;,
 #   food_exp2_sim &lt;dbl&gt;</code></pre>
@@ -3503,85 +3466,85 @@ the `.groups` argument.</code></pre>
 </div>
 <p>Let’s plot the distributions to see changes:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic density plot comparing food1 and food_exp_sim</span></span>
-<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ca_microsim_cc, <span class="fu">aes</span>(<span class="at">x =</span> food1, <span class="at">fill =</span> <span class="st">'Initial Food Expenditure'</span>)) <span class="sc">+</span> </span>
-<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
-<span id="cb109-4"><a href="#cb109-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(</span>
-<span id="cb109-5"><a href="#cb109-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> ca_microsim_cc, </span>
-<span id="cb109-6"><a href="#cb109-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> food_exp1_sim, <span class="at">fill =</span> <span class="st">'Food Expenditure + Dry-Hot'</span>), </span>
-<span id="cb109-7"><a href="#cb109-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span><span class="fu">geom_density</span>(</span>
-<span id="cb109-8"><a href="#cb109-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> ca_microsim_cc, </span>
-<span id="cb109-9"><a href="#cb109-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> food_exp2_sim, <span class="at">fill =</span> <span class="st">'Food Expenditure + Baseline'</span>), </span>
-<span id="cb109-10"><a href="#cb109-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb109-11"><a href="#cb109-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb109-12"><a href="#cb109-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Consumption Type"</span>, </span>
-<span id="cb109-13"><a href="#cb109-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Comparison of Food Expenditure Distributions"</span>, </span>
-<span id="cb109-14"><a href="#cb109-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Food Expenditure"</span>, </span>
-<span id="cb109-15"><a href="#cb109-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
-<span id="cb109-16"><a href="#cb109-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb109-17"><a href="#cb109-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">150000</span>)) <span class="sc">+</span> <span class="co"># Adjust the xlim for zoom</span></span>
-<span id="cb109-18"><a href="#cb109-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma) <span class="sc">+</span></span>
-<span id="cb109-19"><a href="#cb109-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic density plot comparing food1 and food_exp_sim</span></span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ca_microsim_cc, <span class="fu">aes</span>(<span class="at">x =</span> food1, <span class="at">fill =</span> <span class="st">'Initial Food Expenditure'</span>)) <span class="sc">+</span> </span>
+<span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb107-4"><a href="#cb107-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(</span>
+<span id="cb107-5"><a href="#cb107-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> ca_microsim_cc, </span>
+<span id="cb107-6"><a href="#cb107-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> food_exp1_sim, <span class="at">fill =</span> <span class="st">'Food Expenditure + Dry-Hot'</span>), </span>
+<span id="cb107-7"><a href="#cb107-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span><span class="fu">geom_density</span>(</span>
+<span id="cb107-8"><a href="#cb107-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> ca_microsim_cc, </span>
+<span id="cb107-9"><a href="#cb107-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> food_exp2_sim, <span class="at">fill =</span> <span class="st">'Food Expenditure + Baseline'</span>), </span>
+<span id="cb107-10"><a href="#cb107-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb107-11"><a href="#cb107-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb107-12"><a href="#cb107-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Consumption Type"</span>, </span>
+<span id="cb107-13"><a href="#cb107-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Comparison of Food Expenditure Distributions"</span>, </span>
+<span id="cb107-14"><a href="#cb107-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Food Expenditure"</span>, </span>
+<span id="cb107-15"><a href="#cb107-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb107-16"><a href="#cb107-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb107-17"><a href="#cb107-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">150000</span>)) <span class="sc">+</span> <span class="co"># Adjust the xlim for zoom</span></span>
+<span id="cb107-18"><a href="#cb107-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma) <span class="sc">+</span></span>
+<span id="cb107-19"><a href="#cb107-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="microsimulation_files/figure-html/unnamed-chunk-74-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="microsimulation_files/figure-html/unnamed-chunk-75-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Calculate losses in consumer surplus and purchasing power loss.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the implicit price (assuming baseline implicit price is 1 for simplicity)</span></span>
-<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">implicit_price =</span> <span class="dv">1</span>,  <span class="co"># Simplified assumption</span></span>
-<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_quantity =</span> food1 <span class="sc">/</span> implicit_price)</span>
-<span id="cb110-5"><a href="#cb110-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-6"><a href="#cb110-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the percentage change in prices for each decile</span></span>
-<span id="cb110-7"><a href="#cb110-7" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb110-8"><a href="#cb110-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food_1_dprice =</span> (food_1_2030 <span class="sc">-</span> <span class="dv">1</span>),</span>
-<span id="cb110-9"><a href="#cb110-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_2_dprice =</span> (food_2_2030 <span class="sc">-</span> <span class="dv">1</span>))</span>
-<span id="cb110-10"><a href="#cb110-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-11"><a href="#cb110-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the existing new food consumption levels (already calculated)</span></span>
-<span id="cb110-12"><a href="#cb110-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ca_microsim_cc &lt;- ca_microsim_cc %&gt;%</span></span>
-<span id="cb110-13"><a href="#cb110-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(food_q1_sim = food_quantity * (1 + food_1_dprice * price_elasticity),</span></span>
-<span id="cb110-14"><a href="#cb110-14" aria-hidden="true" tabindex="-1"></a><span class="co">#          food_q2_sim = food_quantity * (1 + food_2_dprice * price_elasticity))</span></span>
-<span id="cb110-15"><a href="#cb110-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-16"><a href="#cb110-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Consumer Surplus loss for food1 and food2 scenarios</span></span>
-<span id="cb110-17"><a href="#cb110-17" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb110-18"><a href="#cb110-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food1_CSloss =</span> ((food_quantity <span class="sc">*</span> implicit_price) <span class="sc">/</span> totc) <span class="sc">*</span> food_1_dprice <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">+</span> (price_elasticity <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">*</span> food_1_dprice),</span>
-<span id="cb110-19"><a href="#cb110-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">food2_CSloss =</span> ((food_quantity <span class="sc">*</span> implicit_price) <span class="sc">/</span> totc) <span class="sc">*</span> food_2_dprice <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">+</span> (price_elasticity <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">*</span> food_2_dprice),</span>
-<span id="cb110-20"><a href="#cb110-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">ttl_CSloss_1 =</span> food1_CSloss,</span>
-<span id="cb110-21"><a href="#cb110-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">ttl_CSloss_2 =</span> food2_CSloss)</span>
-<span id="cb110-22"><a href="#cb110-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-23"><a href="#cb110-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Purchasing Power loss for food1 and food2 scenarios</span></span>
-<span id="cb110-24"><a href="#cb110-24" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb110-25"><a href="#cb110-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food1_PPloss =</span> (food1 <span class="sc">/</span> totc) <span class="sc">*</span> food_1_dprice,</span>
-<span id="cb110-26"><a href="#cb110-26" aria-hidden="true" tabindex="-1"></a>         <span class="at">food2_PPloss =</span> (food1 <span class="sc">/</span> totc) <span class="sc">*</span> food_2_dprice,</span>
-<span id="cb110-27"><a href="#cb110-27" aria-hidden="true" tabindex="-1"></a>         <span class="at">ttl_PPloss_1 =</span> food1_PPloss,</span>
-<span id="cb110-28"><a href="#cb110-28" aria-hidden="true" tabindex="-1"></a>         <span class="at">ttl_PPloss_2 =</span> food2_PPloss)</span>
-<span id="cb110-29"><a href="#cb110-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-30"><a href="#cb110-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjust total expenditure (totc) based on the purchasing power loss</span></span>
-<span id="cb110-31"><a href="#cb110-31" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb110-32"><a href="#cb110-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">totc_cc_avg_food1 =</span> totc_cc_avg <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> ttl_PPloss_1),</span>
-<span id="cb110-33"><a href="#cb110-33" aria-hidden="true" tabindex="-1"></a>         <span class="at">totc_cc_avg_food2 =</span> totc_cc_avg <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> ttl_PPloss_2))</span>
-<span id="cb110-34"><a href="#cb110-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-35"><a href="#cb110-35" aria-hidden="true" tabindex="-1"></a><span class="co"># View the results</span></span>
-<span id="cb110-36"><a href="#cb110-36" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ca_microsim_cc <span class="sc">%&gt;%</span> <span class="fu">select</span>(decile, food1, food_1_2030, food_1_dprice, food_q1_sim, food_exp1_sim, food_2_dprice, food_q2_sim, food_exp2_sim, food1_CSloss, food2_CSloss, ttl_CSloss_1, ttl_CSloss_2, food1_PPloss, food2_PPloss, ttl_PPloss_1, ttl_PPloss_2, totc_cc_avg_food1, totc_cc_avg_food2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the implicit price (assuming baseline implicit price is 1 for simplicity)</span></span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">implicit_price =</span> <span class="dv">1</span>,  <span class="co"># Simplified assumption</span></span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_quantity =</span> food1 <span class="sc">/</span> implicit_price)</span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-6"><a href="#cb108-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the percentage change in prices for each decile</span></span>
+<span id="cb108-7"><a href="#cb108-7" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb108-8"><a href="#cb108-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food_1_dprice =</span> (food_1_2030 <span class="sc">-</span> <span class="dv">1</span>),</span>
+<span id="cb108-9"><a href="#cb108-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">food_2_dprice =</span> (food_2_2030 <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb108-10"><a href="#cb108-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-11"><a href="#cb108-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the existing new food consumption levels (already calculated)</span></span>
+<span id="cb108-12"><a href="#cb108-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ca_microsim_cc &lt;- ca_microsim_cc %&gt;%</span></span>
+<span id="cb108-13"><a href="#cb108-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(food_q1_sim = food_quantity * (1 + food_1_dprice * price_elasticity),</span></span>
+<span id="cb108-14"><a href="#cb108-14" aria-hidden="true" tabindex="-1"></a><span class="co">#          food_q2_sim = food_quantity * (1 + food_2_dprice * price_elasticity))</span></span>
+<span id="cb108-15"><a href="#cb108-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-16"><a href="#cb108-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Consumer Surplus loss for food1 and food2 scenarios</span></span>
+<span id="cb108-17"><a href="#cb108-17" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb108-18"><a href="#cb108-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food1_CSloss =</span> ((food_quantity <span class="sc">*</span> implicit_price) <span class="sc">/</span> totc) <span class="sc">*</span> food_1_dprice <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">+</span> (price_elasticity <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">*</span> food_1_dprice),</span>
+<span id="cb108-19"><a href="#cb108-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">food2_CSloss =</span> ((food_quantity <span class="sc">*</span> implicit_price) <span class="sc">/</span> totc) <span class="sc">*</span> food_2_dprice <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">+</span> (price_elasticity <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">*</span> food_2_dprice),</span>
+<span id="cb108-20"><a href="#cb108-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">ttl_CSloss_1 =</span> food1_CSloss,</span>
+<span id="cb108-21"><a href="#cb108-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">ttl_CSloss_2 =</span> food2_CSloss)</span>
+<span id="cb108-22"><a href="#cb108-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-23"><a href="#cb108-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Purchasing Power loss for food1 and food2 scenarios</span></span>
+<span id="cb108-24"><a href="#cb108-24" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb108-25"><a href="#cb108-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">food1_PPloss =</span> (food1 <span class="sc">/</span> totc) <span class="sc">*</span> food_1_dprice,</span>
+<span id="cb108-26"><a href="#cb108-26" aria-hidden="true" tabindex="-1"></a>         <span class="at">food2_PPloss =</span> (food1 <span class="sc">/</span> totc) <span class="sc">*</span> food_2_dprice,</span>
+<span id="cb108-27"><a href="#cb108-27" aria-hidden="true" tabindex="-1"></a>         <span class="at">ttl_PPloss_1 =</span> food1_PPloss,</span>
+<span id="cb108-28"><a href="#cb108-28" aria-hidden="true" tabindex="-1"></a>         <span class="at">ttl_PPloss_2 =</span> food2_PPloss)</span>
+<span id="cb108-29"><a href="#cb108-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-30"><a href="#cb108-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjust total expenditure (totc) based on the purchasing power loss</span></span>
+<span id="cb108-31"><a href="#cb108-31" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb108-32"><a href="#cb108-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">totc_cc_avg_food1 =</span> totc_cc_avg <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> ttl_PPloss_1),</span>
+<span id="cb108-33"><a href="#cb108-33" aria-hidden="true" tabindex="-1"></a>         <span class="at">totc_cc_avg_food2 =</span> totc_cc_avg <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> ttl_PPloss_2))</span>
+<span id="cb108-34"><a href="#cb108-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-35"><a href="#cb108-35" aria-hidden="true" tabindex="-1"></a><span class="co"># View the results</span></span>
+<span id="cb108-36"><a href="#cb108-36" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ca_microsim_cc <span class="sc">%&gt;%</span> <span class="fu">select</span>(decile, food1, food_1_2030, food_1_dprice, food_q1_sim, food_exp1_sim, food_2_dprice, food_q2_sim, food_exp2_sim, food1_CSloss, food2_CSloss, ttl_CSloss_1, ttl_CSloss_2, food1_PPloss, food2_PPloss, ttl_PPloss_1, ttl_PPloss_2, totc_cc_avg_food1, totc_cc_avg_food2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5,184 × 19
    decile   food1 food_1_2030 food_1_dprice food_q1_sim food_exp1_sim
     &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt;
- 1      9  92178.        1.07        0.0749      85520.        91925.
- 2      7 105290.        1.07        0.0743      97691.       104953.
- 3      2  22733.        1.08        0.0761      21039.        22640.
- 4      2 163379.        1.08        0.0761     151199.       162705.
- 5      4 102718.        1.08        0.0774      94956.       102303.
- 6     10 208995.        1.08        0.0777     196678.       211958.
- 7      8 116151.        1.08        0.0759     107620.       115788.
- 8      5  67911.        1.07        0.0742      62954.        67626.
- 9      6 152144.        1.07        0.0749     141003.       151568.
-10      8  80033.        1.08        0.0759      74155.        79783.
+ 1      9  92178.        1.07        0.0749      91365.        98208.
+ 2      7 105290.        1.07        0.0743     104822.       112613.
+ 3      2  22733.        1.08        0.0761      22111.        23794.
+ 4      2 163379.        1.08        0.0761     158905.       170998.
+ 5      4 102718.        1.08        0.0774     100342.       108105.
+ 6     10 208995.        1.08        0.0777     205650.       221627.
+ 7      8 116151.        1.08        0.0759     116068.       124876.
+ 8      5  67911.        1.07        0.0742      66634.        71578.
+ 9      6 152144.        1.07        0.0749     150818.       162119.
+10      8  80033.        1.08        0.0759      79976.        86045.
 # ℹ 5,174 more rows
 # ℹ 13 more variables: food_2_dprice &lt;dbl&gt;, food_q2_sim &lt;dbl&gt;,
 #   food_exp2_sim &lt;dbl&gt;, food1_CSloss &lt;dbl&gt;, food2_CSloss &lt;dbl&gt;,
@@ -3592,53 +3555,51 @@ the `.groups` argument.</code></pre>
 </div>
 <p>Okay so now we estimate new welfare and poverty.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">aec_r_cc_avg_food1 =</span> totc_cc_avg_food1 <span class="sc">/</span> ae_r <span class="sc">/</span> PI,</span>
-<span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">aec_r_cc_avg_food2 =</span> totc_cc_avg_food2 <span class="sc">/</span> ae_r <span class="sc">/</span> PI) <span class="sc">%&gt;%</span></span>
-<span id="cb112-4"><a href="#cb112-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">poor_cc_avg_food1 =</span></span>
-<span id="cb112-5"><a href="#cb112-5" aria-hidden="true" tabindex="-1"></a>           <span class="fu">if_else</span>(aec_r_cc_avg_food1 <span class="sc">&lt;</span> <span class="dv">52883</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb112-6"><a href="#cb112-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">poor_cc_avg_food2 =</span></span>
-<span id="cb112-7"><a href="#cb112-7" aria-hidden="true" tabindex="-1"></a>           <span class="fu">if_else</span>(aec_r_cc_avg_food2 <span class="sc">&lt;</span> <span class="dv">52883</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>ca_microsim_cc <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">aec_r_cc_avg_food1 =</span> totc_cc_avg_food1 <span class="sc">/</span> ae_r <span class="sc">/</span> PI,</span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">aec_r_cc_avg_food2 =</span> totc_cc_avg_food2 <span class="sc">/</span> ae_r <span class="sc">/</span> PI) <span class="sc">%&gt;%</span></span>
+<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">poor_cc_avg_food1 =</span></span>
+<span id="cb110-5"><a href="#cb110-5" aria-hidden="true" tabindex="-1"></a>           <span class="fu">if_else</span>(aec_r_cc_avg_food1 <span class="sc">&lt;</span> <span class="dv">52883</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb110-6"><a href="#cb110-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">poor_cc_avg_food2 =</span></span>
+<span id="cb110-7"><a href="#cb110-7" aria-hidden="true" tabindex="-1"></a>           <span class="fu">if_else</span>(aec_r_cc_avg_food2 <span class="sc">&lt;</span> <span class="dv">52883</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>And now we see who became poor</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We make a table to see who became poor. </span></span>
-<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> ca_microsim_cc</span>
-<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb113-4"><a href="#cb113-4" aria-hidden="true" tabindex="-1"></a>test<span class="sc">$</span>ones <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb113-5"><a href="#cb113-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb113-6"><a href="#cb113-6" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> test<span class="sc">%&gt;%</span></span>
-<span id="cb113-7"><a href="#cb113-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">poor_original =</span> poor_Avpovln2022,</span>
-<span id="cb113-8"><a href="#cb113-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">poor_cc =</span> poor_cc_avg,</span>
-<span id="cb113-9"><a href="#cb113-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">poor_cc_food1 =</span> poor_cc_avg_food1,</span>
-<span id="cb113-10"><a href="#cb113-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">poor_cc_food2 =</span> poor_cc_avg_food2) <span class="sc">%&gt;%</span></span>
-<span id="cb113-11"><a href="#cb113-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(poor_original, poor_cc) <span class="sc">%&gt;%</span> </span>
-<span id="cb113-12"><a href="#cb113-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">no_hh =</span> <span class="fu">round</span>(<span class="fu">sum</span>(weight, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
-<span id="cb113-13"><a href="#cb113-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">no_pp =</span> <span class="fu">round</span>(<span class="fu">sum</span>(weight<span class="sc">*</span>hhsize, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We make a table to see who became poor. </span></span>
+<span id="cb111-2"><a href="#cb111-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> ca_microsim_cc</span>
+<span id="cb111-3"><a href="#cb111-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb111-4"><a href="#cb111-4" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> test<span class="sc">%&gt;%</span></span>
+<span id="cb111-5"><a href="#cb111-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">poor_original =</span> poor_Avpovln2022,</span>
+<span id="cb111-6"><a href="#cb111-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">poor_cc =</span> poor_cc_avg,</span>
+<span id="cb111-7"><a href="#cb111-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">poor_cc_food1 =</span> poor_cc_avg_food1,</span>
+<span id="cb111-8"><a href="#cb111-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">poor_cc_food2 =</span> poor_cc_avg_food2) <span class="sc">%&gt;%</span></span>
+<span id="cb111-9"><a href="#cb111-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(poor_original, poor_cc_food1) <span class="sc">%&gt;%</span> </span>
+<span id="cb111-10"><a href="#cb111-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">no_hh =</span> <span class="fu">round</span>(<span class="fu">sum</span>(weight, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb111-11"><a href="#cb111-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">no_pp =</span> <span class="fu">round</span>(<span class="fu">sum</span>(weight<span class="sc">*</span>hhsize, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has grouped output by 'poor_original'. You can override using the
 `.groups` argument.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span> </span>
-<span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span> </span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="qlcgvumjcy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#qlcgvumjcy table {
+<div id="levqjivomp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#levqjivomp table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#qlcgvumjcy thead, #qlcgvumjcy tbody, #qlcgvumjcy tfoot, #qlcgvumjcy tr, #qlcgvumjcy td, #qlcgvumjcy th {
+#levqjivomp thead, #levqjivomp tbody, #levqjivomp tfoot, #levqjivomp tr, #levqjivomp td, #levqjivomp th {
   border-style: none;
 }
 
-#qlcgvumjcy p {
+#levqjivomp p {
   margin: 0;
   padding: 0;
 }
 
-#qlcgvumjcy .gt_table {
+#levqjivomp .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3664,12 +3625,12 @@ the `.groups` argument.</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_caption {
+#levqjivomp .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#qlcgvumjcy .gt_title {
+#levqjivomp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3681,7 +3642,7 @@ the `.groups` argument.</code></pre>
   border-bottom-width: 0;
 }
 
-#qlcgvumjcy .gt_subtitle {
+#levqjivomp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3693,7 +3654,7 @@ the `.groups` argument.</code></pre>
   border-top-width: 0;
 }
 
-#qlcgvumjcy .gt_heading {
+#levqjivomp .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3705,13 +3666,13 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_bottom_border {
+#levqjivomp .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_col_headings {
+#levqjivomp .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3726,7 +3687,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_col_heading {
+#levqjivomp .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3746,7 +3707,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#qlcgvumjcy .gt_column_spanner_outer {
+#levqjivomp .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3758,15 +3719,15 @@ the `.groups` argument.</code></pre>
   padding-right: 4px;
 }
 
-#qlcgvumjcy .gt_column_spanner_outer:first-child {
+#levqjivomp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#qlcgvumjcy .gt_column_spanner_outer:last-child {
+#levqjivomp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#qlcgvumjcy .gt_column_spanner {
+#levqjivomp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3778,11 +3739,11 @@ the `.groups` argument.</code></pre>
   width: 100%;
 }
 
-#qlcgvumjcy .gt_spanner_row {
+#levqjivomp .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#qlcgvumjcy .gt_group_heading {
+#levqjivomp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3808,7 +3769,7 @@ the `.groups` argument.</code></pre>
   text-align: left;
 }
 
-#qlcgvumjcy .gt_empty_group_heading {
+#levqjivomp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3823,15 +3784,15 @@ the `.groups` argument.</code></pre>
   vertical-align: middle;
 }
 
-#qlcgvumjcy .gt_from_md > :first-child {
+#levqjivomp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#qlcgvumjcy .gt_from_md > :last-child {
+#levqjivomp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#qlcgvumjcy .gt_row {
+#levqjivomp .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3850,7 +3811,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#qlcgvumjcy .gt_stub {
+#levqjivomp .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3863,7 +3824,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#qlcgvumjcy .gt_stub_row_group {
+#levqjivomp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3877,15 +3838,15 @@ the `.groups` argument.</code></pre>
   vertical-align: top;
 }
 
-#qlcgvumjcy .gt_row_group_first td {
+#levqjivomp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#qlcgvumjcy .gt_row_group_first th {
+#levqjivomp .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#qlcgvumjcy .gt_summary_row {
+#levqjivomp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3895,16 +3856,16 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#qlcgvumjcy .gt_first_summary_row {
+#levqjivomp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_first_summary_row.thick {
+#levqjivomp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#qlcgvumjcy .gt_last_summary_row {
+#levqjivomp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3914,7 +3875,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_grand_summary_row {
+#levqjivomp .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3924,7 +3885,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#qlcgvumjcy .gt_first_grand_summary_row {
+#levqjivomp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3934,7 +3895,7 @@ the `.groups` argument.</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_last_grand_summary_row_top {
+#levqjivomp .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3944,11 +3905,11 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_striped {
+#levqjivomp .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#qlcgvumjcy .gt_table_body {
+#levqjivomp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3957,7 +3918,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_footnotes {
+#levqjivomp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3971,7 +3932,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_footnote {
+#levqjivomp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3980,7 +3941,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#qlcgvumjcy .gt_sourcenotes {
+#levqjivomp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3994,7 +3955,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#qlcgvumjcy .gt_sourcenote {
+#levqjivomp .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -4002,63 +3963,63 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#qlcgvumjcy .gt_left {
+#levqjivomp .gt_left {
   text-align: left;
 }
 
-#qlcgvumjcy .gt_center {
+#levqjivomp .gt_center {
   text-align: center;
 }
 
-#qlcgvumjcy .gt_right {
+#levqjivomp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#qlcgvumjcy .gt_font_normal {
+#levqjivomp .gt_font_normal {
   font-weight: normal;
 }
 
-#qlcgvumjcy .gt_font_bold {
+#levqjivomp .gt_font_bold {
   font-weight: bold;
 }
 
-#qlcgvumjcy .gt_font_italic {
+#levqjivomp .gt_font_italic {
   font-style: italic;
 }
 
-#qlcgvumjcy .gt_super {
+#levqjivomp .gt_super {
   font-size: 65%;
 }
 
-#qlcgvumjcy .gt_footnote_marks {
+#levqjivomp .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#qlcgvumjcy .gt_asterisk {
+#levqjivomp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#qlcgvumjcy .gt_indent_1 {
+#levqjivomp .gt_indent_1 {
   text-indent: 5px;
 }
 
-#qlcgvumjcy .gt_indent_2 {
+#levqjivomp .gt_indent_2 {
   text-indent: 10px;
 }
 
-#qlcgvumjcy .gt_indent_3 {
+#levqjivomp .gt_indent_3 {
   text-indent: 15px;
 }
 
-#qlcgvumjcy .gt_indent_4 {
+#levqjivomp .gt_indent_4 {
   text-indent: 20px;
 }
 
-#qlcgvumjcy .gt_indent_5 {
+#levqjivomp .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -4066,7 +4027,7 @@ the `.groups` argument.</code></pre>
 <table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="header gt_col_headings">
-<th id="poor_cc" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">poor_cc</th>
+<th id="poor_cc_food1" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">poor_cc_food1</th>
 <th id="no_hh" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">no_hh</th>
 <th id="no_pp" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">no_pp</th>
 </tr>
@@ -4076,20 +4037,20 @@ the `.groups` argument.</code></pre>
 <td colspan="3" id="0" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">0</td>
 </tr>
 <tr class="even gt_row_group_first">
-<td class="gt_row gt_right" headers="0  poor_cc">0</td>
-<td class="gt_row gt_right" headers="0  no_hh">635512</td>
-<td class="gt_row gt_right" headers="0  no_pp">2102222</td>
+<td class="gt_row gt_right" headers="0  poor_cc_food1">0</td>
+<td class="gt_row gt_right" headers="0  no_hh">615514</td>
+<td class="gt_row gt_right" headers="0  no_pp">2013284</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_right" headers="0  poor_cc">1</td>
-<td class="gt_row gt_right" headers="0  no_hh">6156</td>
-<td class="gt_row gt_right" headers="0  no_pp">33962</td>
+<td class="gt_row gt_right" headers="0  poor_cc_food1">1</td>
+<td class="gt_row gt_right" headers="0  no_hh">26154</td>
+<td class="gt_row gt_right" headers="0  no_pp">122900</td>
 </tr>
 <tr class="even gt_group_heading_row">
 <td colspan="3" id="1" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">1</td>
 </tr>
 <tr class="odd gt_row_group_first">
-<td class="gt_row gt_right" headers="1  poor_cc">1</td>
+<td class="gt_row gt_right" headers="1  poor_cc_food1">1</td>
 <td class="gt_row gt_right" headers="1  no_hh">139892</td>
 <td class="gt_row gt_right" headers="1  no_pp">697806</td>
 </tr>
@@ -4098,79 +4059,79 @@ the `.groups` argument.</code></pre>
 
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write.table(test, "clipboard", sep="\t", row.names=FALSE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write.table(test, "clipboard", sep="\t", row.names=FALSE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>And we map these results.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>foodpoor <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
-<span id="cb117-2"><a href="#cb117-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">new_poor_food_base =</span> <span class="fu">if_else</span>(</span>
-<span id="cb117-3"><a href="#cb117-3" aria-hidden="true" tabindex="-1"></a>    poor_cc_avg_food2 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> poor_cc_avg <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb117-4"><a href="#cb117-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">new_poor_food_dryhot =</span> <span class="fu">if_else</span>(</span>
-<span id="cb117-5"><a href="#cb117-5" aria-hidden="true" tabindex="-1"></a>           poor_cc_avg_food1 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> poor_cc_avg <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb117-6"><a href="#cb117-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">NAM_1 =</span> <span class="fu">as_factor</span>(marz)) <span class="sc">%&gt;%</span> </span>
-<span id="cb117-7"><a href="#cb117-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NAM_1 =</span> <span class="fu">if_else</span>(NAM_1 <span class="sc">==</span> <span class="st">"VayotsDzor"</span>, <span class="st">"Vayots Dzor"</span>, NAM_1)) <span class="sc">%&gt;%</span> </span>
-<span id="cb117-8"><a href="#cb117-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NAM_1 =</span> <span class="fu">if_else</span>(NAM_1 <span class="sc">==</span> <span class="st">"Sjunik"</span>, <span class="st">"Syunik"</span>, NAM_1)) <span class="sc">%&gt;%</span> </span>
-<span id="cb117-9"><a href="#cb117-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(NAM_1, poor_Avpovln2022, poor_cc_avg, poor_cc_max,</span>
-<span id="cb117-10"><a href="#cb117-10" aria-hidden="true" tabindex="-1"></a>         poor_cc_avg_food1, poor_cc_avg_food2, new_poor_food_base,</span>
-<span id="cb117-11"><a href="#cb117-11" aria-hidden="true" tabindex="-1"></a>         new_poor_food_dryhot, weight, hhsize)</span>
-<span id="cb117-12"><a href="#cb117-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb117-13"><a href="#cb117-13" aria-hidden="true" tabindex="-1"></a>fp <span class="ot">&lt;-</span>foodpoor <span class="sc">%&gt;%</span> </span>
-<span id="cb117-14"><a href="#cb117-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(NAM_1) <span class="sc">%&gt;%</span> </span>
-<span id="cb117-15"><a href="#cb117-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">new_poor =</span> <span class="fu">round</span>(<span class="fu">sum</span>(new_poor_food_dryhot <span class="sc">*</span> weight<span class="sc">*</span>hhsize, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb117-16"><a href="#cb117-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label =</span> <span class="fu">paste0</span>(NAM_1,<span class="st">" ("</span>, new_poor, <span class="st">")"</span>))</span>
-<span id="cb117-17"><a href="#cb117-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb117-18"><a href="#cb117-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb117-19"><a href="#cb117-19" aria-hidden="true" tabindex="-1"></a><span class="co">#write.table(fp, "clipboard", sep="\t", row.names=FALSE)</span></span>
-<span id="cb117-20"><a href="#cb117-20" aria-hidden="true" tabindex="-1"></a>fp_map <span class="ot">&lt;-</span> adm1 <span class="sc">|&gt;</span> </span>
-<span id="cb117-21"><a href="#cb117-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(fp, <span class="fu">join_by</span>(NAM_1 <span class="sc">==</span> NAM_1))</span>
-<span id="cb117-22"><a href="#cb117-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb117-23"><a href="#cb117-23" aria-hidden="true" tabindex="-1"></a>fp_map <span class="ot">&lt;-</span><span class="fu">tm_shape</span>(fp_map)<span class="sc">+</span></span>
-<span id="cb117-24"><a href="#cb117-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"new_poor"</span>, <span class="at">legend.show =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb117-25"><a href="#cb117-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_text</span>(<span class="st">"label"</span>, <span class="at">size =</span> .<span class="dv">7</span>, <span class="at">col =</span> <span class="st">"black"</span>)<span class="sc">+</span></span>
-<span id="cb117-26"><a href="#cb117-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">"right"</span>, <span class="st">"top"</span>), </span>
-<span id="cb117-27"><a href="#cb117-27" aria-hidden="true" tabindex="-1"></a>            <span class="at">title=</span> <span class="st">"Additional Poor Dry-Hot Scenario"</span>, </span>
-<span id="cb117-28"><a href="#cb117-28" aria-hidden="true" tabindex="-1"></a>            <span class="at">title.position =</span> <span class="fu">c</span>(<span class="st">'left'</span>, <span class="st">'bottom'</span>),</span>
-<span id="cb117-29"><a href="#cb117-29" aria-hidden="true" tabindex="-1"></a>            <span class="at">title.size =</span> <span class="fl">0.9</span>)</span>
-<span id="cb117-30"><a href="#cb117-30" aria-hidden="true" tabindex="-1"></a>fp_map</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>foodpoor <span class="ot">&lt;-</span> ca_microsim_cc <span class="sc">%&gt;%</span></span>
+<span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">new_poor_food_base =</span> <span class="fu">if_else</span>(</span>
+<span id="cb115-3"><a href="#cb115-3" aria-hidden="true" tabindex="-1"></a>    poor_cc_avg_food2 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> poor_cc_avg <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb115-4"><a href="#cb115-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">new_poor_food_dryhot =</span> <span class="fu">if_else</span>(</span>
+<span id="cb115-5"><a href="#cb115-5" aria-hidden="true" tabindex="-1"></a>           poor_cc_avg_food1 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> poor_cc_avg <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb115-6"><a href="#cb115-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">NAM_1 =</span> <span class="fu">as_factor</span>(marz)) <span class="sc">%&gt;%</span> </span>
+<span id="cb115-7"><a href="#cb115-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NAM_1 =</span> <span class="fu">if_else</span>(NAM_1 <span class="sc">==</span> <span class="st">"VayotsDzor"</span>, <span class="st">"Vayots Dzor"</span>, NAM_1)) <span class="sc">%&gt;%</span> </span>
+<span id="cb115-8"><a href="#cb115-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NAM_1 =</span> <span class="fu">if_else</span>(NAM_1 <span class="sc">==</span> <span class="st">"Sjunik"</span>, <span class="st">"Syunik"</span>, NAM_1)) <span class="sc">%&gt;%</span> </span>
+<span id="cb115-9"><a href="#cb115-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(NAM_1, poor_Avpovln2022, poor_cc_avg, poor_cc_max,</span>
+<span id="cb115-10"><a href="#cb115-10" aria-hidden="true" tabindex="-1"></a>         poor_cc_avg_food1, poor_cc_avg_food2, new_poor_food_base,</span>
+<span id="cb115-11"><a href="#cb115-11" aria-hidden="true" tabindex="-1"></a>         new_poor_food_dryhot, weight, hhsize)</span>
+<span id="cb115-12"><a href="#cb115-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-13"><a href="#cb115-13" aria-hidden="true" tabindex="-1"></a>fp <span class="ot">&lt;-</span>foodpoor <span class="sc">%&gt;%</span> </span>
+<span id="cb115-14"><a href="#cb115-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(NAM_1) <span class="sc">%&gt;%</span> </span>
+<span id="cb115-15"><a href="#cb115-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">new_poor =</span> <span class="fu">round</span>(<span class="fu">sum</span>(new_poor_food_dryhot <span class="sc">*</span> weight<span class="sc">*</span>hhsize, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb115-16"><a href="#cb115-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label =</span> <span class="fu">paste0</span>(NAM_1,<span class="st">" ("</span>, new_poor, <span class="st">")"</span>))</span>
+<span id="cb115-17"><a href="#cb115-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-18"><a href="#cb115-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-19"><a href="#cb115-19" aria-hidden="true" tabindex="-1"></a><span class="co">#write.table(fp, "clipboard", sep="\t", row.names=FALSE)</span></span>
+<span id="cb115-20"><a href="#cb115-20" aria-hidden="true" tabindex="-1"></a>fp_map <span class="ot">&lt;-</span> adm1 <span class="sc">|&gt;</span> </span>
+<span id="cb115-21"><a href="#cb115-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(fp, <span class="fu">join_by</span>(NAM_1 <span class="sc">==</span> NAM_1))</span>
+<span id="cb115-22"><a href="#cb115-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-23"><a href="#cb115-23" aria-hidden="true" tabindex="-1"></a>fp_map <span class="ot">&lt;-</span><span class="fu">tm_shape</span>(fp_map)<span class="sc">+</span></span>
+<span id="cb115-24"><a href="#cb115-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"new_poor"</span>, <span class="at">legend.show =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb115-25"><a href="#cb115-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_text</span>(<span class="st">"label"</span>, <span class="at">size =</span> .<span class="dv">7</span>, <span class="at">col =</span> <span class="st">"black"</span>)<span class="sc">+</span></span>
+<span id="cb115-26"><a href="#cb115-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">"right"</span>, <span class="st">"top"</span>), </span>
+<span id="cb115-27"><a href="#cb115-27" aria-hidden="true" tabindex="-1"></a>            <span class="at">title=</span> <span class="st">"Additional Poor Dry-Hot Scenario"</span>, </span>
+<span id="cb115-28"><a href="#cb115-28" aria-hidden="true" tabindex="-1"></a>            <span class="at">title.position =</span> <span class="fu">c</span>(<span class="st">'left'</span>, <span class="st">'bottom'</span>),</span>
+<span id="cb115-29"><a href="#cb115-29" aria-hidden="true" tabindex="-1"></a>            <span class="at">title.size =</span> <span class="fl">0.9</span>)</span>
+<span id="cb115-30"><a href="#cb115-30" aria-hidden="true" tabindex="-1"></a>fp_map</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="microsimulation_files/figure-html/unnamed-chunk-78-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="microsimulation_files/figure-html/unnamed-chunk-79-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We check that our reweighting was successful</span></span>
-<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>table <span class="ot">&lt;-</span> pp_microsim_cc <span class="sc">%&gt;%</span> </span>
-<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(lmarket,sector_w) <span class="sc">%&gt;%</span> </span>
-<span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_pp =</span> <span class="fu">sum</span>(weightvec, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb118-5"><a href="#cb118-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We check that our reweighting was successful</span></span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>table <span class="ot">&lt;-</span> pp_microsim_cc <span class="sc">%&gt;%</span> </span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(lmarket,sector_w) <span class="sc">%&gt;%</span> </span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_pp =</span> <span class="fu">sum</span>(weightvec, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb116-5"><a href="#cb116-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has grouped output by 'lmarket'. You can override using the
 `.groups` argument.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>table <span class="sc">%&gt;%</span> </span>
-<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> total_pp, <span class="at">decimals =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>table <span class="sc">%&gt;%</span> </span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> total_pp, <span class="at">decimals =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="bpysodrvzy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#bpysodrvzy table {
+<div id="xvntegwkoc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#xvntegwkoc table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#bpysodrvzy thead, #bpysodrvzy tbody, #bpysodrvzy tfoot, #bpysodrvzy tr, #bpysodrvzy td, #bpysodrvzy th {
+#xvntegwkoc thead, #xvntegwkoc tbody, #xvntegwkoc tfoot, #xvntegwkoc tr, #xvntegwkoc td, #xvntegwkoc th {
   border-style: none;
 }
 
-#bpysodrvzy p {
+#xvntegwkoc p {
   margin: 0;
   padding: 0;
 }
 
-#bpysodrvzy .gt_table {
+#xvntegwkoc .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -4196,12 +4157,12 @@ the `.groups` argument.</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_caption {
+#xvntegwkoc .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#bpysodrvzy .gt_title {
+#xvntegwkoc .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -4213,7 +4174,7 @@ the `.groups` argument.</code></pre>
   border-bottom-width: 0;
 }
 
-#bpysodrvzy .gt_subtitle {
+#xvntegwkoc .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -4225,7 +4186,7 @@ the `.groups` argument.</code></pre>
   border-top-width: 0;
 }
 
-#bpysodrvzy .gt_heading {
+#xvntegwkoc .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -4237,13 +4198,13 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_bottom_border {
+#xvntegwkoc .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_col_headings {
+#xvntegwkoc .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4258,7 +4219,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_col_heading {
+#xvntegwkoc .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4278,7 +4239,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#bpysodrvzy .gt_column_spanner_outer {
+#xvntegwkoc .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4290,15 +4251,15 @@ the `.groups` argument.</code></pre>
   padding-right: 4px;
 }
 
-#bpysodrvzy .gt_column_spanner_outer:first-child {
+#xvntegwkoc .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#bpysodrvzy .gt_column_spanner_outer:last-child {
+#xvntegwkoc .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#bpysodrvzy .gt_column_spanner {
+#xvntegwkoc .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -4310,11 +4271,11 @@ the `.groups` argument.</code></pre>
   width: 100%;
 }
 
-#bpysodrvzy .gt_spanner_row {
+#xvntegwkoc .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#bpysodrvzy .gt_group_heading {
+#xvntegwkoc .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4340,7 +4301,7 @@ the `.groups` argument.</code></pre>
   text-align: left;
 }
 
-#bpysodrvzy .gt_empty_group_heading {
+#xvntegwkoc .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -4355,15 +4316,15 @@ the `.groups` argument.</code></pre>
   vertical-align: middle;
 }
 
-#bpysodrvzy .gt_from_md > :first-child {
+#xvntegwkoc .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#bpysodrvzy .gt_from_md > :last-child {
+#xvntegwkoc .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#bpysodrvzy .gt_row {
+#xvntegwkoc .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4382,7 +4343,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#bpysodrvzy .gt_stub {
+#xvntegwkoc .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4395,7 +4356,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#bpysodrvzy .gt_stub_row_group {
+#xvntegwkoc .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4409,15 +4370,15 @@ the `.groups` argument.</code></pre>
   vertical-align: top;
 }
 
-#bpysodrvzy .gt_row_group_first td {
+#xvntegwkoc .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#bpysodrvzy .gt_row_group_first th {
+#xvntegwkoc .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#bpysodrvzy .gt_summary_row {
+#xvntegwkoc .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4427,16 +4388,16 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#bpysodrvzy .gt_first_summary_row {
+#xvntegwkoc .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_first_summary_row.thick {
+#xvntegwkoc .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#bpysodrvzy .gt_last_summary_row {
+#xvntegwkoc .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4446,7 +4407,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_grand_summary_row {
+#xvntegwkoc .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4456,7 +4417,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#bpysodrvzy .gt_first_grand_summary_row {
+#xvntegwkoc .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4466,7 +4427,7 @@ the `.groups` argument.</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_last_grand_summary_row_top {
+#xvntegwkoc .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4476,11 +4437,11 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_striped {
+#xvntegwkoc .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#bpysodrvzy .gt_table_body {
+#xvntegwkoc .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4489,7 +4450,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_footnotes {
+#xvntegwkoc .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4503,7 +4464,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_footnote {
+#xvntegwkoc .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -4512,7 +4473,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#bpysodrvzy .gt_sourcenotes {
+#xvntegwkoc .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4526,7 +4487,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#bpysodrvzy .gt_sourcenote {
+#xvntegwkoc .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -4534,63 +4495,63 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#bpysodrvzy .gt_left {
+#xvntegwkoc .gt_left {
   text-align: left;
 }
 
-#bpysodrvzy .gt_center {
+#xvntegwkoc .gt_center {
   text-align: center;
 }
 
-#bpysodrvzy .gt_right {
+#xvntegwkoc .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#bpysodrvzy .gt_font_normal {
+#xvntegwkoc .gt_font_normal {
   font-weight: normal;
 }
 
-#bpysodrvzy .gt_font_bold {
+#xvntegwkoc .gt_font_bold {
   font-weight: bold;
 }
 
-#bpysodrvzy .gt_font_italic {
+#xvntegwkoc .gt_font_italic {
   font-style: italic;
 }
 
-#bpysodrvzy .gt_super {
+#xvntegwkoc .gt_super {
   font-size: 65%;
 }
 
-#bpysodrvzy .gt_footnote_marks {
+#xvntegwkoc .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#bpysodrvzy .gt_asterisk {
+#xvntegwkoc .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#bpysodrvzy .gt_indent_1 {
+#xvntegwkoc .gt_indent_1 {
   text-indent: 5px;
 }
 
-#bpysodrvzy .gt_indent_2 {
+#xvntegwkoc .gt_indent_2 {
   text-indent: 10px;
 }
 
-#bpysodrvzy .gt_indent_3 {
+#xvntegwkoc .gt_indent_3 {
   text-indent: 15px;
 }
 
-#bpysodrvzy .gt_indent_4 {
+#xvntegwkoc .gt_indent_4 {
   text-indent: 20px;
 }
 
-#bpysodrvzy .gt_indent_5 {
+#xvntegwkoc .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -4634,51 +4595,21 @@ the `.groups` argument.</code></pre>
 
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.table</span>(</span>
-<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>  table, </span>
-<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"clipboard"</span>, <span class="at">sep=</span><span class="st">"</span><span class="sc">\t</span><span class="st">"</span>, <span class="at">row.names=</span><span class="cn">FALSE</span></span>
-<span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.table</span>(</span>
+<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>  table, </span>
+<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"clipboard"</span>, <span class="at">sep=</span><span class="st">"</span><span class="sc">\t</span><span class="st">"</span>, <span class="at">row.names=</span><span class="cn">FALSE</span></span>
+<span id="cb119-4"><a href="#cb119-4" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 <section id="end" class="level2" data-number="9">
-<h2 data-number="9" class="anchored" data-anchor-id="end"><span class="header-section-number">9</span> End</h2>
-<p>Tasks for today:</p>
-<p>Reweight the dataset</p>
-<ul>
-<li>Determine the numbers for the labor market reweighting for 2030. [v]</li>
-<li>Reweight and rescale the weights. [v]</li>
-<li>Determine by how much to rescale the wage bill. [v]</li>
-<li>Recalculate labor income. [v]</li>
-<li>Recalculate total income. [v]</li>
-<li>Determine delta total income and change total expenditure. [v]</li>
-<li>Poverty [v]</li>
-</ul>
-<p>Review price elasticities</p>
-<ul>
-<li>Look for average prices in underlying data.</li>
-<li>Reestimate based on adjusted food expenditure by family members.</li>
-<li>Rerun elasticities.</li>
-<li>Reestimate poverty.</li>
-</ul>
-<p>Bring back poverty to people’s dataset.</p>
-<ul>
-<li>Evaluate poverty among women.</li>
-<li>Poverty among urban rural.</li>
-<li>Poverty by marz.</li>
-<li>Youth?</li>
-</ul>
-<p>Write draft.</p>
-<ul>
-<li>Make tables of everything.</li>
-<li>Make maps of everything.</li>
-</ul>
+
 
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">9 End</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
 <div id="ref-armstat_integrated_2023" class="csl-entry" role="listitem">
 ARMSTAT. (2023). <em>Integrated <span>Living</span> <span>Conditions</span> <span>Survey</span> 2022</em>.
 </div>
