@@ -1202,7 +1202,24 @@ ic_coef_2030 <- ic_microsim %>%
   select(interview__key, totinc_coef_2030)
 ```
 
+We check that our reweighting was successful
 
+```{r}
+# table <- pp_microsim_cc %>% 
+#   group_by(lmarket,sector_w) %>% 
+#   summarise(total_pp = sum(weightvec, na.rm = TRUE)) %>%
+#   ungroup()
+# 
+# table %>% 
+#   gt() %>% 
+#   fmt_number(columns = total_pp, decimals = 0)
+# 
+# write.table(
+#   table, 
+#   "clipboard", sep="\t", row.names=FALSE
+#   )
+
+```
 
 
 ## Microsimulation
@@ -1788,28 +1805,147 @@ fp_map
 
 ```
 
-
+Let's plot how the distribution moves with all these measures.
 
 ```{r}
-# We check that our reweighting was successful
-table <- pp_microsim_cc %>% 
-  group_by(lmarket,sector_w) %>% 
-  summarise(total_pp = sum(weightvec, na.rm = TRUE)) %>%
-  ungroup()
+# Basic density plot comparing equivalized consumption per capita
+ggplot(ca_microsim_cc, 
+       aes(x = aec_r_cc_avg_food1, fill = 'Dry/Hot + Food Price')) +
+  geom_density(alpha = 0.5) + 
+  geom_density(
+    data = ca_microsim_cc, 
+    aes(x = aec_r_cc_avg_food2, fill = 'Baseline + CC + Food Price'), 
+    alpha = 0.5) + 
+  geom_density(
+    data = ca_microsim_cc, 
+    aes(x = aec_r_cc_avg, fill = 'Baseline + CC'), 
+    alpha = 0.5) + 
+  geom_density(
+    data = ca_microsim_cc, 
+    aes(x = aec_r, fill = 'Baseline'), 
+    alpha = 0.5) +
+  labs(
+    fill = "Consumption Type", 
+    title = "Comparison of Consumption Distributions", 
+    x = "Equivalized consumption (Dram)", 
+    y = "Probability") +
+  theme_minimal()+
+  coord_cartesian(xlim = c(40000, 110000),
+                  ylim = c(0.000010,0.0000140)) + # Zoom in without removing data
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)+
+  geom_vline(xintercept = 55883, 
+             color = "red", 
+             linetype = "dotted", 
+             linewidth =0.8) +
+  annotate("text", 
+           x = 55883, 
+           y = 0.0000110, 
+           #label = "Poverty line\nAMD 55,883", 
+           label = "Poverty line", 
+           color = "black", 
+           hjust = -0.1, 
+           # vjust = -3.5,
+           #angle = 90, 
+           size = 3)
+```
 
-table %>% 
-  gt() %>% 
-  fmt_number(columns = total_pp, decimals = 0)
+And we also plot the cumulative distributions.
 
-write.table(
-  table, 
-  "clipboard", sep="\t", row.names=FALSE
-  )
+```{r}
+# Plot the cumulative distribution with left-facing arrows
+ggplot(ca_microsim_cc, 
+       aes(x = aec_r_cc_avg_food1, color = 'Dry/Hot + Food Price')) +
+  stat_ecdf(geom = "step") +
+  stat_ecdf(data = ca_microsim_cc, 
+            aes(x = aec_r_cc_avg_food2, color = 'Baseline + CC + Food Price')) +
+  stat_ecdf(data = ca_microsim_cc, 
+            aes(x = aec_r_cc_avg, color = 'Baseline + CC')) +
+  stat_ecdf(data = ca_microsim_cc, 
+            aes(x = aec_r, color = 'Baseline')) +
+  labs(
+    color = "Consumption Type", 
+    title = "Comparison of Cumulative Consumption Distributions", 
+    x = "Equivalized consumption (Dram)", 
+    y = "Cumulative Probability") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(40000, 110000)) + 
+  scale_x_continuous(labels = scales::comma) +
+  # geom_vline(xintercept = 55883, 
+  #            color = "red", 
+  #            linetype = "dotted", 
+  #            linewidth = 0.8) +
+  # annotate("text", 
+  #          x = 55883, 
+  #          y = 0.5, 
+  #          label = "Poverty line", 
+  #          color = "black", 
+  #          hjust = -0.1, 
+  #          size = 3) +
+  annotate("segment", x = 70000, xend = 65000, y = 0.2, yend = 0.2, 
+           arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+  annotate("text", x = 72500, y = 0.2, label = "Shift due to shocks", hjust = 0) 
+  # annotate("segment", x = 80000, xend = 75000, y = 0.4, yend = 0.4, 
+  #          arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+  # annotate("text", x = 82500, y = 0.4, label = "Shift due to shocks", hjust = 0)
+
+
 
 ```
 
+We bring back poverty to the 
 
-## End
+```{r}
+# We extract household poverty designations from the data
+new_poor <- ca_microsim_cc %>% 
+  select(hhid, poor_Avpovln2022_old, 
+         poor_Avpovln2022, 
+         poor_cc_avg, 
+         poor_cc_max,
+         poor_cc_avg_food1,
+         poor_cc_avg_food2
+         )
 
+# And merge them back into the people dataset
+pp_microsim_cc <- pp_microsim_cc %>% 
+  select(c(-poor_Avpovln2022)) %>% 
+  left_join(new_poor, join_by(hhid)) %>% 
+  rename(
+    
+    weight_old = weight,
+    weight = weightvec
+  ) %>% 
+  mutate(female = if_else(gender == 2, 1,0),
+         youth = if_else(age < 15, 1, 0))
+
+```
+
+We make a table to see who became poor. 
+
+```{r}
+test <- pp_microsim_cc
+
+test <- test%>%
+  rename(poor_original = poor_Avpovln2022,
+         poor_cc = poor_cc_avg,
+         poor_cc_food1 = poor_cc_avg_food1,
+         poor_cc_food2 = poor_cc_avg_food2) %>%
+  group_by(poor_original) %>% 
+  summarise(no_pp = round(sum(weight, na.rm = TRUE)),
+            female = round(sum(female*weight, na.rm = TRUE)),
+            male = no_pp - female,
+            youth = round(sum(youth*weight, na.rm = TRUE)),
+            non_youth = no_pp - youth,
+            rural = round(sum(rural *weight, na.rm = TRUE)),
+            urban = no_pp - rural)
+
+test %>% 
+  gt()
+
+#write.table(test, "clipboard", sep="\t", row.names=FALSE)
+```
+
+
+### Disaggregation of poverty measures
 
 
