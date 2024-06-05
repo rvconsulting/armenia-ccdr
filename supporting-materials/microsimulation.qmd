@@ -151,7 +151,7 @@ ca  <- read_dta("data/ARM-HH-survey/CONSAGG2022.dta")
 ic  <- read_dta("data/ARM-HH-survey/totinc.dta") 
 
 # Food diary
-food_with_prices <- read_dta("data/ARM-HH-survey/FOOD_with_prices.dta")
+food_with_prices <- read_dta("data/ARM-HH-survey/FOOD_with_prices_short.dta")
 
 ```
 
@@ -1322,15 +1322,27 @@ ic_microsim <- ic %>%
     ) %>% 
   mutate(
     totinc_coef_2030_baseline = 
-      if_else(totalinc_2022 == 0, 1, totalinc_2030_baseline / totalinc_2022),
+      if_else(
+        totalinc_2022 == 0, 
+        1, 
+        totalinc_2030_baseline / totalinc_2022),
     totinc_coef_2030_dry_hot = 
-      if_else(totalinc_2022 == 0, 1, totalinc_2030_dry_hot / totalinc_2022)
+      if_else(
+        totalinc_2022 == 0, 
+        1, 
+        totalinc_2030_dry_hot / totalinc_2022)
     ) %>% 
   mutate(
     totinc_coef_2030_baseline = 
-      if_else(is.na(totinc_coef_2030_baseline), 1, totinc_coef_2030_baseline),
+      if_else(
+        is.na(totinc_coef_2030_baseline), 
+        1, 
+        totinc_coef_2030_baseline),
     totinc_coef_2030_dry_hot = 
-      if_else(is.na(totinc_coef_2030_dry_hot), 1, totinc_coef_2030_dry_hot)
+      if_else(
+        is.na(totinc_coef_2030_dry_hot), 
+        1, 
+        totinc_coef_2030_dry_hot)
     )
 
 ic_coef_scenarios <- ic_microsim %>% 
@@ -1441,63 +1453,70 @@ test_baseline %>%
 
 ### Climate change
 
-In the climate change scenario, we ask ourselves, what would happen if agriculture revenues from crops and livestock are reduced due to losses in productivity due to heat. For this, we use crops data.
+In the climate change scenario, we ask ourselves, what would happen if agriculture revenues from crops and livestock are reduced due to losses in productivity due to heat? For this, we use crops data.
 
 We add a moving window average and max value for our labor productivity data.
 
 ```{r}
 # First calculate moving window average
 heat_l_pdcty <- heat_l_pdcty %>%
-  group_by(ADM1_EN, clim_scenario) %>%
+  group_by(ADM1_EN, 
+           clim_scenario) %>%
   arrange(year) %>%
   # Moving window average 5 years before, 5 after
   mutate(
     moving_avg = rollapply(
-      pct_change_productivity, 
+      pct_change_productivity,
       width = 11,
       FUN = mean,
       partial = TRUE,
-      align = "center", 
+      align = "center",
       fill = NA,
-      na.rm = TRUE),
+      na.rm = TRUE
+    ),
     # Moving window max value 5 years before, 5 after
     # Since it's expressed in negative values (min) is the maximum
     moving_max = rollapply(
-      pct_change_productivity, 
+      pct_change_productivity,
       width = 11,
       FUN = min,
       partial = TRUE,
-      align = "center", 
+      align = "center",
       fill = NA,
-      na.rm = TRUE)) %>% 
+      na.rm = TRUE
+    )
+  ) %>%
   ungroup()
 
 # Clim scenarios to select
 cs <- unique(heat_l_pdcty$clim_scenario)
 
 # Moving average for year of interest
-lab_loss_avg <- heat_l_pdcty %>% 
-  filter(clim_scenario == cs[1], year == yearsto[1] ) %>%
-  select(-pct_change_productivity,-ADM1_PCODE,
-         -year,-clim_scenario, -moving_max) %>% 
-  pivot_wider(names_from = sector,
-              values_from = moving_avg) %>% 
+lab_loss_avg <- heat_l_pdcty %>%
+  filter(clim_scenario == cs[1], year == yearsto[1]) %>%
+  select(-pct_change_productivity,
+         -ADM1_PCODE,
+         -year,
+         -clim_scenario,
+         -moving_max) %>%
+  pivot_wider(names_from = sector, values_from = moving_avg) %>%
   rename(agr_avg = Agriculture,
          man_avg = Manufacturing,
          ser_avg = Services)
 
 # Max value for year of interest
-lab_loss_max <- heat_l_pdcty %>% 
-  filter(clim_scenario == cs[1], year == yearsto[1] ) %>%
-  select(-pct_change_productivity, -ADM1_PCODE,
-         -year,-clim_scenario,-moving_avg) %>% 
-  pivot_wider(names_from = sector,
-              values_from = moving_max) %>% 
+lab_loss_max <- heat_l_pdcty %>%
+  filter(clim_scenario == cs[1], year == yearsto[1]) %>%
+  select(-pct_change_productivity,
+         -ADM1_PCODE,
+         -year,
+         -clim_scenario,
+         -moving_avg) %>%
+  pivot_wider(names_from = sector, values_from = moving_max) %>%
   rename(agr_max = Agriculture,
          man_max = Manufacturing,
          ser_max = Services)
 ```
-
 
 We add a moving window average and max value for our crops and livestock productivity data.
 
@@ -1506,39 +1525,45 @@ We add a moving window average and max value for our crops and livestock product
 crops_productivity <- crops_productivity %>%
   group_by(NAM_1, climate_scenario) %>%
   arrange(year) %>%
-  # Moving window average 
+  # Moving window average
   mutate(
     moving_avg = rollapply(
-      pct_change_prod, 
-      width = 11,    # 5 years before, 5 after + reference year = 11
+      pct_change_prod,
+      width = 11,
+      # 5 years before, 5 after + reference year = 11
       FUN = mean,
       partial = TRUE,
-      align = "center", 
+      align = "center",
       fill = NA,
-      na.rm = TRUE),
+      na.rm = TRUE
+    ),
     # Moving window max value 5 years before, 5 after
     # Since it's expressed in negative values (min) is the maximum
     moving_max = rollapply(
-      pct_change_prod, 
+      pct_change_prod,
       width = 11,
       FUN = min,
       partial = TRUE,
-      align = "center", 
+      align = "center",
       fill = NA,
-      na.rm = TRUE)) %>% 
+      na.rm = TRUE
+    )
+  ) %>%
   ungroup()
 
 # Clim scenarios to select
 cs <- unique(crops_productivity$climate_scenario)
 
 # Moving average for year of interest
-ag_pdcvty_loss <- crops_productivity %>% 
-  filter(climate_scenario == cs[1], year == yearsto[1] ) %>%
-  select(-pct_change_prod,-GID_1, -year,-climate_scenario) %>% 
-  rename(crops_avg_loss = moving_avg,
+ag_pdcvty_loss <- crops_productivity %>%
+  filter(climate_scenario == cs[1], 
+         year == yearsto[1]) %>%
+  select(-pct_change_prod, 
+         -GID_1, 
+         -year, 
+         -climate_scenario) %>%
+  rename(crops_avg_loss = moving_avg, 
          crops_max_loss = moving_max)
-  
-
 ```
 
 And then we introduce these values in our ag income and labor income data. First, we attach the percentage losses to the appropriate data set.
@@ -1546,101 +1571,229 @@ And then we introduce these values in our ag income and labor income data. First
 ```{r}
 # Persons processed dataset
 pp_microsim_cc <- pp_microsim %>%
-  left_join(lab_loss_avg, join_by(NAM_1==ADM1_EN)) %>% 
-  left_join(lab_loss_max, join_by(NAM_1==ADM1_EN))
+  left_join(lab_loss_avg, 
+            join_by(NAM_1 == ADM1_EN)) %>%
+  left_join(lab_loss_max, 
+            join_by(NAM_1 == ADM1_EN))
 
 # Household income processed dataset
 ic_microsim_cc <- ic_microsim %>%
-  left_join(ag_pdcvty_loss, join_by(NAM_1==NAM_1)) 
-
+  left_join(ag_pdcvty_loss, 
+            join_by(NAM_1 == NAM_1)) 
 ```
 
 And we first shock labor income.
 
 ```{r}
 # Labor income according to sector
-pp_microsim_cc <- pp_microsim_cc %>% 
-  mutate(sector = as.numeric(sector)) %>% 
-  mutate(mli_cc_avg = case_when(
-    # * 1000 because its thousands of Dram
-    sector == 1 ~ monthly_labor_income * (1 + agr_avg)* 1000,   
-    sector == 2 ~ monthly_labor_income * (1 + man_avg)* 1000,
-    sector == 3 ~ monthly_labor_income * (1 + ser_avg)* 1000,
-    TRUE ~ NA
-  )) %>% 
-  mutate(mli_cc_max = case_when(
-    # * 1000 because its thousands of Dram
-    sector == 1 ~ monthly_labor_income * (1 + agr_max)* 1000,   
-    sector == 2 ~ monthly_labor_income * (1 + man_max)* 1000,
-    sector == 3 ~ monthly_labor_income * (1 + ser_max)* 1000,
-    TRUE ~ NA
-  ))
-
+pp_microsim_cc <- pp_microsim_cc %>%
+  mutate(sector = as.numeric(sector)) %>%
+  mutate(
+    mli_2030_baseline_lab_avg =
+      case_when(
+        # * 1000 because its thousands of Dram
+        sector == 1 ~
+          monthly_labor_income_2030_baseline * (1 + agr_avg) * 1000,
+        sector == 2 ~
+          monthly_labor_income_2030_baseline * (1 + man_avg) * 1000,
+        sector == 3 ~
+          monthly_labor_income_2030_baseline * (1 + ser_avg) * 1000,
+        TRUE ~ NA
+      )
+  ) %>%
+  mutate(
+    mli_2030_baseline_lab_max =
+      case_when(
+        # * 1000 because its thousands of Dram
+        sector == 1 ~
+          monthly_labor_income_2030_baseline * (1 + agr_max) * 1000,
+        sector == 2 ~
+          monthly_labor_income_2030_baseline * (1 + man_max) * 1000,
+        sector == 3 ~
+          monthly_labor_income_2030_baseline * (1 + ser_max) * 1000,
+        TRUE ~ NA
+      )
+  )
 ```
 
-We aggregate at household level and register the percent difference between the two labor incomes, so that we can impact labor income by that amount. We don't do it with absolute numbers because we don't know the assumptions made by the poverty team to construct the income variable.
+We aggregate at household level and take note of the percent difference between the two labor incomes, so that we can impact labor income by that amount. We don't do it with absolute numbers because we don't know the assumptions made by the poverty team to construct the income variable.
 
 ```{r}
-ic_new_incomes <- pp_microsim_cc %>% 
-  group_by(hhid) %>% 
+ic_new_incomes <- pp_microsim_cc %>%
+  group_by(hhid) %>%
   summarise(
-    mli_cc_avg = sum(mli_cc_avg, na.rm = TRUE),
-    mli_cc_max = sum(mli_cc_max, na.rm = TRUE),
-    mli_original = sum(monthly_labor_income*1000, na.rm = TRUE)
-  ) %>% 
-  mutate(mli_avg_coef = 
-           if_else(mli_original == 0 | is.na(mli_original), 1,
-                   mli_cc_avg / mli_original),
-         mli_max_coef = 
-           if_else(mli_original == 0 | is.na(mli_original), 1, 
-                   mli_cc_max / mli_original)
-         ) %>% 
+    mli_2030_baseline_lab_avg = 
+      sum(mli_2030_baseline_lab_avg, na.rm = TRUE),
+    mli_2030_baseline_lab_max = 
+      sum(mli_2030_baseline_lab_max, na.rm = TRUE),
+    mli_original = 
+      sum(monthly_labor_income_2022 * 1000, na.rm = TRUE)
+  ) %>%
+  mutate(
+    mli_2030_baseline_lab_avg_coef =
+      if_else(
+        mli_original == 0 | is.na(mli_original),
+        1,
+        mli_2030_baseline_lab_avg / mli_original
+      ),
+    mli_2030_baseline_lab_max_coef =
+      if_else(
+        mli_original == 0 | is.na(mli_original),
+        1,
+        mli_2030_baseline_lab_max / mli_original
+      )
+  ) %>%
   ungroup()
 
-ic_microsim_cc <- ic_microsim_cc %>% 
-  left_join(ic_new_incomes, join_by(interview__key == hhid)) %>% 
-  mutate(inc2_cc_avg = inc2 * mli_avg_coef,
-         inc2_cc_max = inc2 * mli_max_coef,
-         inc3_cc_avg = inc3 * mli_avg_coef,
-         inc3_cc_max = inc3 * mli_max_coef)
+ic_microsim_cc <- ic_microsim_cc %>%
+  left_join(ic_new_incomes, 
+            join_by(interview__key == hhid)) %>%
+  mutate(
+    inc2_2030_baseline_lab_avg = 
+      inc2_2030_baseline * mli_2030_baseline_lab_avg_coef,
+    inc2_2030_baseline_lab_max = 
+      inc2_2030_baseline * mli_2030_baseline_lab_max_coef,
+    inc3_2030_baseline_lab_avg = 
+      inc3_2030_baseline * mli_2030_baseline_lab_avg_coef,
+    inc3_2030_baseline_lab_max = 
+      inc3_2030_baseline * mli_2030_baseline_lab_max_coef
+  )
 ```
 
 And now we impact agricultural income `inc4`.
 
 ```{r}
 ic_microsim_cc <- ic_microsim_cc %>% 
-  mutate(inc4_cc_avg = inc4 * (1 + crops_avg_loss),
-         inc4_cc_max = inc4 * (1 + crops_max_loss))
+  mutate(inc4_2030_baseline_cc_avg = inc4 * (1 + crops_avg_loss),
+         inc4_2030_baseline_cc_max = inc4 * (1 + crops_max_loss))
 ```
 
 And recalculate total income.
 
 ```{r}
-ic_microsim_cc <- ic_microsim_cc %>% 
-  mutate(totalinc_cc_avg = totalinc - rowSums(select(., c(inc2, inc3, inc4)), 
-                                              na.rm = TRUE) +
-                           rowSums(select(., c(inc2_cc_avg, inc3_cc_avg, inc4_cc_avg)), 
-                                   na.rm = TRUE),
-         totalinc_cc_max = totalinc - rowSums(select(., c(inc2, inc3, inc4)), 
-                                              na.rm = TRUE) +
-                           rowSums(select(., c(inc2_cc_max, inc3_cc_max, inc4_cc_max)), 
-                                   na.rm = TRUE)) %>%
-  mutate(totalinc_cc_avg_coef = 
-           if_else(totalinc == 0, 1,
-                   totalinc_cc_avg / totalinc),
-         totalinc_cc_max_coef = 
-           if_else(totalinc == 0, 1, 
-                   totalinc_cc_max / totalinc)
-         ) %>% 
-  mutate(totalinc_cc_avg_coef = if_else(is.na(totalinc_cc_avg_coef), 1, totalinc_cc_avg_coef),
-         totalinc_cc_max_coef = if_else(is.na(totalinc_cc_max_coef), 1, totalinc_cc_max_coef))
+ic_microsim_cc <- ic_microsim_cc %>%
+  mutate(
+    totalinc_2030_baseline_lab_avg =
+      totalinc_2030_baseline -
+      rowSums(select(., c(inc2_2030_baseline, 
+                          inc3_2030_baseline)), na.rm = TRUE) +
+      rowSums(select(
+        ., c(inc2_2030_baseline_lab_avg, 
+             inc3_2030_baseline_lab_avg)), na.rm = TRUE),
+    totalinc_2030_baseline_lab_max =
+      totalinc_2030_baseline -
+      rowSums(select(., c(inc2_2030_baseline, 
+                          inc3_2030_baseline)), na.rm = TRUE) +
+      rowSums(select(
+        ., c(inc2_2030_baseline_lab_max, 
+             inc3_2030_baseline_lab_max)), na.rm = TRUE)
+  ) %>%
+  mutate(
+    totalinc_2030_baseline_lab_avg_coef =
+      if_else(totalinc_2030_baseline == 0, 
+              1, totalinc_2030_baseline_lab_avg / totalinc_2030_baseline),
+    totalinc_2030_baseline_lab_max_coef =
+      if_else(totalinc_2030_baseline == 0, 
+              1, totalinc_2030_baseline_lab_max / totalinc_2030_baseline)
+  ) %>%
+  mutate(
+    totalinc_2030_baseline_lab_avg_coef =
+      if_else(is.na(totalinc_2030_baseline_lab_avg_coef), 
+              1, totalinc_2030_baseline_lab_avg_coef),
+    totalinc_2030_baseline_lab_max_coef =
+      if_else(is.na(totalinc_2030_baseline_lab_max_coef), 
+              1, totalinc_2030_baseline_lab_max_coef)
+  )
+```
+
+We do the same for ag income alone
+
+```{r}
+ic_microsim_cc <- ic_microsim_cc %>%
+  mutate(
+    totalinc_2030_baseline_cc_avg =
+      totalinc_2030_baseline -
+      rowSums(select(., c(inc4)), na.rm = TRUE) +
+      rowSums(select(
+        ., c(inc4_2030_baseline_cc_avg)), na.rm = TRUE),
+    totalinc_2030_baseline_cc_max =
+      totalinc_2030_baseline -
+      rowSums(select(., c(inc4)), na.rm = TRUE) +
+      rowSums(select(
+        ., c(inc4_2030_baseline_cc_max)), na.rm = TRUE)
+  ) %>%
+  mutate(
+    totalinc_2030_baseline_cc_avg_coef =
+      if_else(totalinc_2030_baseline == 0, 
+              1, totalinc_2030_baseline_cc_avg 
+              / totalinc_2030_baseline),
+    totalinc_2030_baseline_cc_max_coef =
+      if_else(totalinc_2030_baseline == 0, 
+              1, totalinc_2030_baseline_cc_max 
+              / totalinc_2030_baseline)
+  ) %>%
+  mutate(
+    totalinc_2030_baseline_cc_avg_coef =
+      if_else(is.na(totalinc_2030_baseline_cc_avg_coef), 
+              1, totalinc_2030_baseline_cc_avg_coef),
+    totalinc_2030_baseline_cc_max_coef =
+      if_else(is.na(totalinc_2030_baseline_cc_max_coef), 
+              1, totalinc_2030_baseline_cc_max_coef)
+  )
+```
+
+And yet again for the combined impacts
+
+```{r}
+ic_microsim_cc <- ic_microsim_cc %>%
+  mutate(
+    totalinc_2030_baseline_lab_cc_avg =
+      totalinc_2030_baseline -
+      rowSums(select(., c(inc2_2030_baseline, 
+                          inc3_2030_baseline,
+                          inc4)), na.rm = TRUE) +
+      rowSums(select(
+        ., c(inc2_2030_baseline_lab_avg, 
+             inc3_2030_baseline_lab_avg,
+             inc4_2030_baseline_cc_avg)), na.rm = TRUE),
+    totalinc_2030_baseline_lab_cc_max =
+      totalinc_2030_baseline -
+      rowSums(select(., c(inc2_2030_baseline, 
+                          inc3_2030_baseline,
+                          inc4)), na.rm = TRUE) +
+      rowSums(select(
+        ., c(inc2_2030_baseline_lab_max, 
+             inc3_2030_baseline_lab_max,
+             inc4_2030_baseline_cc_max)), na.rm = TRUE)
+  ) %>%
+  mutate(
+    totalinc_2030_baseline_lab_cc_avg_coef =
+      if_else(totalinc_2030_baseline == 0, 
+              1, totalinc_2030_baseline_lab_cc_avg / totalinc_2030_baseline),
+    totalinc_2030_baseline_lab_cc_max_coef =
+      if_else(totalinc_2030_baseline == 0, 
+              1, totalinc_2030_baseline_lab_cc_max / totalinc_2030_baseline)
+  ) %>%
+  mutate(
+    totalinc_2030_baseline_lab_cc_avg_coef =
+      if_else(is.na(totalinc_2030_baseline_lab_cc_avg_coef), 
+              1, totalinc_2030_baseline_lab_avg_coef),
+    totalinc_2030_baseline_lab_cc_max_coef =
+      if_else(is.na(totalinc_2030_baseline_lab_cc_max_coef), 
+              1, totalinc_2030_baseline_lab_cc_max_coef))
 ```
 
 We assume that the loss in income translates in a loss of expenditure.
 
 ```{r}
 income_losses <- ic_microsim_cc %>% 
-  select(interview__key,totalinc_cc_avg_coef, totalinc_cc_max_coef)
+  select(interview__key,
+         totalinc_2030_baseline_lab_avg_coef, 
+         totalinc_2030_baseline_lab_avg_coef,
+         totalinc_2030_baseline_cc_avg_coef,
+         totalinc_2030_baseline_cc_max_coef,
+         totalinc_2030_baseline_lab_cc_avg_coef,
+         totalinc_2030_baseline_lab_cc_max_coef)
 
 
 ca_microsim_cc <- ca_microsim %>% 
@@ -2251,4 +2404,4 @@ avg_scenario_losses %>%
 ```
 
 
-1442
+1804
