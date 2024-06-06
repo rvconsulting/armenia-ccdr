@@ -1802,7 +1802,7 @@ ca_microsim_cc <- ca_microsim %>%
 # And now reduce total consumption
 
 ca_microsim_cc <- ca_microsim_cc %>% 
-  mutate(totc_cc_avg = totc * totalinc_cc_avg_coef,
+  mutate(totc_2030_baseline_lab_avg = totc * totalinc_2030_baseline_lab_avg_coef,
          totc_cc_max = totc * totalinc_cc_max_coef) %>% 
   mutate(aec_r_cc_avg = totc_cc_avg / ae_r / PI,
          aec_r_cc_max = totc_cc_max / ae_r / PI) %>% 
