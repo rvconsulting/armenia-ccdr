@@ -21,11 +21,6 @@ author:
     email: nkiso@worldbank.org
     affiliation:
       - name: The World Bank  
-  - name: "Thomas Farole"
-    id: tf
-    email: tfarole@worldbank.org
-    affiliation:
-      - name: The World Bank  
             
 format:
   html:
@@ -255,6 +250,8 @@ buildings_1in100 <-
 crops_productivity <- 
   read.csv("data/ARM-Vulnerability-Analysis/ARM_crops_combined_REF_shock_admin1.csv") %>% 
   rename(NAM_1 = Province)
+livestock_productivity <-
+  read.csv("data/ARM-Vulnerability-Analysis/ARM_livestock_REF_shock.csv")
 crops_aal <- 
   read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
             sheet = "Agriculture_AAL")
@@ -961,7 +958,7 @@ pop_total <- sum(pop_targets_2030$total)
 pop_targets_2030 <- pop_targets_2030 %>% 
   mutate(pct_total = total / pop_total)
 
-writeClipboard(as_raw_html(gt(pop_targets_2030)))
+#writeClipboard(as_raw_html(gt(pop_targets_2030)))
   
 ```
 
@@ -1367,10 +1364,10 @@ table %>%
   gt() %>%
   fmt_number(columns = total_pp, decimals = 0)
 
-write.table(
-  table,
-  "clipboard", sep="\t", row.names=FALSE
-  )
+# write.table(
+#   table,
+#   "clipboard", sep="\t", row.names=FALSE
+#   )
 
 ```
 
@@ -1446,7 +1443,7 @@ test_baseline <- ca_microsim %>%
 test_baseline %>% 
   gt()
 
-#write.table(test_baseline, "clipboard", sep="\t", row.names=FALSE)
+##write.table(test_baseline, "clipboard", sep="\t", row.names=FALSE)
 
 ```
  
@@ -1566,6 +1563,54 @@ ag_pdcvty_loss <- crops_productivity %>%
          crops_max_loss = moving_max)
 ```
 
+And we do the same for livestock productivity.In this case, there is no disaggregation by Marz.
+
+```{r}
+# First calculate moving window average
+livestock_productivity <- livestock_productivity %>%
+  group_by(climate_scenario) %>%
+  arrange(year) %>%
+  # Moving window average
+  mutate(
+    moving_avg = rollapply(
+      pct_change_rev,
+      width = 11,
+      # 5 years before, 5 after + reference year = 11
+      FUN = mean,
+      partial = TRUE,
+      align = "center",
+      fill = NA,
+      na.rm = TRUE
+    ),
+    # Moving window max value 5 years before, 5 after
+    # Since it's expressed in negative values (min) is the maximum
+    moving_max = rollapply(
+      pct_change_rev,
+      width = 11,
+      FUN = min,
+      partial = TRUE,
+      align = "center",
+      fill = NA,
+      na.rm = TRUE
+    )
+  ) %>%
+  ungroup()
+
+# Clim scenarios to select
+cs <- unique(livestock_productivity$climate_scenario)
+
+# Moving average for year of interest
+lvstk_pdcvty_loss <- livestock_productivity %>%
+  filter(climate_scenario == cs[1], 
+         year == yearsto[1]) %>%
+  select(-pct_change_rev, 
+         #-year, 
+         -climate_scenario) %>%
+  rename(lvstk_avg_loss = moving_avg, 
+         lvstk_max_loss = moving_max)
+```
+
+
 And then we introduce these values in our ag income and labor income data. First, we attach the percentage losses to the appropriate data set.
 
 ```{r}
@@ -1579,7 +1624,9 @@ pp_microsim_cc <- pp_microsim %>%
 # Household income processed dataset
 ic_microsim_cc <- ic_microsim %>%
   left_join(ag_pdcvty_loss, 
-            join_by(NAM_1 == NAM_1)) 
+            join_by(NAM_1 == NAM_1)) %>% 
+  mutate(lvstk_avg_loss = lvstk_pdcvty_loss$lvstk_avg_loss[1],
+         lvstk_max_loss = lvstk_pdcvty_loss$lvstk_max_loss[1])
 ```
 
 And we first shock labor income.
@@ -1660,12 +1707,20 @@ ic_microsim_cc <- ic_microsim_cc %>%
   )
 ```
 
-And now we impact agricultural income `inc4`.
+And now we impact agricultural income `cropinc` and livestock income`lvstk`.
 
 ```{r}
 ic_microsim_cc <- ic_microsim_cc %>% 
-  mutate(inc4_2030_baseline_cc_avg = inc4 * (1 + crops_avg_loss),
-         inc4_2030_baseline_cc_max = inc4 * (1 + crops_max_loss))
+  mutate(
+    cropinc_2030_baseline_cc_avg = 
+      cropinc * (1 + crops_avg_loss),
+    cropinc_2030_baseline_cc_max = 
+      cropinc * (1 + crops_max_loss),
+    lvstk_2030_baseline_cc_avg = 
+      lvstk * (1 + lvstk_avg_loss),
+    lvstk_2030_baseline_cc_max = 
+      lvstk * (1 + lvstk_max_loss)
+    )
 ```
 
 And recalculate total income.
@@ -1691,10 +1746,12 @@ ic_microsim_cc <- ic_microsim_cc %>%
   mutate(
     totalinc_2030_baseline_lab_avg_coef =
       if_else(totalinc_2030_baseline == 0, 
-              1, totalinc_2030_baseline_lab_avg / totalinc_2030_baseline),
+              1, totalinc_2030_baseline_lab_avg /
+                totalinc_2030_baseline),
     totalinc_2030_baseline_lab_max_coef =
       if_else(totalinc_2030_baseline == 0, 
-              1, totalinc_2030_baseline_lab_max / totalinc_2030_baseline)
+              1, totalinc_2030_baseline_lab_max /
+                totalinc_2030_baseline)
   ) %>%
   mutate(
     totalinc_2030_baseline_lab_avg_coef =
@@ -1706,21 +1763,25 @@ ic_microsim_cc <- ic_microsim_cc %>%
   )
 ```
 
-We do the same for ag income alone
+We do the same for agriculture and livestock income alone
 
 ```{r}
 ic_microsim_cc <- ic_microsim_cc %>%
   mutate(
     totalinc_2030_baseline_cc_avg =
       totalinc_2030_baseline -
-      rowSums(select(., c(inc4)), na.rm = TRUE) +
+      rowSums(select(., c(cropinc,
+                          lvstk)), na.rm = TRUE) +
       rowSums(select(
-        ., c(inc4_2030_baseline_cc_avg)), na.rm = TRUE),
+        ., c(cropinc_2030_baseline_cc_avg,
+             lvstk_2030_baseline_cc_avg)), na.rm = TRUE),
     totalinc_2030_baseline_cc_max =
       totalinc_2030_baseline -
-      rowSums(select(., c(inc4)), na.rm = TRUE) +
+      rowSums(select(., c(cropinc,
+                          lvstk)), na.rm = TRUE) +
       rowSums(select(
-        ., c(inc4_2030_baseline_cc_max)), na.rm = TRUE)
+        ., c(cropinc_2030_baseline_cc_max,
+             lvstk_2030_baseline_cc_max)), na.rm = TRUE)
   ) %>%
   mutate(
     totalinc_2030_baseline_cc_avg_coef =
@@ -1751,45 +1812,52 @@ ic_microsim_cc <- ic_microsim_cc %>%
       totalinc_2030_baseline -
       rowSums(select(., c(inc2_2030_baseline, 
                           inc3_2030_baseline,
-                          inc4)), na.rm = TRUE) +
+                          cropinc,
+                          lvstk)), na.rm = TRUE) +
       rowSums(select(
         ., c(inc2_2030_baseline_lab_avg, 
              inc3_2030_baseline_lab_avg,
-             inc4_2030_baseline_cc_avg)), na.rm = TRUE),
+             cropinc_2030_baseline_cc_avg,
+             lvstk_2030_baseline_cc_avg)), na.rm = TRUE),
     totalinc_2030_baseline_lab_cc_max =
       totalinc_2030_baseline -
       rowSums(select(., c(inc2_2030_baseline, 
                           inc3_2030_baseline,
-                          inc4)), na.rm = TRUE) +
+                          cropinc,
+                          lvstk)), na.rm = TRUE) +
       rowSums(select(
         ., c(inc2_2030_baseline_lab_max, 
              inc3_2030_baseline_lab_max,
-             inc4_2030_baseline_cc_max)), na.rm = TRUE)
+             cropinc_2030_baseline_cc_max,
+             lvstk_2030_baseline_cc_max)), na.rm = TRUE)
   ) %>%
   mutate(
     totalinc_2030_baseline_lab_cc_avg_coef =
       if_else(totalinc_2030_baseline == 0, 
-              1, totalinc_2030_baseline_lab_cc_avg / totalinc_2030_baseline),
+              1, totalinc_2030_baseline_lab_cc_avg /
+                totalinc_2030_baseline),
     totalinc_2030_baseline_lab_cc_max_coef =
       if_else(totalinc_2030_baseline == 0, 
-              1, totalinc_2030_baseline_lab_cc_max / totalinc_2030_baseline)
+              1, totalinc_2030_baseline_lab_cc_max /
+                totalinc_2030_baseline)
   ) %>%
   mutate(
     totalinc_2030_baseline_lab_cc_avg_coef =
       if_else(is.na(totalinc_2030_baseline_lab_cc_avg_coef), 
-              1, totalinc_2030_baseline_lab_avg_coef),
+              1, totalinc_2030_baseline_lab_cc_avg_coef),
     totalinc_2030_baseline_lab_cc_max_coef =
       if_else(is.na(totalinc_2030_baseline_lab_cc_max_coef), 
-              1, totalinc_2030_baseline_lab_cc_max_coef))
+              1, totalinc_2030_baseline_lab_cc_max_coef)
+    )
 ```
 
-We assume that the loss in income translates in a loss of expenditure.
+We assume that the loss in income translates into a loss of expenditure.
 
 ```{r}
 income_losses <- ic_microsim_cc %>% 
   select(interview__key,
          totalinc_2030_baseline_lab_avg_coef, 
-         totalinc_2030_baseline_lab_avg_coef,
+         totalinc_2030_baseline_lab_max_coef,
          totalinc_2030_baseline_cc_avg_coef,
          totalinc_2030_baseline_cc_max_coef,
          totalinc_2030_baseline_lab_cc_avg_coef,
@@ -1802,26 +1870,59 @@ ca_microsim_cc <- ca_microsim %>%
 # And now reduce total consumption
 
 ca_microsim_cc <- ca_microsim_cc %>% 
-  mutate(totc_2030_baseline_lab_avg = totc * totalinc_2030_baseline_lab_avg_coef,
-         totc_cc_max = totc * totalinc_cc_max_coef) %>% 
-  mutate(aec_r_cc_avg = totc_cc_avg / ae_r / PI,
-         aec_r_cc_max = totc_cc_max / ae_r / PI) %>% 
-  mutate(poor_cc_avg = 
-           if_else(aec_r_cc_avg < 52883, 1, 0),
-         poor_cc_max = 
-           if_else(aec_r_cc_max < 52883, 1, 0))
+  mutate(totc_2030_baseline_lab_avg = totc_2030_baseline *
+           totalinc_2030_baseline_lab_avg_coef,
+         totc_2030_baseline_lab_max = totc_2030_baseline * 
+           totalinc_2030_baseline_lab_max_coef,
+         totc_2030_baseline_cc_avg = totc_2030_baseline *
+           totalinc_2030_baseline_cc_avg_coef,
+         totc_2030_baseline_cc_max = totc_2030_baseline * 
+           totalinc_2030_baseline_cc_max_coef,
+         totc_2030_baseline_lab_cc_avg = totc_2030_baseline *
+           totalinc_2030_baseline_lab_cc_avg_coef,
+         totc_2030_baseline_lab_cc_max = totc_2030_baseline * 
+           totalinc_2030_baseline_lab_cc_max_coef
+         ) %>% 
+  mutate(aec_r_2030_baseline_lab_avg = 
+           totc_2030_baseline_lab_avg / ae_r / PI,
+         aec_r_2030_baseline_lab_max = 
+           totc_2030_baseline_lab_max / ae_r / PI,
+         aec_r_2030_baseline_cc_avg = 
+           totc_2030_baseline_cc_avg / ae_r / PI,
+         aec_r_2030_baseline_cc_max = 
+           totc_2030_baseline_cc_max / ae_r / PI,
+         aec_r_2030_baseline_lab_cc_avg = 
+           totc_2030_baseline_lab_cc_avg / ae_r / PI,
+         aec_r_2030_baseline_lab_cc_max = 
+           totc_2030_baseline_lab_cc_max / ae_r / PI) %>% 
+  mutate(poor_2030_baseline_lab_avg = 
+           if_else(aec_r_2030_baseline_lab_avg < 52883, 1, 0),
+         poor_2030_baseline_lab_max = 
+           if_else(aec_r_2030_baseline_lab_max < 52883, 1, 0),
+         poor_2030_baseline_cc_avg = 
+           if_else(aec_r_2030_baseline_cc_avg < 52883, 1, 0),
+         poor_2030_baseline_cc_max = 
+           if_else(aec_r_2030_baseline_cc_max < 52883, 1, 0),
+         poor_2030_baseline_lab_cc_avg = 
+           if_else(aec_r_2030_baseline_lab_cc_avg < 52883, 1, 0),
+         poor_2030_baseline_lab_cc_max = 
+           if_else(aec_r_2030_baseline_lab_cc_max < 52883, 1, 0)
+         )
 
 # We make a table to see who became poor. 
 
 test <- ca_microsim_cc %>%
-  rename(poor_original = poor_Avpovln2022,
-         poor_cc = poor_cc_avg) %>%
+  rename(poor_original = poor_Avpovln2022_2030_baseline,
+         poor_cc = poor_2030_baseline_cc_avg) %>%
   group_by(poor_original, poor_cc) %>% 
-  summarise(no_hh = round(sum(weight, na.rm = TRUE)),
-            no_pp = round(sum(weight * hhsize, na.rm = TRUE))) %>% 
+  summarise(no_hh = round(sum(weight_2030_baseline, na.rm = TRUE)),
+            no_pp = round(sum(weight_2030_baseline * hhsize, na.rm = TRUE))) %>% 
   ungroup()
 
-#write.table(test, "clipboard", sep="\t", row.names=FALSE)
+test %>% 
+  gt()
+
+##write.table(test, "clipboard", sep="\t", row.names=FALSE)
 
 ```
 
@@ -2074,7 +2175,7 @@ test <- test%>%
 test %>% 
   gt()
 
-#write.table(test, "clipboard", sep="\t", row.names=FALSE)
+##write.table(test, "clipboard", sep="\t", row.names=FALSE)
 
 ```
 
@@ -2099,7 +2200,7 @@ fp <-foodpoor %>%
   mutate(label = paste0(NAM_1," (", new_poor, ")"))
 
 
-#write.table(fp, "clipboard", sep="\t", row.names=FALSE)
+##write.table(fp, "clipboard", sep="\t", row.names=FALSE)
 fp_map <- adm1 |> 
   left_join(fp, join_by(NAM_1 == NAM_1))
 
@@ -2254,7 +2355,7 @@ test <- test%>%
 test %>% 
   gt()
 
-#write.table(test, "clipboard", sep="\t", row.names=FALSE)
+##write.table(test, "clipboard", sep="\t", row.names=FALSE)
 ```
 
 
@@ -2277,7 +2378,7 @@ fp <-foodpoor %>%
   mutate(label = paste0(NAM_1," (", new_poor, ")"))
 
 
-#write.table(fp, "clipboard", sep="\t", row.names=FALSE)
+##write.table(fp, "clipboard", sep="\t", row.names=FALSE)
 fp_map <- adm1 |> 
   left_join(fp, join_by(NAM_1 == NAM_1))
 
@@ -2318,7 +2419,7 @@ new_poor_map <- adm1 %>%
 
 test <- as.data.frame(new_poor_map)[,c(1,2,4,5,6,7,8,9)]
 
-#write.table(test, "clipboard", sep="\t", row.names=FALSE)
+##write.table(test, "clipboard", sep="\t", row.names=FALSE)
 ```
 
 Let's map different scenarios.
@@ -2397,7 +2498,7 @@ avg_scenario_losses <- ca_microsim_cc %>%
                 )
             )
 
-#write.table(avg_scenario_losses, "clipboard", sep="\t", row.names=FALSE)
+##write.table(avg_scenario_losses, "clipboard", sep="\t", row.names=FALSE)
 
 avg_scenario_losses %>% 
   gt()
