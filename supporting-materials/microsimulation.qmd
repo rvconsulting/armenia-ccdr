@@ -781,9 +781,19 @@ The following code accomplishes the following:
 ```{r}
 # Macro Scenario File imported in "Datasets" section (scenario_file) 
 sheets <- excel_sheets(scenario_file)
+scenario_sheets <- sheets[c(1,2)]
 
-# Define the names of the scenarios and the variants 
-scenarios <- sheets[c(1,2)] # modify list with the tab numbers or names with scenarios
+# Define the names of the scenarios and the variants
+# modify list with the tab numbers in the Excel file
+scenarios <- scenario_sheets %>%
+  # Convert all text to lowercase
+  str_to_lower() %>%  
+  # Replace all spaces and hyphens with underscores
+  str_replace_all("[ -]", "_") %>%
+  # Remove the word 'scenario' or 'scenarios'
+  str_remove_all("scenario?s?") %>%
+  # Remove leading and trailing underscores
+  str_replace_all("^_+|_+$", "")  
 
 # Create an empty list to store data frames for each scenario
 scen_data_list <- list()
@@ -791,7 +801,7 @@ scen_data_list <- list()
 # Import data for each scenario and store it in the list
 for (i in seq_along(scenarios)) {
   sheet_data <- read_excel(scenario_file, 
-                           sheet = scenarios[i], 
+                           sheet = scenario_sheets[i], 
                            range = "B3:AT31",
                            col_names = FALSE)
   sheet_data$scenario_id <- scenarios[i]
@@ -1937,8 +1947,6 @@ test %>%
 We start by looking at the differences of food prices between scenarios. 
 
 ```{r}
-scenarios <- unique(macro_data$scenario_id)
-
 # We extract and reformat the price data
 price_data <- macro_data %>% 
   select(year, scenario_id, starts_with( c("fpi" , "epi") )) %>% 
@@ -1979,7 +1987,7 @@ scenario_indices <- setNames(seq_along(scenarios), scenarios)
 price_data_yearsto <- price_data_yearsto %>%
   mutate(
     scenario_index = scenario_indices[scenario],
-    composite_column = paste(commodity_group, scenario_index, year, sep = "_")
+    composite_column = paste( scenario,year,commodity_group, sep = "_")
   ) %>% 
   select(decile,index,composite_column)
 
@@ -1988,6 +1996,13 @@ composite_column_names <- unique(price_data_yearsto$composite_column)
 price_data_yearsto <- price_data_yearsto %>% 
   pivot_wider(names_from="composite_column", values_from = index)
 
+```
+
+So in this particular case, we don't want to use the price index from the `dry_hot` scenario, but we want to use the difference between the baseline and that scenario, so we are going to do those columns by hand, but we actually have to find a way to do it programmatically against the baseline.
+
+```{r}
+price_data_yearsto <- price_data_yearsto %>% 
+  mutate(food_PI = dry_hot_2030_food / baseline_2030_food)
 ```
 
 And we join with our household's dataset.
@@ -2056,8 +2071,9 @@ ca_microsim_cc <- ca_microsim_cc %>%
 
 # Calculate the percentage change in prices for each decile
 ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(food_1_dprice = (food_1_2030 - 1),
-         food_2_dprice = (food_2_2030 - 1))
+  mutate(food_1_dprice  = (baseline_2030_food - 1),
+         food_2_dprice  = (dry_hot_2030_food - 1),
+         food_PI_dprice = (food_PI - 1))
 
 # Estimate the new food consumption levels
 ca_microsim_cc <- ca_microsim_cc %>%
@@ -2065,15 +2081,18 @@ ca_microsim_cc <- ca_microsim_cc %>%
     food_q1_sim = food_quantity * 
       (1 + food_1_dprice * price_elasticity),
     food_q2_sim = food_quantity * 
-      (1 + food_2_dprice * price_elasticity))
+      (1 + food_2_dprice * price_elasticity),
+    food_q3_sim = food_quantity *
+      (1 + food_PI * price_elasticity))
 
 # Calculate the new expenditure levels
 ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(food_exp1_sim = food_q1_sim * food_1_2030,
-         food_exp2_sim = food_q2_sim * food_2_2030)
+  mutate(food_exp1_sim = food_q1_sim * baseline_2030_food,
+         food_exp2_sim = food_q2_sim * dry_hot_2030_food,
+         food_exp3_sim = food_q2_sim * food_PI)
 
 # View the results
-print(ca_microsim_cc %>% select(decile, food1, food_1_2030, food_1_dprice, food_q1_sim, food_exp1_sim, food_2_dprice, food_q2_sim, food_exp2_sim))
+print(ca_microsim_cc %>% select(decile, food1, baseline_2030_food, food_1_dprice, food_q1_sim, food_exp1_sim, food_2_dprice, food_q2_sim, food_exp2_sim,food_exp2_sim, food_PI_dprice))
 
 
 ```
@@ -2085,21 +2104,18 @@ Let's plot the distributions to see changes:
 
 # Basic density plot comparing food1 and food_exp_sim
 ggplot(ca_microsim_cc, aes(x = food1, fill = 'Initial Food Expenditure')) + 
-  geom_density(alpha = 0.5) + 
+  geom_density(alpha = 0.3) + 
   geom_density(
     data = ca_microsim_cc, 
-    aes(x = food_exp1_sim, fill = 'Food Expenditure + Dry-Hot'), 
-    alpha = 0.5) +geom_density(
-    data = ca_microsim_cc, 
-    aes(x = food_exp2_sim, fill = 'Food Expenditure + Baseline'), 
-    alpha = 0.5) +
+    aes(x = food_exp3_sim, fill = 'Baseline + Dry-Hot prices'), 
+    alpha = 0.3) +
   labs(
     fill = "Consumption Type", 
     title = "Comparison of Food Expenditure Distributions", 
     x = "Food Expenditure", 
     y = "Density") +
   theme_minimal() +
-  coord_cartesian(xlim = c(0, 150000)) + # Adjust the xlim for zoom
+  coord_cartesian(xlim = c(0, 300000)) + # Adjust the xlim for zoom
   scale_x_continuous(labels = scales::comma) +
   scale_y_continuous(labels = scales::comma)
 
@@ -2510,4 +2526,4 @@ avg_scenario_losses %>%
 ```
 
 
-1935
+2124
