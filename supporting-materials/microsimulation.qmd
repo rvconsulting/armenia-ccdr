@@ -1552,7 +1552,7 @@ crops_productivity <- crops_productivity %>%
 cs <- unique(crops_productivity$climate_scenario)
 
 # Moving average for year of interest
-ag_pdcvty_loss <- crops_productivity %>%
+crops_pdcvty_loss <- crops_productivity %>%
   filter(climate_scenario == cs[1], 
          year == yearsto[1]) %>%
   select(-pct_change_prod, 
@@ -1623,7 +1623,7 @@ pp_microsim_cc <- pp_microsim %>%
 
 # Household income processed dataset
 ic_microsim_cc <- ic_microsim %>%
-  left_join(ag_pdcvty_loss, 
+  left_join(crops_pdcvty_loss, 
             join_by(NAM_1 == NAM_1)) %>% 
   mutate(lvstk_avg_loss = lvstk_pdcvty_loss$lvstk_avg_loss[1],
          lvstk_max_loss = lvstk_pdcvty_loss$lvstk_max_loss[1])
@@ -1638,13 +1638,15 @@ pp_microsim_cc <- pp_microsim_cc %>%
   mutate(
     mli_2030_baseline_lab_avg =
       case_when(
-        # * 1000 because its thousands of Dram
         sector == 1 ~
-          monthly_labor_income_2030_baseline * (1 + agr_avg) * 1000,
+          monthly_labor_income_2030_baseline * 
+          (1 + agr_avg),
         sector == 2 ~
-          monthly_labor_income_2030_baseline * (1 + man_avg) * 1000,
+          monthly_labor_income_2030_baseline * 
+          (1 + man_avg),
         sector == 3 ~
-          monthly_labor_income_2030_baseline * (1 + ser_avg) * 1000,
+          monthly_labor_income_2030_baseline * 
+          (1 + ser_avg),
         TRUE ~ NA
       )
   ) %>%
@@ -1653,11 +1655,14 @@ pp_microsim_cc <- pp_microsim_cc %>%
       case_when(
         # * 1000 because its thousands of Dram
         sector == 1 ~
-          monthly_labor_income_2030_baseline * (1 + agr_max) * 1000,
+          monthly_labor_income_2030_baseline * 
+          (1 + agr_max),
         sector == 2 ~
-          monthly_labor_income_2030_baseline * (1 + man_max) * 1000,
+          monthly_labor_income_2030_baseline * 
+          (1 + man_max),
         sector == 3 ~
-          monthly_labor_income_2030_baseline * (1 + ser_max) * 1000,
+          monthly_labor_income_2030_baseline * 
+          (1 + ser_max),
         TRUE ~ NA
       )
   )
@@ -1674,7 +1679,7 @@ ic_new_incomes <- pp_microsim_cc %>%
     mli_2030_baseline_lab_max = 
       sum(mli_2030_baseline_lab_max, na.rm = TRUE),
     mli_original = 
-      sum(monthly_labor_income_2022 * 1000, na.rm = TRUE)
+      sum(monthly_labor_income_2030_baseline, na.rm = TRUE)
   ) %>%
   mutate(
     mli_2030_baseline_lab_avg_coef =
@@ -2505,4 +2510,4 @@ avg_scenario_losses %>%
 ```
 
 
-1804
+1935
