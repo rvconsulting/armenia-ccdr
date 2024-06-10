@@ -2084,7 +2084,7 @@ ca_microsim_cc <- ca_microsim_cc %>%
     food_q2_sim = food_quantity * 
       (1 + food_2_dprice * price_elasticity),
     food_qPI_sim = food_quantity *
-      (1 + food_PI * price_elasticity))
+      (1 + food_PI_dprice * price_elasticity))
 
 # Calculate the new expenditure levels
 ca_microsim_cc <- ca_microsim_cc %>%
@@ -2133,25 +2133,36 @@ ca_microsim_cc <- ca_microsim_cc %>%
                            totc_2030_baseline) * food_1_dprice * (
                              1 + (price_elasticity / 2) * food_1_dprice),
          food2_CSloss = ((food_quantity * implicit_price) /
-                           totc_2030_baseline) * food_2_dprice * (
+                           totc_2030_dry_hot) * food_2_dprice * (
                              1 + (price_elasticity / 2) * food_2_dprice),
+         foodPI_CSloss = ((food_quantity * implicit_price) /
+                           totc_2030_baseline_lab_cc_avg) * food_PI_dprice * (
+                             1 + (price_elasticity / 2) * food_PI_dprice),
          ttl_CSloss_1 = food1_CSloss,
-         ttl_CSloss_2 = food2_CSloss)
+         ttl_CSloss_2 = food2_CSloss,
+         ttl_CSloss_PI = foodPI_CSloss)
 
-# Calculate Purchasing Power loss for food1 and food2 scenarios
+# Calculate Purchasing Power loss for food1 and food2 and PI scenarios
 ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(food1_PPloss = (food1 / totc) * food_1_dprice,
-         food2_PPloss = (food1 / totc) * food_2_dprice,
+  mutate(food1_PPloss = (food1 / 
+                           totc_2030_baseline) * food_1_dprice,
+         food2_PPloss = (food1 / 
+                           totc_2030_dry_hot) * food_2_dprice,
+         foodPI_PPloss = (food1 / 
+                            totc_2030_baseline_lab_cc_avg) * food_PI_dprice,
          ttl_PPloss_1 = food1_PPloss,
-         ttl_PPloss_2 = food2_PPloss)
+         ttl_PPloss_2 = food2_PPloss,
+         ttl_PPloss_PI = foodPI_PPloss
+         )
 
 # Adjust total expenditure (totc) based on the purchasing power loss
 ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(totc_cc_avg_food1 = totc_cc_avg * (1 - ttl_PPloss_1),
-         totc_cc_avg_food2 = totc_cc_avg * (1 - ttl_PPloss_2))
+  mutate(totc_2030_baseline_food1 = totc_2030_baseline * (1 - ttl_PPloss_1),
+         totc_2030_dry_hot_food2 = totc_2030_dry_hot * (1 - ttl_PPloss_2),
+         totc_2030_baseline_lab_cc_foodPI = totc_2030_baseline_lab_cc_avg * (1 - ttl_PPloss_PI))
 
 # View the results
-print(ca_microsim_cc %>% select(decile, food1, food_1_2030, food_1_dprice, food_q1_sim, food_exp1_sim, food_2_dprice, food_q2_sim, food_exp2_sim, food1_CSloss, food2_CSloss, ttl_CSloss_1, ttl_CSloss_2, food1_PPloss, food2_PPloss, ttl_PPloss_1, ttl_PPloss_2, totc_cc_avg_food1, totc_cc_avg_food2))
+print(ca_microsim_cc %>% select(decile, totc_2030_baseline, totc_2030_baseline_food1, totc_2030_dry_hot_food2, totc_2030_baseline_lab_cc_foodPI))
 
 ```
 
@@ -2159,12 +2170,15 @@ Okay so now we estimate new welfare and poverty.
 
 ```{r}
 ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(aec_r_cc_avg_food1 = totc_cc_avg_food1 / ae_r / PI,
-         aec_r_cc_avg_food2 = totc_cc_avg_food2 / ae_r / PI) %>%
-  mutate(poor_cc_avg_food1 =
-           if_else(aec_r_cc_avg_food1 < 52883, 1, 0),
-         poor_cc_avg_food2 =
-           if_else(aec_r_cc_avg_food2 < 52883, 1, 0))
+  mutate(aec_r_2030_baseline_food1 = totc_2030_baseline_food1 / ae_r / PI,
+         aec_r_2030_dry_hot_food2 = totc_2030_dry_hot_food2 / ae_r / PI,
+         aec_r_2030_baseline_foodPI = totc_2030_baseline_lab_cc_foodPI / ae_r / PI) %>%
+  mutate(poor_2030_baseline_food1 =
+           if_else(aec_r_2030_baseline_food1 < 52883, 1, 0),
+         poor_2030_dry_hot_food2 =
+           if_else(aec_r_2030_dry_hot_food2 < 52883, 1, 0),
+         poor_2030_baseline_lab_cc_foodPI =
+           if_else(aec_r_2030_baseline_foodPI < 52883, 1, 0))
 
 ```
 
@@ -2175,13 +2189,14 @@ And now we see who became poor
 test <- ca_microsim_cc
 
 test <- test%>%
-  rename(poor_original = poor_Avpovln2022,
-         poor_cc = poor_cc_avg,
-         poor_cc_food1 = poor_cc_avg_food1,
-         poor_cc_food2 = poor_cc_avg_food2) %>%
-  group_by(poor_original, poor_cc_food1) %>% 
-  summarise(no_hh = round(sum(weight, na.rm = TRUE)),
-            no_pp = round(sum(weight*hhsize, na.rm = TRUE)))
+  rename(poor_original = poor_Avpovln2022_2030_baseline,
+         poor_cc = poor_2030_baseline_lab_cc_avg,
+         poor_food1 = poor_2030_baseline_food1,
+         poor_food2 = poor_2030_dry_hot_food2,
+         poor_foodPI =  poor_2030_baseline_lab_cc_foodPI) %>%
+  group_by(poor_original, poor_foodPI) %>% 
+  summarise(no_hh = round(sum(weight_2030_baseline, na.rm = TRUE)),
+            no_pp = round(sum(weight_2030_baseline*hhsize, na.rm = TRUE)))
 
 test %>% 
   gt()
@@ -2232,19 +2247,23 @@ Let's plot how the distribution moves with all these measures.
 ```{r}
 # Basic density plot comparing equivalized consumption per capita
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_cc_avg_food1, fill = 'Dry/Hot + Food Price')) +
-  geom_density(alpha = 0.5) + 
+       aes(x = aec_r_2030_baseline_foodPI, fill = 'Baseline + CC + Food Price (D/H)')) +
+  geom_density(alpha = 0.5) +
+  # geom_density(
+  #   data = ca_microsim_cc,
+  #   aes(x = aec_r_2030_dry_hot, fill = 'Dry/Hot'),
+  #   alpha = 0.5) +
+  # geom_density(
+  #   data = ca_microsim_cc,
+  #   aes(x = aec_r_2030_dry_hot_food2, fill = 'Dry/Hot + Food Price'),
+  #   alpha = 0.5) +
   geom_density(
-    data = ca_microsim_cc, 
-    aes(x = aec_r_cc_avg_food2, fill = 'Baseline + CC + Food Price'), 
-    alpha = 0.5) + 
+    data = ca_microsim_cc,
+    aes(x = aec_r_2030_baseline_lab_cc_avg, fill = 'Baseline + CC'),
+    alpha = 0.5) +
   geom_density(
-    data = ca_microsim_cc, 
-    aes(x = aec_r_cc_avg, fill = 'Baseline + CC'), 
-    alpha = 0.5) + 
-  geom_density(
-    data = ca_microsim_cc, 
-    aes(x = aec_r, fill = 'Baseline'), 
+    data = ca_microsim_cc,
+    aes(x = aec_r_2030_baseline, fill = 'Baseline'),
     alpha = 0.5) +
   labs(
     fill = "Consumption Type", 
@@ -2277,14 +2296,14 @@ And we also plot the cumulative distributions.
 ```{r}
 # Plot the cumulative distribution with left-facing arrows
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_cc_avg_food1, color = 'Dry/Hot + Food Price')) +
+       aes(x = aec_r_2030_baseline_foodPI, color = 'Baseline + CC + Food Price (D/H)')) +
   stat_ecdf(geom = "step") +
+  # stat_ecdf(data = ca_microsim_cc, 
+  #           aes(x = aec_r_2030_dry_hot, color = 'Dry/Hot')) +
   stat_ecdf(data = ca_microsim_cc, 
-            aes(x = aec_r_cc_avg_food2, color = 'Baseline + CC + Food Price')) +
+            aes(x = aec_r_2030_baseline_lab_cc_avg, color = 'Baseline + CC')) +
   stat_ecdf(data = ca_microsim_cc, 
-            aes(x = aec_r_cc_avg, color = 'Baseline + CC')) +
-  stat_ecdf(data = ca_microsim_cc, 
-            aes(x = aec_r, color = 'Baseline')) +
+            aes(x = aec_r_2030_baseline, color = 'Baseline')) +
   labs(
     color = "Consumption Type", 
     title = "Comparison of Cumulative Consumption Distributions", 
