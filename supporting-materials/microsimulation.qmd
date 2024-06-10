@@ -251,7 +251,10 @@ crops_productivity <-
   read.csv("data/ARM-Vulnerability-Analysis/ARM_crops_combined_REF_shock_admin1.csv") %>% 
   rename(NAM_1 = Province)
 livestock_productivity <-
-  read.csv("data/ARM-Vulnerability-Analysis/ARM_livestock_REF_shock.csv")
+  read.csv(
+    "data/ARM-Vulnerability-Analysis/ARM_livestock_REF_shock_admin1.csv"
+    ) %>% 
+  rename(NAM_1 = Province)
 crops_aal <- 
   read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
             sheet = "Agriculture_AAL")
@@ -1578,12 +1581,12 @@ And we do the same for livestock productivity.In this case, there is no disaggre
 ```{r}
 # First calculate moving window average
 livestock_productivity <- livestock_productivity %>%
-  group_by(climate_scenario) %>%
+  group_by(NAM_1, climate.scenario) %>%
   arrange(year) %>%
   # Moving window average
   mutate(
     moving_avg = rollapply(
-      pct_change_rev,
+      pct_change_prod,
       width = 11,
       # 5 years before, 5 after + reference year = 11
       FUN = mean,
@@ -1595,7 +1598,7 @@ livestock_productivity <- livestock_productivity %>%
     # Moving window max value 5 years before, 5 after
     # Since it's expressed in negative values (min) is the maximum
     moving_max = rollapply(
-      pct_change_rev,
+      pct_change_prod,
       width = 11,
       FUN = min,
       partial = TRUE,
@@ -1607,15 +1610,15 @@ livestock_productivity <- livestock_productivity %>%
   ungroup()
 
 # Clim scenarios to select
-cs <- unique(livestock_productivity$climate_scenario)
+cs <- unique(livestock_productivity$climate.scenario)
 
 # Moving average for year of interest
 lvstk_pdcvty_loss <- livestock_productivity %>%
-  filter(climate_scenario == cs[1], 
+  filter(climate.scenario == cs[1], 
          year == yearsto[1]) %>%
-  select(-pct_change_rev, 
-         #-year, 
-         -climate_scenario) %>%
+  select(-pct_change_prod, 
+         -year, 
+         -climate.scenario) %>%
   rename(lvstk_avg_loss = moving_avg, 
          lvstk_max_loss = moving_max)
 ```
@@ -1635,8 +1638,8 @@ pp_microsim_cc <- pp_microsim %>%
 ic_microsim_cc <- ic_microsim %>%
   left_join(crops_pdcvty_loss, 
             join_by(NAM_1 == NAM_1)) %>% 
-  mutate(lvstk_avg_loss = lvstk_pdcvty_loss$lvstk_avg_loss[1],
-         lvstk_max_loss = lvstk_pdcvty_loss$lvstk_max_loss[1])
+  left_join(lvstk_pdcvty_loss,
+            join_by(NAM_1))
 ```
 
 And we first shock labor income.
@@ -1928,7 +1931,7 @@ ca_microsim_cc <- ca_microsim_cc %>%
 
 test <- ca_microsim_cc %>%
   rename(poor_original = poor_Avpovln2022_2030_baseline,
-         poor_cc = poor_2030_baseline_cc_avg) %>%
+         poor_cc = poor_2030_baseline_lab_avg) %>%
   group_by(poor_original, poor_cc) %>% 
   summarise(no_hh = round(sum(weight_2030_baseline, na.rm = TRUE)),
             no_pp = round(sum(weight_2030_baseline * hhsize, na.rm = TRUE))) %>% 
@@ -2002,7 +2005,7 @@ So in this particular case, we don't want to use the price index from the `dry_h
 
 ```{r}
 price_data_yearsto <- price_data_yearsto %>% 
-  mutate(food_PI = dry_hot_2030_food / baseline_2030_food)
+  mutate(food_PI = dry_hot_2030_food - baseline_2030_food +1)
 ```
 
 And we join with our household's dataset.
@@ -2057,8 +2060,6 @@ ca_microsim_cc <- ca_microsim_cc %>%
   left_join(decile_models, by = "decile")
 ```
 
-
-
 Let's apply the elasticities to the new data.
 
 ```{r}
@@ -2082,14 +2083,14 @@ ca_microsim_cc <- ca_microsim_cc %>%
       (1 + food_1_dprice * price_elasticity),
     food_q2_sim = food_quantity * 
       (1 + food_2_dprice * price_elasticity),
-    food_q3_sim = food_quantity *
+    food_qPI_sim = food_quantity *
       (1 + food_PI * price_elasticity))
 
 # Calculate the new expenditure levels
 ca_microsim_cc <- ca_microsim_cc %>%
   mutate(food_exp1_sim = food_q1_sim * baseline_2030_food,
          food_exp2_sim = food_q2_sim * dry_hot_2030_food,
-         food_exp3_sim = food_q2_sim * food_PI)
+         food_exp3_sim = food_qPI_sim * food_PI)
 
 # View the results
 print(ca_microsim_cc %>% select(decile, food1, baseline_2030_food, food_1_dprice, food_q1_sim, food_exp1_sim, food_2_dprice, food_q2_sim, food_exp2_sim,food_exp2_sim, food_PI_dprice))
@@ -2126,25 +2127,14 @@ Calculate losses in consumer surplus and purchasing power loss.
 
 ```{r}
 
-# Calculate the implicit price (assuming baseline implicit price is 1 for simplicity)
-ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(implicit_price = 1,  # Simplified assumption
-         food_quantity = food1 / implicit_price)
-
-# Calculate the percentage change in prices for each decile
-ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(food_1_dprice = (food_1_2030 - 1),
-         food_2_dprice = (food_2_2030 - 1))
-
-# Use the existing new food consumption levels (already calculated)
-# ca_microsim_cc <- ca_microsim_cc %>%
-#   mutate(food_q1_sim = food_quantity * (1 + food_1_dprice * price_elasticity),
-#          food_q2_sim = food_quantity * (1 + food_2_dprice * price_elasticity))
-
 # Calculate Consumer Surplus loss for food1 and food2 scenarios
 ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(food1_CSloss = ((food_quantity * implicit_price) / totc) * food_1_dprice * (1 + (price_elasticity / 2) * food_1_dprice),
-         food2_CSloss = ((food_quantity * implicit_price) / totc) * food_2_dprice * (1 + (price_elasticity / 2) * food_2_dprice),
+  mutate(food1_CSloss = ((food_quantity * implicit_price) / 
+                           totc_2030_baseline) * food_1_dprice * (
+                             1 + (price_elasticity / 2) * food_1_dprice),
+         food2_CSloss = ((food_quantity * implicit_price) /
+                           totc_2030_baseline) * food_2_dprice * (
+                             1 + (price_elasticity / 2) * food_2_dprice),
          ttl_CSloss_1 = food1_CSloss,
          ttl_CSloss_2 = food2_CSloss)
 
@@ -2526,4 +2516,4 @@ avg_scenario_losses %>%
 ```
 
 
-2124
+2093
