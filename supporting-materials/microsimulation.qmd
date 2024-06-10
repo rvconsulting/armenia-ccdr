@@ -2247,7 +2247,7 @@ Let's plot how the distribution moves with all these measures.
 ```{r}
 # Basic density plot comparing equivalized consumption per capita
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_2030_baseline_foodPI, fill = 'Baseline + CC + Food Price (D/H)')) +
+       aes(x = aec_r_2030_baseline_foodPI, fill = 'Baseline + LP/CC + Food Price (D/H)')) +
   geom_density(alpha = 0.5) +
   # geom_density(
   #   data = ca_microsim_cc,
@@ -2259,7 +2259,7 @@ ggplot(ca_microsim_cc,
   #   alpha = 0.5) +
   geom_density(
     data = ca_microsim_cc,
-    aes(x = aec_r_2030_baseline_lab_cc_avg, fill = 'Baseline + CC'),
+    aes(x = aec_r_2030_baseline_lab_cc_avg, fill = 'Baseline + LP/CC'),
     alpha = 0.5) +
   geom_density(
     data = ca_microsim_cc,
@@ -2296,12 +2296,12 @@ And we also plot the cumulative distributions.
 ```{r}
 # Plot the cumulative distribution with left-facing arrows
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_2030_baseline_foodPI, color = 'Baseline + CC + Food Price (D/H)')) +
+       aes(x = aec_r_2030_baseline_foodPI, color = 'Baseline + LP/CC + Food Price (D/H)')) +
   stat_ecdf(geom = "step") +
   # stat_ecdf(data = ca_microsim_cc, 
-  #           aes(x = aec_r_2030_dry_hot, color = 'Dry/Hot')) +
+  #           aes(x = aec_r_2030_baseline_lab_avg, color = 'Baseline + Labor Productivity')) +
   stat_ecdf(data = ca_microsim_cc, 
-            aes(x = aec_r_2030_baseline_lab_cc_avg, color = 'Baseline + CC')) +
+            aes(x = aec_r_2030_baseline_lab_cc_avg, color = 'Baseline + LP/CC')) +
   stat_ecdf(data = ca_microsim_cc, 
             aes(x = aec_r_2030_baseline, color = 'Baseline')) +
   labs(
