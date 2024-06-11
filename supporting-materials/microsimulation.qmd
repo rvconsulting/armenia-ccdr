@@ -1112,7 +1112,17 @@ head(rakedata[, c("weight", "weight_2030_baseline")])
 summary(rakedata$weight_2030_baseline)
 summary(rakedata$weight)
 
-rakedata <- rakedata %>% 
+hh_size <- rakedata %>% 
+  select(hhid, hhsize) %>% 
+  mutate(ones = 1,
+         hhsize_old = hhsize) %>% 
+  group_by(hhid) %>% 
+  summarise(hhsize = sum(ones, na.rm = TRUE)) %>% 
+  ungroup()
+
+rakedata <- rakedata %>%
+  rename(hhsize_old = hhsize) %>% 
+  left_join(hh_size, join_by(hhid)) %>% 
   relocate(weight, .before = weight_2030_baseline) %>% 
   mutate(hh_weight_2030_baseline = weight_2030_baseline / hhsize)
 
@@ -1932,9 +1942,9 @@ ca_microsim_cc <- ca_microsim_cc %>%
 test <- ca_microsim_cc %>%
   rename(poor_original = poor_Avpovln2022_2030_baseline,
          poor_cc = poor_2030_baseline_lab_avg) %>%
-  group_by(poor_original, poor_cc) %>% 
-  summarise(no_hh = round(sum(weight_2030_baseline, na.rm = TRUE)),
-            no_pp = round(sum(weight_2030_baseline * hhsize, na.rm = TRUE))) %>% 
+  group_by(poor_Avpovln2022_2030_dry_hot) %>% 
+  summarise(no_hh = round(sum(weight_2030_dry_hot, na.rm = TRUE)),
+            no_pp = round(sum(weight_2030_dry_hot * hhsize, na.rm = TRUE))) %>% 
   ungroup()
 
 test %>% 
@@ -2194,7 +2204,7 @@ test <- test%>%
          poor_food1 = poor_2030_baseline_food1,
          poor_food2 = poor_2030_dry_hot_food2,
          poor_foodPI =  poor_2030_baseline_lab_cc_foodPI) %>%
-  group_by(poor_original, poor_foodPI) %>% 
+  group_by(poor_original) %>% 
   summarise(no_hh = round(sum(weight_2030_baseline, na.rm = TRUE)),
             no_pp = round(sum(weight_2030_baseline*hhsize, na.rm = TRUE)))
 
@@ -2208,37 +2218,37 @@ test %>%
 And we map these results.
 
 ```{r}
-foodpoor <- ca_microsim_cc %>%
-  mutate(new_poor_food_base = if_else(
-    poor_cc_avg_food2 == 1 & poor_cc_avg == 0, 1, 0),
-         new_poor_food_dryhot = if_else(
-           poor_cc_avg_food1 == 1 & poor_cc_avg == 0, 1, 0),
-    NAM_1 = as_factor(marz)) %>% 
-  mutate(NAM_1 = if_else(NAM_1 == "VayotsDzor", "Vayots Dzor", NAM_1)) %>% 
-  mutate(NAM_1 = if_else(NAM_1 == "Sjunik", "Syunik", NAM_1)) %>% 
-  select(NAM_1, poor_Avpovln2022, poor_cc_avg, poor_cc_max,
-         poor_cc_avg_food1, poor_cc_avg_food2, new_poor_food_base,
-         new_poor_food_dryhot, weight, hhsize)
-
-fp <-foodpoor %>% 
-  group_by(NAM_1) %>% 
-  summarise(new_poor = round(sum(new_poor_food_dryhot * weight*hhsize, na.rm = TRUE))) %>% 
-  mutate(label = paste0(NAM_1," (", new_poor, ")"))
-
-
-##write.table(fp, "clipboard", sep="\t", row.names=FALSE)
-fp_map <- adm1 |> 
-  left_join(fp, join_by(NAM_1 == NAM_1))
-
-fp_map <-tm_shape(fp_map)+
-  tm_polygons("new_poor", legend.show = FALSE) +
-  tm_text("label", size = .7, col = "black")+
-  tm_layout(legend.position = c("right", "top"), 
-            title= "Additional Poor Dry-Hot Scenario", 
-            title.position = c('left', 'bottom'),
-            title.size = 0.9)
-
-fp_map
+# foodpoor <- ca_microsim_cc %>%
+#   mutate(new_poor_food_base = if_else(
+#     poor_cc_avg_food2 == 1 & poor_cc_avg == 0, 1, 0),
+#          new_poor_food_dryhot = if_else(
+#            poor_cc_avg_food1 == 1 & poor_cc_avg == 0, 1, 0),
+#     NAM_1 = as_factor(marz)) %>% 
+#   mutate(NAM_1 = if_else(NAM_1 == "VayotsDzor", "Vayots Dzor", NAM_1)) %>% 
+#   mutate(NAM_1 = if_else(NAM_1 == "Sjunik", "Syunik", NAM_1)) %>% 
+#   select(NAM_1, poor_Avpovln2022, poor_cc_avg, poor_cc_max,
+#          poor_cc_avg_food1, poor_cc_avg_food2, new_poor_food_base,
+#          new_poor_food_dryhot, weight, hhsize)
+# 
+# fp <-foodpoor %>% 
+#   group_by(NAM_1) %>% 
+#   summarise(new_poor = round(sum(new_poor_food_dryhot * weight*hhsize, na.rm = TRUE))) %>% 
+#   mutate(label = paste0(NAM_1," (", new_poor, ")"))
+# 
+# 
+# ##write.table(fp, "clipboard", sep="\t", row.names=FALSE)
+# fp_map <- adm1 |> 
+#   left_join(fp, join_by(NAM_1 == NAM_1))
+# 
+# fp_map <-tm_shape(fp_map)+
+#   tm_polygons("new_poor", legend.show = FALSE) +
+#   tm_text("label", size = .7, col = "black")+
+#   tm_layout(legend.position = c("right", "top"), 
+#             title= "Additional Poor Dry-Hot Scenario", 
+#             title.position = c('left', 'bottom'),
+#             title.size = 0.9)
+# 
+# fp_map
 
 ```
 
@@ -2266,8 +2276,8 @@ ggplot(ca_microsim_cc,
     aes(x = aec_r_2030_baseline, fill = 'Baseline'),
     alpha = 0.5) +
   labs(
-    fill = "Consumption Type", 
-    title = "Comparison of Consumption Distributions", 
+    fill = "Consumption Distribution\nby Scenario Variant", 
+    # title = "Comparison of Consumption Distributions", 
     x = "Equivalized consumption (Dram)", 
     y = "Probability") +
   theme_minimal()+
@@ -2305,8 +2315,8 @@ ggplot(ca_microsim_cc,
   stat_ecdf(data = ca_microsim_cc, 
             aes(x = aec_r_2030_baseline, color = 'Baseline')) +
   labs(
-    color = "Consumption Type", 
-    title = "Comparison of Cumulative Consumption Distributions", 
+    color = "Cumulative Consumption\nby Scenario Variant", 
+    # title = "Comparison of Cumulative Consumption Distributions", 
     x = "Equivalized consumption (Dram)", 
     y = "Cumulative Probability") +
   theme_minimal() +
@@ -2334,28 +2344,34 @@ ggplot(ca_microsim_cc,
 
 ```
 
-We bring back poverty to the 
+We bring back poverty to the people's dataset.
 
 ```{r}
 # We extract household poverty designations from the data
 new_poor <- ca_microsim_cc %>% 
-  select(hhid, poor_Avpovln2022_old, 
-         poor_Avpovln2022, 
-         poor_cc_avg, 
-         poor_cc_max,
-         poor_cc_avg_food1,
-         poor_cc_avg_food2
+  select(hhid,
+         weight_2030_baseline,
+         weight_2030_dry_hot,
+         poor_Avpovln2022_2022, 
+         poor_Avpovln2022_2030_baseline, 
+         poor_Avpovln2022_2030_dry_hot,
+         poor_2030_baseline_lab_avg, 
+         poor_2030_baseline_lab_max,
+         poor_2030_baseline_cc_avg,
+         poor_2030_baseline_cc_max, 
+         poor_2030_baseline_lab_cc_avg, 
+         poor_2030_baseline_lab_cc_max, 
+         poor_2030_baseline_food1,
+         poor_2030_dry_hot_food2,
+         poor_2030_baseline_lab_cc_foodPI
          )
 
 # And merge them back into the people dataset
 pp_microsim_cc <- pp_microsim_cc %>% 
-  select(c(-poor_Avpovln2022)) %>% 
+  select(-c(poor_Avpovln2022,
+           weight_2030_baseline,
+           weight_2030_dry_hot)) %>% 
   left_join(new_poor, join_by(hhid)) %>% 
-  rename(
-    
-    weight_old = weight,
-    weight = weight_2030_baseline
-  ) %>% 
   mutate(female = if_else(gender == 2, 1,0),
          youth = if_else(age < 15, 1, 0))
 
@@ -2369,18 +2385,21 @@ We make a table to see who became poor.
 test <- pp_microsim_cc
 
 test <- test%>%
-  rename(poor_original = poor_Avpovln2022,
-         poor_cc = poor_cc_avg,
-         poor_cc_food1 = poor_cc_avg_food1,
-         poor_cc_food2 = poor_cc_avg_food2) %>%
+  rename(poor_original = poor_Avpovln2022_2030_baseline,
+         poor_lab = poor_2030_baseline_lab_avg,
+         poor_cc = poor_2030_baseline_cc_avg,
+         poor_lab_cc = poor_2030_baseline_lab_cc_avg,
+         poor_foodPI = poor_2030_baseline_lab_cc_foodPI
+         ) %>%
   group_by(poor_original) %>% 
-  summarise(no_pp = round(sum(weight, na.rm = TRUE)),
-            female = round(sum(female*weight, na.rm = TRUE)),
+  summarise(no_pp = round(sum(weight_2030_baseline, na.rm = TRUE)),
+            female = round(sum(female*weight_2030_baseline, na.rm = TRUE)),
             male = no_pp - female,
-            youth = round(sum(youth*weight, na.rm = TRUE)),
+            youth = round(sum(youth*weight_2030_baseline, na.rm = TRUE)),
             non_youth = no_pp - youth,
-            rural = round(sum(rural *weight, na.rm = TRUE)),
-            urban = no_pp - rural)
+            rural = round(sum(rural *weight_2030_baseline, na.rm = TRUE)),
+            urban = no_pp - rural
+            )
 
 test %>% 
   gt()
@@ -2390,66 +2409,81 @@ test %>%
 
 
 ```{r}
-foodpoor <- ca_microsim_cc %>%
-  mutate(new_poor_food_base = if_else(
-    poor_cc_avg_food2 == 1 & poor_cc_avg == 0, 1, 0),
-         new_poor_food_dryhot = if_else(
-           poor_cc_avg_food1 == 1 & poor_cc_avg == 0, 1, 0),
-    NAM_1 = as_factor(marz)) %>% 
-  mutate(NAM_1 = if_else(NAM_1 == "VayotsDzor", "Vayots Dzor", NAM_1)) %>% 
-  mutate(NAM_1 = if_else(NAM_1 == "Sjunik", "Syunik", NAM_1)) %>% 
-  select(NAM_1, poor_Avpovln2022, poor_cc_avg, poor_cc_max,
-         poor_cc_avg_food1, poor_cc_avg_food2, new_poor_food_base,
-         new_poor_food_dryhot, weight, hhsize)
-
-fp <-foodpoor %>% 
-  group_by(NAM_1) %>% 
-  summarise(new_poor = round(sum(new_poor_food_dryhot * weight*hhsize, na.rm = TRUE))) %>% 
-  mutate(label = paste0(NAM_1," (", new_poor, ")"))
-
-
-##write.table(fp, "clipboard", sep="\t", row.names=FALSE)
-fp_map <- adm1 |> 
-  left_join(fp, join_by(NAM_1 == NAM_1))
-
-fp_map <-tm_shape(fp_map)+
-  tm_polygons("new_poor", legend.show = FALSE) +
-  tm_text("label", size = .7, col = "black")+
-  tm_layout(legend.position = c("right", "top"), 
-            title= "Additional Poor Dry-Hot Scenario", 
-            title.position = c('left', 'bottom'),
-            title.size = 0.9)
-
-fp_map
+# foodpoor <- ca_microsim_cc %>%
+#   mutate(new_poor_food_base = if_else(
+#     poor_2030_baseline_lab_cc_foodPI == 1 &
+#       poor_2030_baseline_lab_cc_avg == 0, 1, 0),
+#          new_poor_food_dryhot = if_else(
+#            poor_cc_avg_food1 == 1 & poor_cc_avg == 0, 1, 0),
+#     NAM_1 = as_factor(marz)) %>% 
+#   mutate(NAM_1 = if_else(NAM_1 == "VayotsDzor", "Vayots Dzor", NAM_1)) %>% 
+#   mutate(NAM_1 = if_else(NAM_1 == "Sjunik", "Syunik", NAM_1)) %>% 
+#   select(NAM_1, poor_Avpovln2022_2022, 
+#          poor_Avpovln2022_2030_baseline, 
+#          poor_Avpovln2022_2030_dry_hot,
+#          poor_2030_baseline_lab_avg, 
+#          poor_2030_baseline_lab_max,
+#          poor_2030_baseline_cc_avg,
+#          poor_2030_baseline_cc_max, 
+#          poor_2030_baseline_lab_cc_avg, 
+#          poor_2030_baseline_lab_cc_max, 
+#          poor_2030_baseline_food1,
+#          poor_2030_dry_hot_food2,
+#          poor_2030_baseline_lab_cc_foodPI,
+#          weight_2030_baseline,
+#          weight_2030_dry_hot,
+#          hhsize)
+# 
+# fp <-foodpoor %>% 
+#   group_by(NAM_1) %>% 
+#   summarise(new_poor = round(sum(new_poor_food_dryhot * weight*hhsize, na.rm = TRUE))) %>% 
+#   mutate(label = paste0(NAM_1," (", new_poor, ")"))
+# 
+# 
+# ##write.table(fp, "clipboard", sep="\t", row.names=FALSE)
+# fp_map <- adm1 |> 
+#   left_join(fp, join_by(NAM_1 == NAM_1))
+# 
+# fp_map <-tm_shape(fp_map)+
+#   tm_polygons("new_poor", legend.show = FALSE) +
+#   tm_text("label", size = .7, col = "black")+
+#   tm_layout(legend.position = c("right", "top"), 
+#             title= "Additional Poor Dry-Hot Scenario", 
+#             title.position = c('left', 'bottom'),
+#             title.size = 0.9)
+# 
+# fp_map
 ```
 
 
 ```{r}
 new_poor_scenarios <- pp_microsim_cc %>% 
   group_by(NAM_1) %>% 
-  mutate(new_poor_cc = if_else(poor_Avpovln2022==0 & poor_cc_avg==1, 1, 0),
-         new_poor_cc_food1 = if_else(poor_Avpovln2022==0 & poor_cc_avg_food1 ==1, 1, 0),
-         new_poor_cc_food2 = if_else(poor_Avpovln2022==0 & poor_cc_avg_food2 ==1, 1, 0)) %>% 
-  summarise(total_population = round(sum(weight, na.rm = TRUE)),
-            new_p_cc = round(sum(new_poor_cc*weight, na.rm = TRUE)),
-            new_p_food1 = round(sum(new_poor_cc_food1*weight, na.rm = TRUE)),
-            new_p_food2 = round(sum(new_poor_cc_food2*weight, na.rm = TRUE)),
-            new_p_cc_pct = new_p_cc/total_population * 100,
-            new_p_food1_pct = new_p_food1/total_population * 100,
-            new_p_food2_pct = new_p_food2/total_population * 100
+  mutate(poor_baseline = poor_Avpovln2022_2030_baseline,
+         new_poor_lab_cc = if_else(poor_Avpovln2022_2030_baseline==0 &
+                                 poor_2030_baseline_lab_cc_avg==1, 1, 0),
+         new_poor_lab_cc_foodPI = if_else(poor_Avpovln2022_2030_baseline==0 & poor_2030_baseline_lab_cc_foodPI ==1, 1, 0)) %>% 
+  summarise(total_population = round(sum(weight_2030_baseline, na.rm = TRUE)),
+            poor_baseline = 
+              round(sum(poor_baseline*weight_2030_baseline, na.rm = TRUE)),
+            new_p_lab_cc = 
+              round(sum(new_poor_lab_cc*weight_2030_baseline, na.rm = TRUE)),
+            new_p_lab_cc_foodPI = 
+              round(sum(new_poor_lab_cc_foodPI*weight_2030_baseline, na.rm = TRUE))
             )
 
-new_poor_map <- adm1 %>% 
-  left_join(new_poor_scenarios, join_by(NAM_1)) %>% 
-  mutate(
-     new_p_cc_label    = paste0(NAM_1,"\n(", sprintf("%.1f%%",new_p_cc_pct   ), ")"),
-     new_p_food1_label = paste0(NAM_1,"\n(", sprintf("%.1f%%",new_p_food1_pct), ")"),
-     new_p_food2_label = paste0(NAM_1,"\n(", sprintf("%.1f%%",new_p_food2_pct), ")")
-  )
+# new_poor_map <- adm1 %>% 
+#   left_join(new_poor_scenarios, join_by(NAM_1)) %>% 
+#   mutate(
+#      new_p_cc_label    = paste0(NAM_1,"\n(", sprintf("%.1f%%",new_p_cc_pct   ), ")"),
+#      new_p_food1_label = paste0(NAM_1,"\n(", sprintf("%.1f%%",new_p_food1_pct), ")"),
+#      new_p_food2_label = paste0(NAM_1,"\n(", sprintf("%.1f%%",new_p_food2_pct), ")")
+#   )
 
-test <- as.data.frame(new_poor_map)[,c(1,2,4,5,6,7,8,9)]
+# test <- as.data.frame(new_poor_map)[,c(1,2,4,5,6,7,8,9)]
 
 ##write.table(test, "clipboard", sep="\t", row.names=FALSE)
+##write.table(new_poor_scenarios, "clipboard", sep="\t", row.names=FALSE)
 ```
 
 Let's map different scenarios.
@@ -2484,49 +2518,46 @@ Now let's show average losses by decile as a percentage of total spending.
 
 ```{r}
 avg_scenario_losses <- ca_microsim_cc %>% 
-  mutate(totc_loss_cc = if_else((totc_cc_avg - totc)< 0,
-                                (totc_cc_avg - totc)/totc,NA),
-         totc_loss_cc_food1 =
-           if_else(
-             (totc_cc_avg_food1 - totc)< 0,
-             (totc_cc_avg_food1 - totc)/totc,NA),
-         totc_loss_cc_food2 = 
-           if_else(
-             (totc_cc_avg_food2 - totc)< 0,
-             (totc_cc_avg_food2 - totc)/totc,NA)
-           ) %>%
-  group_by(decile) %>% 
+  mutate(
+    totc_loss_lab_cc = if_else(
+      (totc_2030_baseline_lab_cc_avg - totc_2030_baseline)< 0,
+      (totc_2030_baseline_lab_cc_avg - totc_2030_baseline)/
+        totc_2030_baseline,NA),
+    totc_loss_lab_cc_foodPI = if_else(
+      (totc_2030_baseline_lab_cc_foodPI - totc_2030_baseline)< 0,
+      (totc_2030_baseline_lab_cc_foodPI - totc_2030_baseline)/
+        totc_2030_baseline,NA)
+         ) %>%
+ # group_by(decile) %>% 
   summarise(no_hh = 
               round(
                 sum(
-                  weight, na.rm = TRUE), digits = 0
+                  weight_2030_baseline, na.rm = TRUE), digits = 0
                 ),
             avg_totc = 
               round(
                 weighted.mean(
-                  totc, weight, na.rm = TRUE), digits = 2
+                  totc_2030_baseline, weight_2030_baseline, na.rm = TRUE), digits = 2
                 ),
             avg_totc_usd = 
               round(
                 weighted.mean(
-                  totc, weight, na.rm = TRUE)*er, digits = 1
+                  totc_2030_baseline, weight_2030_baseline, na.rm = TRUE)*er, digits = 1
                 ),
-            avg_loss_cc = 
+            avg_loss_lab_cc = 
               round(
                 weighted.mean(
-                  totc_loss_cc, weight, na.rm = TRUE), digits = 4
+                  totc_loss_lab_cc, 
+                  weight_2030_baseline, 
+                  na.rm = TRUE), 
+                digits = 4
                 ),
-            avg_loss_cc_food1 = 
+            avg_loss_lab_cc_foodPI = 
               round(
                 weighted.mean(
-                  totc_loss_cc_food1, weight, na.rm = TRUE), digits = 4
-                ),
-            avg_loss_cc_food2 = 
-              round(
-                weighted.mean(
-                  totc_loss_cc_food2, weight, na.rm = TRUE), digits = 4
-                )
-            )
+                  totc_loss_lab_cc_foodPI, 
+                  weight_2030_baseline, 
+                  na.rm = TRUE), digits = 4))
 
 ##write.table(avg_scenario_losses, "clipboard", sep="\t", row.names=FALSE)
 
