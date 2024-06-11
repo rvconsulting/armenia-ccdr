@@ -2458,7 +2458,6 @@ test %>%
 
 ```{r}
 new_poor_scenarios <- pp_microsim_cc %>%
-  group_by(NAM_1) %>%
   mutate(
     poor_baseline = poor_Avpovln2022_2030_baseline,
     new_poor_lab_cc = if_else(
@@ -2474,6 +2473,7 @@ new_poor_scenarios <- pp_microsim_cc %>%
       0
     )
   ) %>%
+  group_by(NAM_1) %>%
   summarise(
     total_population = round(sum(weight_2030_baseline, na.rm = TRUE)),
     poor_baseline =
@@ -2486,16 +2486,17 @@ new_poor_scenarios <- pp_microsim_cc %>%
       )),
     new_p_lab_cc_foodPI =
       round(
-        sum(new_poor_lab_cc_foodPI * weight_2030_baseline, na.rm = TRUE)),
-        new_p_lab_cc_pct = new_poor_lab_cc / poor_baseline *
-          100,
-        new_poor_lab_cc_foodPI_pct = new_poor_lab_cc_foodPI /
-          poor_baseline * 100
-      
+        sum(new_poor_lab_cc_foodPI * weight_2030_baseline, na.rm = TRUE))
   )
 
 new_poor_map <- adm1 %>%
   left_join(new_poor_scenarios, join_by(NAM_1)) %>%
+  mutate(
+    new_p_lab_cc_pct = new_p_lab_cc / total_population *
+          100,
+    new_poor_lab_cc_foodPI_pct = new_p_lab_cc_foodPI /
+         total_population * 100
+  ) %>% 
   mutate(
     new_p_lab_cc_label    = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_p_lab_cc_pct), ")"),
     new_p_lab_cc_food1PI_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_lab_cc_foodPI_pct), ")")
@@ -2511,29 +2512,34 @@ Let's map different scenarios.
 
 ```{r}
 tm_shape(new_poor_map)+
-  tm_polygons("new_p_lab_cc", legend.show = FALSE) +
+  tm_polygons("new_p_lab_cc_pct", title="Percent", legend.show = TRUE) +
   tm_text(c("new_p_lab_cc_label"), size = .7, col = "black")+
-  tm_layout(legend.position = c("right", "top"), 
-            title= "New poor as a share of total population\nBaseline + CC", 
+  tm_layout(legend.position = c("right", "top"),
+            #legend.outside = TRUE,
+            title= "New poor as a percentage of Marz population\nBaseline + LP/CC",
             title.position = c('left', 'bottom'),
             title.size = 0.9)
 
-tm_shape(new_poor_map)+
-  tm_polygons("new_p_food2_pct", legend.show = FALSE) +
-  tm_text(c("new_p_food2_label"), size = .7, col = "black")+
-  tm_layout(legend.position = c("right", "top"), 
-            title= "New poor as a share of total population\nBaseline + CC + FP", 
-            title.position = c('left', 'bottom'),
-            title.size = 0.9)
 
-tm_shape(new_poor_map)+
-  tm_polygons("new_p_food1_pct", legend.show = FALSE) +
-  tm_text(c("new_p_food1_label"), size = .7, col = "black")+
-  tm_layout(legend.position = c("right", "top"), 
-            title= "New poor as a share of total population\nDry-Hot Scenario + FP", 
-            title.position = c('left', 'bottom'),
-            title.size = 0.9)
 ```
+
+And the second variant
+
+```{r}
+tm_shape(new_poor_map)+
+  tm_polygons("new_poor_lab_cc_foodPI_pct",
+              title="Percent", 
+              legend.show = TRUE) +
+  tm_text(c("new_p_lab_cc_food1PI_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"), 
+            title= "New poor as a percentage of Marz population\nBaseline + LP/CC + Food Prices (D/H)",
+#            outer.margins=c(.10,.10, .10, .10), 
+            title.position = c('left', 'bottom'),
+            title.size = 0.9)
+
+```
+
+
 
 Now let's show average losses by decile as a percentage of total spending.
 
@@ -2549,7 +2555,7 @@ avg_scenario_losses <- ca_microsim_cc %>%
       (totc_2030_baseline_lab_cc_foodPI - totc_2030_baseline)/
         totc_2030_baseline,NA)
          ) %>%
- # group_by(decile) %>% 
+  group_by(decile) %>% 
   summarise(no_hh = 
               round(
                 sum(
@@ -2587,4 +2593,4 @@ avg_scenario_losses %>%
 ```
 
 
-2093
+
