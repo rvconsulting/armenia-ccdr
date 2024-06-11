@@ -2257,7 +2257,7 @@ Let's plot how the distribution moves with all these measures.
 ```{r}
 # Basic density plot comparing equivalized consumption per capita
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_2030_baseline_foodPI, fill = 'Baseline + LP/CC + Food Price (D/H)')) +
+       aes(x = aec_r_2030_baseline_foodPI, fill = 'Baseline + LP/CC + Food Prices (D/H)')) +
   geom_density(alpha = 0.5) +
   # geom_density(
   #   data = ca_microsim_cc,
@@ -2306,7 +2306,7 @@ And we also plot the cumulative distributions.
 ```{r}
 # Plot the cumulative distribution with left-facing arrows
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_2030_baseline_foodPI, color = 'Baseline + LP/CC + Food Price (D/H)')) +
+       aes(x = aec_r_2030_baseline_foodPI, color = 'Baseline + LP/CC + Food Prices (D/H)')) +
   stat_ecdf(geom = "step") +
   # stat_ecdf(data = ca_microsim_cc, 
   #           aes(x = aec_r_2030_baseline_lab_avg, color = 'Baseline + Labor Productivity')) +
@@ -2457,28 +2457,49 @@ test %>%
 
 
 ```{r}
-new_poor_scenarios <- pp_microsim_cc %>% 
-  group_by(NAM_1) %>% 
-  mutate(poor_baseline = poor_Avpovln2022_2030_baseline,
-         new_poor_lab_cc = if_else(poor_Avpovln2022_2030_baseline==0 &
-                                 poor_2030_baseline_lab_cc_avg==1, 1, 0),
-         new_poor_lab_cc_foodPI = if_else(poor_Avpovln2022_2030_baseline==0 & poor_2030_baseline_lab_cc_foodPI ==1, 1, 0)) %>% 
-  summarise(total_population = round(sum(weight_2030_baseline, na.rm = TRUE)),
-            poor_baseline = 
-              round(sum(poor_baseline*weight_2030_baseline, na.rm = TRUE)),
-            new_p_lab_cc = 
-              round(sum(new_poor_lab_cc*weight_2030_baseline, na.rm = TRUE)),
-            new_p_lab_cc_foodPI = 
-              round(sum(new_poor_lab_cc_foodPI*weight_2030_baseline, na.rm = TRUE))
-            )
+new_poor_scenarios <- pp_microsim_cc %>%
+  group_by(NAM_1) %>%
+  mutate(
+    poor_baseline = poor_Avpovln2022_2030_baseline,
+    new_poor_lab_cc = if_else(
+      poor_Avpovln2022_2030_baseline == 0 &
+        poor_2030_baseline_lab_cc_avg == 1,
+      1,
+      0
+    ),
+    new_poor_lab_cc_foodPI = if_else(
+      poor_Avpovln2022_2030_baseline == 0 &
+        poor_2030_baseline_lab_cc_foodPI == 1,
+      1,
+      0
+    )
+  ) %>%
+  summarise(
+    total_population = round(sum(weight_2030_baseline, na.rm = TRUE)),
+    poor_baseline =
+      round(sum(
+        poor_baseline * weight_2030_baseline, na.rm = TRUE
+      )),
+    new_p_lab_cc =
+      round(sum(
+        new_poor_lab_cc * weight_2030_baseline, na.rm = TRUE
+      )),
+    new_p_lab_cc_foodPI =
+      round(
+        sum(new_poor_lab_cc_foodPI * weight_2030_baseline, na.rm = TRUE)),
+        new_p_lab_cc_pct = new_poor_lab_cc / poor_baseline *
+          100,
+        new_poor_lab_cc_foodPI_pct = new_poor_lab_cc_foodPI /
+          poor_baseline * 100
+      
+  )
 
-# new_poor_map <- adm1 %>% 
-#   left_join(new_poor_scenarios, join_by(NAM_1)) %>% 
-#   mutate(
-#      new_p_cc_label    = paste0(NAM_1,"\n(", sprintf("%.1f%%",new_p_cc_pct   ), ")"),
-#      new_p_food1_label = paste0(NAM_1,"\n(", sprintf("%.1f%%",new_p_food1_pct), ")"),
-#      new_p_food2_label = paste0(NAM_1,"\n(", sprintf("%.1f%%",new_p_food2_pct), ")")
-#   )
+new_poor_map <- adm1 %>%
+  left_join(new_poor_scenarios, join_by(NAM_1)) %>%
+  mutate(
+    new_p_lab_cc_label    = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_p_lab_cc_pct), ")"),
+    new_p_lab_cc_food1PI_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_lab_cc_foodPI_pct), ")")
+  )
 
 # test <- as.data.frame(new_poor_map)[,c(1,2,4,5,6,7,8,9)]
 
@@ -2490,8 +2511,8 @@ Let's map different scenarios.
 
 ```{r}
 tm_shape(new_poor_map)+
-  tm_polygons("new_p_cc", legend.show = FALSE) +
-  tm_text(c("new_p_cc_label"), size = .7, col = "black")+
+  tm_polygons("new_p_lab_cc", legend.show = FALSE) +
+  tm_text(c("new_p_lab_cc_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"), 
             title= "New poor as a share of total population\nBaseline + CC", 
             title.position = c('left', 'bottom'),
