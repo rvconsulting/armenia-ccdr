@@ -406,7 +406,7 @@ pp_microsim <- pp_microsim %>%
          annual_labor_total))
 ```
 
-26.23% employed with no labor income reported!!! We calculate this way:
+28.57% employed with no labor income reported!!! We calculate this way:
 
 ```{r}
 total_employed_no_income <- pp_microsim %>%
@@ -894,6 +894,8 @@ macro_data <- macro_data %>%
   relocate(scenario_id, Variant, .before = year) %>% 
   arrange(scenario_id, Variant, year)
 
+# write.table(macro_data, "clipboard", sep="\t", row.names=FALSE)
+
 ```
 
 ## Reweighting of the dataset
@@ -971,7 +973,8 @@ pop_total <- sum(pop_targets_2030$total)
 pop_targets_2030 <- pop_targets_2030 %>% 
   mutate(pct_total = total / pop_total)
 
-#writeClipboard(as_raw_html(gt(pop_targets_2030)))
+#writeClipboard(pop_targets_2030)
+# write.table(pop_targets_2030, "clipboard", sep="\t", row.names=FALSE)
   
 ```
 
@@ -1264,7 +1267,7 @@ wages_by_sector <- wages_by_sector %>%
 
 wages_by_sector %>%
   gt()
-
+# write.table(wages_by_sector, "clipboard", sep="\t", row.names=FALSE)
 ```
 
 We then add the coefficient to rescale each wage by sector
@@ -1586,7 +1589,7 @@ crops_pdcvty_loss <- crops_productivity %>%
          crops_max_loss = moving_max)
 ```
 
-And we do the same for livestock productivity.In this case, there is no disaggregation by Marz.
+And we do the same for livestock productivity.In this case, there is also disaggregation by Marz.
 
 ```{r}
 # First calculate moving window average
@@ -1650,6 +1653,8 @@ ic_microsim_cc <- ic_microsim %>%
             join_by(NAM_1 == NAM_1)) %>% 
   left_join(lvstk_pdcvty_loss,
             join_by(NAM_1))
+
+##write.table(lab_loss_avg, "clipboard", sep="\t", row.names=FALSE)
 ```
 
 And we first shock labor income.
@@ -2257,7 +2262,7 @@ Let's plot how the distribution moves with all these measures.
 ```{r}
 # Basic density plot comparing equivalized consumption per capita
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_2030_baseline_foodPI, fill = 'Baseline + LP/CC + Food Prices (D/H)')) +
+       aes(x = aec_r_2030_baseline_foodPI, fill = 'Direct CC + Food Price')) +
   geom_density(alpha = 0.5) +
   # geom_density(
   #   data = ca_microsim_cc,
@@ -2269,14 +2274,14 @@ ggplot(ca_microsim_cc,
   #   alpha = 0.5) +
   geom_density(
     data = ca_microsim_cc,
-    aes(x = aec_r_2030_baseline_lab_cc_avg, fill = 'Baseline + LP/CC'),
+    aes(x = aec_r_2030_baseline_lab_cc_avg, fill = 'Direct CC'),
     alpha = 0.5) +
   geom_density(
     data = ca_microsim_cc,
     aes(x = aec_r_2030_baseline, fill = 'Baseline'),
     alpha = 0.5) +
   labs(
-    fill = "Consumption Distribution\nby Scenario Variant", 
+    fill = "Scenario Variant", 
     # title = "Comparison of Consumption Distributions", 
     x = "Equivalized consumption (Dram)", 
     y = "Probability") +
@@ -2306,16 +2311,16 @@ And we also plot the cumulative distributions.
 ```{r}
 # Plot the cumulative distribution with left-facing arrows
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_2030_baseline_foodPI, color = 'Baseline + LP/CC + Food Prices (D/H)')) +
+       aes(x = aec_r_2030_baseline_foodPI, color = 'Direct CC + Food Price')) +
   stat_ecdf(geom = "step") +
   # stat_ecdf(data = ca_microsim_cc, 
   #           aes(x = aec_r_2030_baseline_lab_avg, color = 'Baseline + Labor Productivity')) +
   stat_ecdf(data = ca_microsim_cc, 
-            aes(x = aec_r_2030_baseline_lab_cc_avg, color = 'Baseline + LP/CC')) +
+            aes(x = aec_r_2030_baseline_lab_cc_avg, color = 'Direct CC')) +
   stat_ecdf(data = ca_microsim_cc, 
             aes(x = aec_r_2030_baseline, color = 'Baseline')) +
   labs(
-    color = "Cumulative Consumption\nby Scenario Variant", 
+    color = "Scenario Variant", 
     # title = "Comparison of Cumulative Consumption Distributions", 
     x = "Equivalized consumption (Dram)", 
     y = "Cumulative Probability") +
@@ -2516,7 +2521,7 @@ tm_shape(new_poor_map)+
   tm_text(c("new_p_lab_cc_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"),
             #legend.outside = TRUE,
-            title= "New poor as a percentage of Marz population\nBaseline + LP/CC",
+            title= "New poor as a percentage of Marz population\nDirect CC",
             title.position = c('left', 'bottom'),
             title.size = 0.9)
 
@@ -2532,7 +2537,7 @@ tm_shape(new_poor_map)+
               legend.show = TRUE) +
   tm_text(c("new_p_lab_cc_food1PI_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"), 
-            title= "New poor as a percentage of Marz population\nBaseline + LP/CC + Food Prices (D/H)",
+            title= "New poor as a percentage of Marz population\nDirect CC + Food Price",
 #            outer.margins=c(.10,.10, .10, .10), 
             title.position = c('left', 'bottom'),
             title.size = 0.9)
