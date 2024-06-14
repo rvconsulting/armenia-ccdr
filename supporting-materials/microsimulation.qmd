@@ -94,7 +94,8 @@ We call the appropriate libraries.
 Rather than calling our libraries as we go, we will make sure we have everything we need from the beginning.
 
 ```{r output=FALSE}
-# Load packages
+#| label: load-packages
+
 library(tidyverse) # includes dplyr, ggplot2 and others
 library(haven)     # to read SPSS and Stata datasets
 library(readxl)    # to read from MS-Excel
@@ -103,13 +104,15 @@ library(gt)        # pretty tables
 library(car)       # Companion to applied regression
 library(modelr)    # regression models
 #library(ebal)      # Entropy reweighting
-library(anesrake)  # Raking reweighting
+#library(anesrake)  
+# Raking reweighting but we don't load it, because 
+# it changes the meaning of summarize from dplyr, 
+# so we use the form anesrake::anesrake() when using it.
 #library(weights)   # Weigthed survey statistics
 library(janitor)   # pretty subtotals
 library(broom)     # More regressions
 library(purrr)     # map vectors (aggregation)
 library(zoo)       # Calculate moving window average and max value
-
 
 # Geopackages
 library(sf)        # to read and write shapefile maps
@@ -117,60 +120,52 @@ library(terra)     # to perform geocalculations
 library(tmap)      # for static and interactive maps
 ```
 
-Stata integration
-
-```{r}
-library(RStata)    # stata integration for wentropy function
-options("RStata.StataPath" = "\"C:\\Program Files (x86)\\Stata11\\StataMP\"")
-options("RStata.StataVersion" = 11)
-```
-
-
 ## Datasets
 
 We then load the datasets that we need for this study. The World Bank has processed some of these already for poverty analysis and so we have the original SPSS datasets with all variables for Households `hh` and for Individuals `pp`, as well as a consumption aggregate `ca` and a household income `ic` dataset, which are Stata datasets. This is for the year 2022. These are imported using the `haven` package. These are based on Armenia Integrated Living Conditions Survey 2022 [@armstat_integrated_2023].
 
-```{r output=FALSE}
-# Original SPSS datasets
+```{r warning=FALSE, message=FALSE, output=FALSE}
+# | label: original-datasets
+
 # Households (hh)
 hh <- read_sav(
   "data/ARM-HH-survey/original-spss-files/ILCS-ARM-2022-Households.sav")
 # Persons (pp)
 pp <- read_sav(
   "data/ARM-HH-survey/original-spss-files/ILCS-ARM-2022-Persons.sav")
-
-# Processed WB datasets
 # Consumption aggregate at household level (ca)
 ca  <- read_dta("data/ARM-HH-survey/CONSAGG2022.dta")
 # Processed income at household level (ic)
 ic  <- read_dta("data/ARM-HH-survey/totinc.dta") 
-
 # Food diary
 food_with_prices <- read_dta("data/ARM-HH-survey/FOOD_with_prices_short.dta")
-
 ```
 
 We will work non-destructively, meaning we will not rewrite these data sets and we will only create intermediate data frame objects from them to perform transformations, selections and other data management tasks. For example, we will keep household assignment to poverty status and consumption deciles handy by creating a subset of our `ca` data with only our household identifiers, deciles, and poverty.
 
 ```{r warning=FALSE, message=FALSE}
+#| label: deciles
+
 # From the WB processed dataset, we extract deciles and poverty
 deciles <- ca %>% 
   select( hhid, decile, poor_Avpovln2022, 
           poor_Foodpovln2022, poor_Lpovln2022, poor_Upovln2022)
-
 ```
 
 Our population data comes from UN's projections.
 
 ```{r warning=FALSE, message=FALSE}
-# Population projections UN 2022
+#| label: population-projections
 population_projections <- read_dta("data/UN2022_population.dta") %>% 
-  filter(country == iso)
+  filter(country == iso) # we filter for Armenia
 ```
 
 Macro scenario dataset
 
-```{r}
+```{r warning=FALSE, message=FALSE, output=FALSE}
+#| label: import-macro-scenarios
+
+
 scenario_file <- "data/ARM-Microsimulation/ARM_MacroScenarioInformation.xlsx"
 scenario_varlist <- read_xlsx(
   "data/ARM-Microsimulation/ARM_Macro_varlist.xlsx")
@@ -178,23 +173,31 @@ prices_2030 <-
   read.csv("data/ARM-Microsimulation/prices2030.csv")
 ```
 
-
-Economic sectors.
+Codes for Economic Activities in the Survey
 
 ```{r}
+#| label: import-economic-activity-codes
+
 sectors <- read_xlsx("data/ARM-HH-survey/economic_activity_codes.xlsx")
 ```
 
-We also have geographical information for level 1 in Shapefile format, which we import with the `sf` package. We rename the column with the name of the administrative region to match our household survey data set conventions to ease mergers. The `dplyr` package from the `tidyverse` meta package allows us to "pipe" or link processing steps using the `%>%` pipe, which can be inserted using **Ctrl + m.** Although there is no geoprocessing in this analysis, this will come in handy for graphical presentations. Let's have a look at it.
+We also have geographical information for level 1 in Shapefile format, which we import with the `sf` package. We rename the column with the name of the administrative region to match our household survey data set conventions to ease mergers. The `dplyr` package from the `tidyverse` meta package allows us to "pipe" or link processing steps using the `%>%` pipe. Although there is no geoprocessing in this analysis, this will come in handy for graphical presentations.
 
 ```{r warning=FALSE, message=FALSE}
-# Geodata
+#| label: import-geodata
+
 # Armenia marzes or administrative level 1 shapefile
 adm1 <- read_sf("data/ARM-Geodata/ARM-ADM1.shp") %>% 
   select(NAM_1, COD_HH_SVY, geometry) %>% 
     # Make sure that names match the rest of datasets
   mutate(NAM_1 = if_else(NAM_1 == "Gergharkunik", "Gegharkunik", NAM_1))
-names(adm1)[2] <- "hh_02"
+names(adm1)[2] <- "hh_02" 
+```
+
+And we plot it for reference.
+
+```{r}
+#| label: plot-armenia-map-example
 
 tm_shape(adm1)+
   tm_polygons("NAM_1", legend.show = FALSE) +
@@ -204,6 +207,8 @@ tm_shape(adm1)+
 Marzes names are more accurate in the shapefile than in the survey. We will use them from here on instead of the survey factor labels.
 
 ```{r warning=FALSE, message=FALSE}
+#| label: marz-name-from-geodata
+
 hh <- hh %>% 
   left_join(adm1, join_by(hh_02 == hh_02)) %>% 
   select(-geometry)
@@ -213,9 +218,11 @@ ic <- ic %>%
   select(-geometry)
 ```
 
-Labor productivity
+We have changes to labor productivity due to climate variability.
 
 ```{r}
+#| label: import-labor-productivity-data
+
 file <- r"(data/ARM-Microsimulation/LaborProductivityChanges.xlsx)"
 sheets <- excel_sheets(file)
 
@@ -235,10 +242,11 @@ heat_l_pdcty <- lapply(sheets, function(sheet) {
 heat_l_pdcty <- bind_rows(heat_l_pdcty)
 ```
 
-
-Finally, but not least important, we have our vulnerability information.
+Finally, but not less important, we have our vulnerability information.
 
 ```{r warning=FALSE, message=FALSE}
+#| label: import-vulnerability-data
+
 buildings_aal <- 
   read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
             sheet = "Building_AAL") %>% 
@@ -280,7 +288,7 @@ consumption_aggregates <- ca %>%
          poor_Avpovln2022, decile )  # Keep only necessary columns
 ```
 
-### Demographic characteristics, education, Labor Force
+### Demographic characteristics, education, labor force
 
 Here the original code calls for Zone data, which is not present in our dataset, due to the different administrative structure of Armenia. However, we use `hh_01_code` (settlement) for this purpose.
 
@@ -292,7 +300,7 @@ zone_data <- hh %>%
     hhid = interview__key, # Household id
     zone = hh_01_code,     # Settlement
     marz = hh_02,          # Marz
-    NAM_1 = NAM_1,          # Marz name
+    NAM_1 = NAM_1,         # Marz name
     urb_rur = hh_03        # Urban / rural
   )
 ```
@@ -314,7 +322,8 @@ pp_microsim <- pp %>%
          # Labor Force Status
          lstatus = case_when(
            # 1. Employed
-           est_03 == 1 | est_04 == 1 | est_05 == 1 | est_06 == 1 | est_08 == 1 ~ 1L,
+           est_03 == 1 | est_04 == 1 | est_05 == 1 |
+             est_06 == 1 | est_08 == 1 ~ 1L,
            # 2. Unemployed (available, and searching)
            est_10 == 1 ~ 2L,
            # 3. Inactive (available, not searching)
@@ -325,14 +334,15 @@ pp_microsim <- pp %>%
          employed = (lstatus == 1),
          # Salaried status (1. paid employee; 2 self-employed)
          salaried = ifelse(!is.na(emp_11a), 1L, 
-                           ifelse(is.na(emp_11a) & employed == TRUE, 0L, NA_integer_))
+                           ifelse(is.na(emp_11a) & 
+                                    employed == TRUE, 0L, NA_integer_))
          ) %>%
   rename(rel = mem_03) # %>% 
   # select(hhid, pid, gender, age, head, rel, zone, marz, urb_rur, educy,
   #        lstatus, employed, salaried, )  
 ```
 
-Later, when we conduct the reweighting of the dataset, we need to summarise into three levels of education.
+Later, when we conduct the reweighting of the dataset, we need to summarize into three levels of education.
 
 ```{r}
 pp_microsim <- pp_microsim %>%
@@ -342,10 +352,6 @@ pp_microsim <- pp_microsim %>%
     educy > 7 & educy <= 11 ~ "Higher +",
     TRUE ~ NA_character_  # This handles any values outside the specified ranges
   ))
-
-# View the first few rows to confirm the recoding
-head(pp_microsim[,c("calif")])
-
 ```
 
 Count the number of employed persons by household.
@@ -683,7 +689,7 @@ Collapsing data by summing up variables starting with "yf" and "ym" and reshapin
 ```{r}
 population_projections <- population_projections %>%
   group_by(Variant, country, cohort) %>%
-  summarise(across(starts_with(c("yf", "ym")), sum)) %>%
+  summarize(across(starts_with(c("yf", "ym")), sum)) %>%
   ungroup()
 
 population_projections <- pivot_longer(population_projections,
@@ -724,13 +730,13 @@ for (variant in variants) {
     # Calculate population for year t
     pop_t <- population_projections %>%
       filter(year == t, Variant == variant) %>%
-      summarise(sum_pop = sum(total_population)) %>%
+      summarize(sum_pop = sum(total_population)) %>%
       pull(sum_pop)
     
     # Calculate population for base year
     pop_base <- population_projections %>%
       filter(year == minyear, Variant == variant) %>%
-      summarise(sum_pop = sum(total_population)) %>%
+      summarize(sum_pop = sum(total_population)) %>%
       pull(sum_pop)
     
     # Calculate growth rate and store in list with dynamic naming
@@ -784,7 +790,7 @@ The following code accomplishes the following:
 ```{r}
 # Macro Scenario File imported in "Datasets" section (scenario_file) 
 sheets <- excel_sheets(scenario_file)
-scenario_sheets <- sheets[c(1,2)]
+scenario_sheets <- sheets[c(1,2,3)]
 
 # Define the names of the scenarios and the variants
 # modify list with the tab numbers in the Excel file
@@ -828,7 +834,7 @@ combined_data <- combined_data %>%
 
 pop_data <- population_projections %>% 
   group_by(Variant, year) %>% 
-  summarise(female = sum(yf),
+  summarize(female = sum(yf),
             male = sum(ym),
             total_population = sum(total_population) ) %>% 
   ungroup()
@@ -962,7 +968,7 @@ We also need demographic targets for 2030
 pop_targets_2030 <- population_projections  %>% 
   filter(year == 2030, Variant == variants[7])  %>% 
   group_by(cohort_code, cohort_short) %>% 
-    summarise(female = sum(yf),
+    summarize(female = sum(yf),
               male   = sum(ym), 
               total = sum(total_population),
               ) %>%
@@ -978,16 +984,16 @@ pop_targets_2030 <- pop_targets_2030 %>%
   
 ```
 
-And economic targets from our macroeconomic scenario data.
+And economic targets from our macroeconomic scenario data. We deal with this later. Should come back to fix this so we can automate.
 
 ```{r}
-economic_targets_2030 <- macro_data %>%
-  filter(year == 2030, Variant == "Medium", scenario_id == "baseline") %>%
-  summarise(
-    target_lab_agr = sum(lab_agr_1000p * 1000),
-    target_lab_man = sum(lab_man_1000p * 1000),
-    target_lab_ser = sum(lab_ser_1000p * 1000)
-  )
+# economic_targets_2030 <- macro_data %>%
+#   filter(year == 2030, Variant == "Medium", scenario_id == "baseline") %>%
+#   summarize(
+#     target_lab_agr = sum(lab_agr_1000p * 1000),
+#     target_lab_man = sum(lab_man_1000p * 1000),
+#     target_lab_ser = sum(lab_ser_1000p * 1000)
+#  )
 ```
 
 For a better representation of the labor market, we will take into account the combination between labor status and economic sector of the employed and adjust that combination according to the macrodata so that we can accurately model changes in total employment, sector distribution of the employed and overall population changes.
@@ -1024,8 +1030,9 @@ gender_code <- c(
 cohort_code <- pop_targets_2030$pct_total
 
 # Four digits are better than two in this case, raking is quite accurate.
-lmarket_baseline <- c(0.1341, 0.0494, 0.2611, 0.2472, 0.3082)
-lmarket_dry_hot  <- c(0.1368,	0.0489,	0.2593,	0.2472,	0.3078)
+lmarket_baseline <- c(0.1342, 0.0494, 0.2611, 0.2473, 0.3080)
+lmarket_dry_hot  <- c(0.1369, 0.0489, 0.2593, 0.2473, 0.3076)
+lmarket_nzs      <- c(0.1251, 0.0516, 0.2623, 0.2516, 0.3094)
 # Note how similar the scenarios are
 
 # Target list baseline
@@ -1050,6 +1057,17 @@ names(targets_dry_hot) <- c("gender_code",
                     "lmarket"
                     )
 
+# Target list NZS
+targets_nzs <- list(gender_code
+                , cohort_code
+                , lmarket_nzs
+                )
+
+names(targets_nzs) <- c("gender_code", 
+                    "cohort_code", 
+                    "lmarket"
+                    )
+
 ```
 
 And now we perform the reweighting, using the original weights. Initially we had used the default option type = "pctlim" combined with pctlim=0.05, because the method recommends that if reweighting changes for one variable according to its target  are not of at least 5%, then it's not worth burdening the procedure with it. It then ignored sex as a reweighting variable, leaving a small percentage difference between the target and the final population. However, we then tried removing this limitation and the procedure reached convergence in 33 iterations very efficiently.
@@ -1058,9 +1076,9 @@ And now we perform the reweighting, using the original weights. Initially we had
 # Since this uses base R, we need to turn the data frame into base R object
 rakedata <- as.data.frame(pp_microsim)
 
-anesrakefinder(targets_baseline, rakedata, choosemethod = "total")
+anesrake::anesrakefinder(targets_baseline, rakedata, choosemethod = "total")
 
-outsave <- anesrake(targets_baseline, 
+outsave <- anesrake::anesrake(targets_baseline, 
                     rakedata, 
                     caseid = rakedata$pid, 
                     #verbose = FALSE,
@@ -1086,18 +1104,10 @@ n  <- length(rakedata$sector)
 original_weight_sum <- sum(rakedata$weight)
 
 # # Target scaling for original weights
-# In a first version, we used the population scaling from UN,
-# But to match with the labor market given by the scenario, we take
-# the total population from the macro scenario information. Differences are
-# small anyway.
 
-# original_weight_scaling_factor <-
-#   pop_data$total_population[pop_data$year == 2030] /
-#   pop_data$total_population[pop_data$year == 2022]
-
-# For year 2030 (Calculated in Excel, but need a more elegant solution
-# from macrodataset)
-original_weight_scaling_factor <- 0.992805755
+original_weight_scaling_factor <-
+  pop_data$total_population[pop_data$year == 2030] /
+  pop_data$total_population[pop_data$year == 2022]
 
 # Scaled original weights
 original_weight_sum <- (original_weight_sum 
@@ -1120,7 +1130,7 @@ hh_size <- rakedata %>%
   mutate(ones = 1,
          hhsize_old = hhsize) %>% 
   group_by(hhid) %>% 
-  summarise(hhsize = sum(ones, na.rm = TRUE)) %>% 
+  summarize(hhsize = sum(ones, na.rm = TRUE)) %>% 
   ungroup()
 
 rakedata <- rakedata %>%
@@ -1140,9 +1150,9 @@ We now do the Dry/Hot Scenario. The efficient way of doing this is through a loo
 # Since this uses base R, we need to turn the data frame into base R object
 rakedata <- as.data.frame(pp_microsim)
 
-anesrakefinder(targets_dry_hot, rakedata, choosemethod = "total")
+anesrake::anesrakefinder(targets_dry_hot, rakedata, choosemethod = "total")
 
-outsave <- anesrake(targets_dry_hot, 
+outsave <- anesrake::anesrake(targets_dry_hot, 
                     rakedata, 
                     caseid = rakedata$pid, 
                     #verbose = FALSE,
@@ -1166,20 +1176,11 @@ rakedata$weight_2030_dry_hot  <- unlist(outsave[1])
 # Calculate the sum of original weights
 original_weight_sum <- sum(rakedata$weight)
 
-# # Target scaling for original weights
-# In a first version, we used the population scaling from UN,
-# But to match with the labor market given by the scenario, we take
-# the total population from the macro scenario information. Differences are
-# small anyway.
+# Target scaling for original weights
 
-# original_weight_scaling_factor <-
-#   pop_data$total_population[pop_data$year == 2030] /
-#   pop_data$total_population[pop_data$year == 2022]
-
-# For year 2030 (Calculated in Excel, but need a more elegant solution
-# from macrodataset)
-# It's the same as the baseline
-original_weight_scaling_factor <- 0.992805755
+original_weight_scaling_factor <-
+  pop_data$total_population[pop_data$year == 2030] /
+  pop_data$total_population[pop_data$year == 2022]
 
 # Scaled original weights
 original_weight_sum <- (original_weight_sum 
@@ -1200,6 +1201,68 @@ summary(rakedata$weight)
 rakedata <- rakedata %>% 
   mutate(hh_weight_2030_dry_hot = weight_2030_dry_hot / hhsize)
 
+pp_microsim <- tibble(rakedata)
+rm(rakedata)
+
+```
+
+Let's add the NZS scenario
+
+```{r}
+# Since this uses base R, we need to turn the data frame into base R object
+rakedata <- as.data.frame(pp_microsim)
+
+anesrake::anesrakefinder(targets_nzs, rakedata, choosemethod = "total")
+
+outsave <- anesrake::anesrake(targets_nzs, 
+                    rakedata, 
+                    caseid = rakedata$pid, 
+                    #verbose = FALSE,
+                    choosemethod = "total",
+                    #type = "pctlim",
+                    type = "nolim",
+                    #cap = 100,
+                    #pctlim = 0.05,
+                    nlim = 3,
+                    iterate = TRUE,
+                    force1 = TRUE,
+                    verbose = TRUE,
+                    weightvec = rakedata$weight)
+
+summary(outsave)
+
+# add weights to the dataset
+
+rakedata$weight_2030_nzs  <- unlist(outsave[1])
+
+# Calculate the sum of original weights
+original_weight_sum <- sum(rakedata$weight)
+
+# Target scaling for original weights
+
+original_weight_scaling_factor <-
+  pop_data$total_population[pop_data$year == 2030] /
+  pop_data$total_population[pop_data$year == 2022]
+
+# Scaled original weights
+original_weight_sum <- (original_weight_sum 
+                        * original_weight_scaling_factor)
+
+# Calculate the sum of the new weights
+new_weight_sum <- sum(rakedata$weight_2030_nzs)
+
+# Scale the new weights to match the sum of the original weights
+scaling_factor <- original_weight_sum / new_weight_sum
+rakedata$weight_2030_nzs <- rakedata$weight_2030_nzs * scaling_factor
+
+# Verify the adjustment
+head(rakedata[, c("weight", "weight_2030_nzs")])
+summary(rakedata$weight_2030_nzs)
+summary(rakedata$weight)
+
+rakedata <- rakedata %>% 
+  mutate(hh_weight_2030_nzs = weight_2030_nzs / hhsize)
+
 ```
 
 Weights for the household database
@@ -1208,11 +1271,13 @@ Weights for the household database
 # We calculate new weights for households in the hh database
 weights_scenarios <- rakedata %>% 
   group_by(hhid) %>%
-  summarise(
+  summarize(
     hh_weight_2030_baseline = 
       sum(hh_weight_2030_baseline, na.rm = TRUE),
     hh_weight_2030_dry_hot = 
-      sum(hh_weight_2030_dry_hot, na.rm = TRUE)
+      sum(hh_weight_2030_dry_hot, na.rm = TRUE),
+    hh_weight_2030_nzs = 
+      sum(hh_weight_2030_nzs, na.rm = TRUE)
     )
 
 # We return rakedata to data frame pp_microsim and get rid of rakedata
@@ -1229,19 +1294,22 @@ As a last step, we rescale labor income according to changes to the wage bill in
 
 ```{r}
 # Wage rescale factor by sector from macro (Agriculture, Manufacturing, Services)
-wrf_2030_baseline <- c(1.269821454, 1.284834838, 1.328623737)
+wrf_2030_baseline  <- c(1.269821454, 1.284834838, 1.328623737)
 wrf_2030_dry_hot   <- c(1.279274540, 1.258485855, 1.302350464)
+wrf_2030_nzs       <- c(1.153117879, 1.217975434, 1.226770578)
 
 # We check the wage bill by sector
 wages_by_sector <- pp_microsim %>%
   filter(!is.na(sector_w)) %>% 
   group_by(sector_w, .drop = TRUE) %>% 
-  summarise(
+  summarize(
     wages_2022 = sum(annual_labor_total * weight, na.rm = TRUE),
     wages_2030_baseline = 
       sum(annual_labor_total * weight_2030_baseline, na.rm = TRUE),
     wages2030_dry_hot   = 
-      sum(annual_labor_total * weight_2030_dry_hot, na.rm = TRUE)
+      sum(annual_labor_total * weight_2030_dry_hot, na.rm = TRUE),
+    wages2030_nzs   = 
+      sum(annual_labor_total * weight_2030_nzs, na.rm = TRUE)
   )
 
 
@@ -1261,12 +1329,19 @@ wages_by_sector <- wages_by_sector %>%
       sector_w == 3 ~ wages_2022 * wrf_2030_dry_hot[3],
       .default = NA
     ),
+    wages_target2030_nzs = case_when(
+      sector_w == 1 ~ wages_2022 * wrf_2030_nzs[1],
+      sector_w == 2 ~ wages_2022 * wrf_2030_nzs[2],
+      sector_w == 3 ~ wages_2022 * wrf_2030_nzs[3],
+      .default = NA
+    ),
     wtc_2030_baseline = wages_target_2030_baseline / wages_2030_baseline,
-    wtc_2030_dry_hot = wages_target2030_dry_hot / wages2030_dry_hot
+    wtc_2030_dry_hot = wages_target2030_dry_hot / wages2030_dry_hot,
+    wtc_2030_nzs = wages_target2030_nzs / wages2030_nzs
     ) 
 
-wages_by_sector %>%
-  gt()
+# wages_by_sector %>%
+#   gt()
 # write.table(wages_by_sector, "clipboard", sep="\t", row.names=FALSE)
 ```
 
@@ -1302,19 +1377,35 @@ pp_microsim <- pp_microsim %>%
       sector_w == 2 ~ annual_labor_total_2022 * wages_by_sector$wtc_2030_dry_hot[2],
       sector_w == 3 ~ annual_labor_total_2022 * wages_by_sector$wtc_2030_dry_hot[3],
       TRUE ~ NA
+    ),
+    monthly_labor_income_2030_nzs = case_when(
+      sector_w == 1 ~ monthly_labor_income_2022 * wages_by_sector$wtc_2030_nzs[1],
+      sector_w == 2 ~ monthly_labor_income_2022 * wages_by_sector$wtc_2030_nzs[2],
+      sector_w == 3 ~ monthly_labor_income_2022 * wages_by_sector$wtc_2030_nzs[3],
+      TRUE ~ NA
+    ),
+    annual_labor_total_2030_nzs = case_when(
+      sector_w == 1 ~ annual_labor_total_2022 * wages_by_sector$wtc_2030_nzs[1],
+      sector_w == 2 ~ annual_labor_total_2022 * wages_by_sector$wtc_2030_nzs[2],
+      sector_w == 3 ~ annual_labor_total_2022 * wages_by_sector$wtc_2030_nzs[3],
+      TRUE ~ NA
     )
     )
 
 # This takes care of different household members coming from different sectors
 hh_li <- pp_microsim %>% 
   group_by(hhid) %>% 
-  summarise(mli_2022 = sum(monthly_labor_income_2022),
+  summarize(mli_2022 = sum(monthly_labor_income_2022),
             mli_2030_baseline = sum(monthly_labor_income_2030_baseline),
             mli_2030_dry_hot = sum(monthly_labor_income_2030_dry_hot),
+            mli_2030_nzs = sum(monthly_labor_income_2030_nzs),
             mli_coef_2030_baseline = mli_2030_baseline / mli_2022,
             mli_coef_2030_dry_hot = mli_2030_dry_hot / mli_2022,
+            mli_coef_2030_nzs = mli_2030_nzs / mli_2022,
             )%>% 
-  select(hhid, mli_coef_2030_baseline, mli_coef_2030_dry_hot)
+  select(hhid, mli_coef_2030_baseline, 
+         mli_coef_2030_dry_hot,
+         mli_coef_2030_nzs)
   
 ic_microsim <- ic %>% 
   left_join(hh_li, join_by(interview__key == hhid)) %>%
@@ -1327,13 +1418,18 @@ ic_microsim <- ic %>%
         is.na(mli_coef_2030_baseline), 1,mli_coef_2030_baseline),
     mli_coef_2030_dry_hot = 
       if_else(
-        is.na(mli_coef_2030_dry_hot), 1,mli_coef_2030_dry_hot)
+        is.na(mli_coef_2030_dry_hot), 1,mli_coef_2030_dry_hot),
+    mli_coef_2030_nzs = 
+      if_else(
+        is.na(mli_coef_2030_nzs), 1,mli_coef_2030_nzs)
     ) %>% 
   mutate(
     inc2_2030_baseline = inc2_2022 * mli_coef_2030_baseline,
     inc3_2030_baseline = inc3_2022 * mli_coef_2030_baseline,
     inc2_2030_dry_hot  = inc2_2022 * mli_coef_2030_dry_hot,
-    inc3_2030_dry_hot  = inc3_2022 * mli_coef_2030_dry_hot
+    inc3_2030_dry_hot  = inc3_2022 * mli_coef_2030_dry_hot,
+    inc2_2030_nzs  = inc2_2022 * mli_coef_2030_nzs,
+    inc3_2030_nzs  = inc3_2022 * mli_coef_2030_nzs
     ) %>% 
   mutate(
     totalinc_2030_baseline = 
@@ -1341,7 +1437,10 @@ ic_microsim <- ic %>%
       coalesce(inc2_2030_baseline,0) + coalesce(inc3_2030_baseline,0),
     totalinc_2030_dry_hot = 
       totalinc_2022 - coalesce(inc2_2022,0) - coalesce(inc3_2022,0) + 
-      coalesce(inc2_2030_dry_hot,0) + coalesce(inc3_2030_dry_hot,0)
+      coalesce(inc2_2030_dry_hot,0) + coalesce(inc3_2030_dry_hot,0),
+    totalinc_2030_nzs = 
+      totalinc_2022 - coalesce(inc2_2022,0) - coalesce(inc3_2022,0) + 
+      coalesce(inc2_2030_nzs,0) + coalesce(inc3_2030_nzs,0)
     ) %>% 
   mutate(
     totinc_coef_2030_baseline = 
@@ -1353,7 +1452,12 @@ ic_microsim <- ic %>%
       if_else(
         totalinc_2022 == 0, 
         1, 
-        totalinc_2030_dry_hot / totalinc_2022)
+        totalinc_2030_dry_hot / totalinc_2022),
+    totinc_coef_2030_nzs = 
+      if_else(
+        totalinc_2022 == 0, 
+        1, 
+        totalinc_2030_nzs / totalinc_2022)
     ) %>% 
   mutate(
     totinc_coef_2030_baseline = 
@@ -1365,30 +1469,36 @@ ic_microsim <- ic %>%
       if_else(
         is.na(totinc_coef_2030_dry_hot), 
         1, 
-        totinc_coef_2030_dry_hot)
+        totinc_coef_2030_dry_hot),
+    totinc_coef_2030_nzs = 
+      if_else(
+        is.na(totinc_coef_2030_nzs), 
+        1, 
+        totinc_coef_2030_nzs)
     )
 
 ic_coef_scenarios <- ic_microsim %>% 
   select(
     interview__key, 
     totinc_coef_2030_baseline, 
-    totinc_coef_2030_dry_hot
+    totinc_coef_2030_dry_hot,
+    totinc_coef_2030_nzs
     )
 ```
 
 We check that our reweighting was successful
 
 ```{r}
-table <- pp_microsim %>%
-  group_by(cohort) %>%
-#  group_by(lmarket,sector_w) %>%
-#  group_by(gender) %>%
-  summarise(total_pp = sum(weight_2030_baseline, na.rm = TRUE)) %>%
-  ungroup()
-
-table %>%
-  gt() %>%
-  fmt_number(columns = total_pp, decimals = 0)
+# table <- pp_microsim %>%
+#   group_by(cohort) %>%
+# #  group_by(lmarket,sector_w) %>%
+# #  group_by(gender) %>%
+#   summarize(total_pp = sum(weight_2030_nzs, na.rm = TRUE)) %>%
+#   ungroup()
+# 
+# table %>%
+#   gt() %>%
+#   fmt_number(columns = total_pp, decimals = 0)
 
 # write.table(
 #   table,
@@ -1417,7 +1527,8 @@ ca_microsim <- ca %>%
     ) %>% 
   mutate(
     totc_2030_baseline = totc_2022 * totinc_coef_2030_baseline,
-    totc_2030_dry_hot  = totc_2022 * totinc_coef_2030_dry_hot
+    totc_2030_dry_hot  = totc_2022 * totinc_coef_2030_dry_hot,
+    totc_2030_nzs      = totc_2022 * totinc_coef_2030_nzs
     )
 ```
 
@@ -1429,20 +1540,25 @@ ca_microsim <- ca_microsim %>%
     aec_r_2022 = aec_r,
     weight_2022 = weight,
     weight_2030_baseline = hh_weight_2030_baseline,
-    weight_2030_dry_hot = hh_weight_2030_dry_hot
+    weight_2030_dry_hot = hh_weight_2030_dry_hot,
+    weight_2030_nzs = hh_weight_2030_nzs
     ) %>% 
   mutate(
     aec_r_2030_baseline = 
       totc_2030_baseline / ae_r / PI,
     aec_r_2030_dry_hot = 
       totc_2030_dry_hot  / ae_r / PI,
+    aec_r_2030_nzs = 
+      totc_2030_nzs  / ae_r / PI
     ) %>% 
   # Official poverty line
   mutate(
     poor_Avpovln2022_2030_baseline = 
       if_else(aec_r_2030_baseline < 52883, 1, 0),
-    poor_Avpovln2022_2030_dry_hot = 
-      if_else(aec_r_2030_dry_hot  < 52883, 1, 0)
+    poor_Avpovln2022_2030_dry_hot  = 
+      if_else(aec_r_2030_dry_hot  < 52883, 1, 0),
+    poor_Avpovln2022_2030_nzs      = 
+      if_else(aec_r_2030_nzs      < 52883, 1, 0)
     )
 ```
 
@@ -1455,21 +1571,26 @@ test_baseline <- ca_microsim %>%
   rename(
     poor_original = poor_Avpovln2022_2022,
     poor_2030_baseline = poor_Avpovln2022_2030_baseline,
-    poor_2030_dry_hot = poor_Avpovln2022_2030_dry_hot
+    poor_2030_dry_hot = poor_Avpovln2022_2030_dry_hot,
+    poor_2030_nzs = poor_Avpovln2022_2030_nzs
     ) %>%
-  group_by(poor_2030_baseline) %>% 
-  summarise(
-    no_hh_baseline = round(sum(weight_2030_baseline, na.rm = TRUE)),
-    no_pp_baseline = round(sum(weight_2030_baseline * hhsize, na.rm = TRUE)),
-    no_hh_dry_hot = round(sum(weight_2030_dry_hot, na.rm = TRUE)),
-    no_pp_dry_hot = round(sum(weight_2030_dry_hot * hhsize, na.rm = TRUE))
+  group_by(poor_2030_nzs) %>% 
+  summarize(
+    # no_hh_2022 = sum(weight_2022, na.rm = TRUE),
+    # no_pp_2022 = sum(weight_2022 * hhsize, na.rm = TRUE),
+    # no_hh_baseline = sum(weight_2030_baseline, na.rm = TRUE),
+    # no_pp_baseline = sum(weight_2030_baseline * hhsize, na.rm = TRUE),
+    # no_hh_dry_hot = sum(weight_2030_dry_hot, na.rm = TRUE),
+    # no_pp_dry_hot = sum(weight_2030_dry_hot * hhsize, na.rm = TRUE),
+    no_hh_nzs = sum(weight_2030_nzs, na.rm = TRUE),
+    no_pp_nzs = sum(weight_2030_nzs * hhsize, na.rm = TRUE)
     ) %>% 
   ungroup()
 
 test_baseline %>% 
   gt()
 
-##write.table(test_baseline, "clipboard", sep="\t", row.names=FALSE)
+write.table(test_baseline, "clipboard", sep="\t", row.names=FALSE)
 
 ```
  
@@ -1701,7 +1822,7 @@ We aggregate at household level and take note of the percent difference between 
 ```{r}
 ic_new_incomes <- pp_microsim_cc %>%
   group_by(hhid) %>%
-  summarise(
+  summarize(
     mli_2030_baseline_lab_avg = 
       sum(mli_2030_baseline_lab_avg, na.rm = TRUE),
     mli_2030_baseline_lab_max = 
@@ -1948,7 +2069,7 @@ test <- ca_microsim_cc %>%
   rename(poor_original = poor_Avpovln2022_2030_baseline,
          poor_cc = poor_2030_baseline_lab_avg) %>%
   group_by(poor_Avpovln2022_2030_dry_hot) %>% 
-  summarise(no_hh = round(sum(weight_2030_dry_hot, na.rm = TRUE)),
+  summarize(no_hh = round(sum(weight_2030_dry_hot, na.rm = TRUE)),
             no_pp = round(sum(weight_2030_dry_hot * hhsize, na.rm = TRUE))) %>% 
   ungroup()
 
@@ -1986,7 +2107,7 @@ price_data <- macro_data %>%
 price_data %>% 
   filter(year == 2030) %>% 
   group_by(commodity_group, scenario) %>% 
-  summarise(index = mean(index, na.rm = TRUE)) %>% 
+  summarize(index = mean(index, na.rm = TRUE)) %>% 
   gt()
   
 ```
@@ -2020,7 +2141,8 @@ So in this particular case, we don't want to use the price index from the `dry_h
 
 ```{r}
 price_data_yearsto <- price_data_yearsto %>% 
-  mutate(food_PI = dry_hot_2030_food - baseline_2030_food +1)
+  mutate(food_PI = dry_hot_2030_food - baseline_2030_food +1,
+         energy_PI = nzs_2030_energy - baseline_2030_energy + 1)
 ```
 
 And we join with our household's dataset.
@@ -2042,7 +2164,7 @@ food_summary <- food_with_prices %>%
 # Step 1: Summarize the data at the household level
 food_summary <- food_summary %>%
   group_by(hhid, decile) %>%
-  summarise(
+  summarize(
     total_quantity = sum(q, na.rm = TRUE),
     weighted_price = sum(avrpr_mean * q, na.rm = TRUE) / sum(q, na.rm = TRUE),
     .groups = 'drop'
@@ -2210,7 +2332,7 @@ test <- test%>%
          poor_food2 = poor_2030_dry_hot_food2,
          poor_foodPI =  poor_2030_baseline_lab_cc_foodPI) %>%
   group_by(poor_original) %>% 
-  summarise(no_hh = round(sum(weight_2030_baseline, na.rm = TRUE)),
+  summarize(no_hh = round(sum(weight_2030_baseline, na.rm = TRUE)),
             no_pp = round(sum(weight_2030_baseline*hhsize, na.rm = TRUE)))
 
 test %>% 
@@ -2237,7 +2359,7 @@ And we map these results.
 # 
 # fp <-foodpoor %>% 
 #   group_by(NAM_1) %>% 
-#   summarise(new_poor = round(sum(new_poor_food_dryhot * weight*hhsize, na.rm = TRUE))) %>% 
+#   summarize(new_poor = round(sum(new_poor_food_dryhot * weight*hhsize, na.rm = TRUE))) %>% 
 #   mutate(label = paste0(NAM_1," (", new_poor, ")"))
 # 
 # 
@@ -2286,8 +2408,8 @@ ggplot(ca_microsim_cc,
     x = "Equivalized consumption (Dram)", 
     y = "Probability") +
   theme_minimal()+
-  coord_cartesian(xlim = c(40000, 110000),
-                  ylim = c(0.000010,0.0000140)) + # Zoom in without removing data
+  coord_cartesian(xlim = c(20000, 150000),
+                  ylim = c(0.000005,0.0000160)) + # Zoom in without removing data
   scale_x_continuous(labels = scales::comma) +
   scale_y_continuous(labels = scales::comma)+
   geom_vline(xintercept = 55883, 
@@ -2349,6 +2471,354 @@ ggplot(ca_microsim_cc,
 
 ```
 
+### Energy prices
+
+We first establish energy elasticities. We only have quantities for liquefied gas `hous_29_a` and their purchase value `hous_29_b` with which we can compute price. Unfortunately there is no quantity for electricity, so we will use the same elasticity. We do not compute an elasticity by decile, because there are too few observations per decile, so we estimate an overall elasticity for all the distribution.
+
+```{r}
+# We extract the liquefied gas (hous_29), natural gas (hous_38) 
+# and electricity (hous_23) information
+energy_summary_all <- hh %>% 
+  mutate(l_gas_price = 
+           if_else(hous_29_a == 0, 0, hous_29_b/hous_29_a),
+         n_gas_price = 
+           if_else(hous_36_a == 0, 0, hous_36_b/hous_36_a)) %>%
+  select(interview__key, weight, hous_29_a, hous_29_b,hous_23,
+         hous_36_a, hous_36_b, l_gas_price, n_gas_price)
+
+# We estimate the weighted mean of liquefied gas prices
+avg_l_gas_price <- weighted.mean(energy_summary_all$l_gas_price,
+                               energy_summary_all$weight,
+                               na.rm=TRUE)
+
+# And do the same for natural gas
+avg_n_gas_price <- weighted.mean(energy_summary_all$n_gas_price,
+                               energy_summary_all$weight,
+                               na.rm=TRUE)
+
+# We replace missing 0 values with average gas price
+energy_summary_all <- energy_summary_all %>% 
+  mutate(l_gas_price = if_else(l_gas_price==0.0,
+                             avg_l_gas_price,
+                             l_gas_price),
+         n_gas_price = if_else(n_gas_price==0.0,
+                             avg_n_gas_price,
+                             n_gas_price))
+
+# We subset to compute a single elasticity value for the entire distribution
+# Summarize the data at the household level
+l_energy_summary <- energy_summary_all %>%
+  filter(!is.na(l_gas_price))# %>% 
+ 
+# Filter out rows with non-positive values in hous_29_a or l_gas_price
+l_energy_summary <- l_energy_summary[l_energy_summary$hous_29_a > 0 & l_energy_summary$l_gas_price > 0, ]
+
+# Compute the log of quantity and price
+l_energy_summary$log_gas_quantity <- log(l_energy_summary$hous_29_a)
+l_energy_summary$log_l_gas_price <- log(l_energy_summary$l_gas_price)
+
+# Estimate a single price elasticity for the entire dataset
+model <- lm(log_gas_quantity ~ log_l_gas_price, data = l_energy_summary)
+summary_model <- summary(model)
+
+# Extract the price elasticity (coefficient of log_l_gas_price)
+l_gas_price_elasticity <- coef(summary_model)["log_l_gas_price", "Estimate"]
+
+# Print the results
+print(summary_model)
+print(paste("Estimated price elasticity of gas quantity demanded:", l_gas_price_elasticity))
+
+```
+
+We see that this commodity is highly inelastic at -0.088781.The estimated price elasticity of -0.086 suggests that the demand for gas is inelastic. This means that a 1% increase in the price of gas would lead to only a 0.09% decrease in the quantity of gas demanded. The absolute value of the elasticity is much less than 1, indicating that consumers do not significantly reduce their gas consumption in response to price increases. This could be because gas is a necessity for many households, and they cannot easily reduce their usage or switch to alternative sources. We expect electricity, being so universal in the dataset to behave in the same manner. We wanted to use natural gas to compute a similar metric, but there is hardly any variation in prices. Everybody experiences the same price and so there is not enough variation to compute a valid model. We will use the elasticity from liquefied gas for our purposes.
+
+
+Let's add back the elasticity data to the analysis dataset.
+
+```{r}
+ca_microsim_cc$l_gas_price_elasticity <- l_gas_price_elasticity
+ca_microsim_cc <- ca_microsim_cc %>% 
+  left_join(energy_summary_all, join_by(hhid==interview__key))
+
+```
+
+Let's apply the elasticities to the new data.
+
+```{r}
+# Calculate the implicit price
+# Assuming implicit_price can be calculated from the expenditure
+# If we assume baseline quantity consumed is proportional to expenditure/price
+ca_microsim_cc <- ca_microsim_cc %>%
+  mutate(
+    # This is 1 as we don't have baseline price
+    electricity_implicit_price = if_else(hous_23 == 0,1,hous_23 / hous_23),  
+    electricity_quantity = hous_23 / electricity_implicit_price,
+    energy_price_elasticity = l_gas_price_elasticity)
+
+# Calculate the percentage change in prices by decile
+ca_microsim_cc <- ca_microsim_cc %>%
+  mutate(energy_baseline_dprice  = (energy_PI - 1),
+         energy_nzs_dprice = (nzs_2030_energy - 1))
+
+# Estimate the new energy consumption levels
+ca_microsim_cc <- ca_microsim_cc %>%
+  mutate(
+    electricity_baseline_q_sim = electricity_quantity * 
+      (1 + energy_baseline_dprice * energy_price_elasticity),
+    electricity_nzs_q_sim = electricity_quantity *
+      (1 + energy_nzs_dprice * energy_price_elasticity),
+    l_gas_baseline_q_sim = hous_29_a * 
+      (1 + energy_baseline_dprice * energy_price_elasticity),
+    l_gas_nzs_q_sim = hous_29_a *
+      (1 + energy_nzs_dprice * energy_price_elasticity),
+    n_gas_baseline_q_sim = hous_36_a * 
+      (1 + energy_baseline_dprice * energy_price_elasticity),
+    n_gas_nzs_q_sim = hous_36_a *
+      (1 + energy_nzs_dprice * energy_price_elasticity))
+
+# Calculate the new expenditure levels
+ca_microsim_cc <- ca_microsim_cc %>%
+  mutate(electricity_baseline_sim = 
+           electricity_baseline_q_sim * energy_PI, #because e-price = 1
+         l_gas_baseline_sim = 
+           l_gas_baseline_q_sim * l_gas_price * energy_PI,
+         n_gas_baseline_sim = 
+           n_gas_baseline_q_sim * n_gas_price * energy_PI,
+         electricity_nzs_sim = 
+           electricity_nzs_q_sim * nzs_2030_energy,#because e-price = 1
+         l_gas_nzs_sim = 
+           l_gas_nzs_q_sim * l_gas_price * nzs_2030_energy,
+         n_gas_nzs_sim = 
+           n_gas_nzs_q_sim * n_gas_price * nzs_2030_energy)
+
+```
+
+
+Let's plot the distributions to see changes:
+
+```{r}
+
+# Basic density plot comparing food1 and food_exp_sim
+ggplot(ca_microsim_cc, aes(x =  hous_23, fill = 'Initial LG')) + 
+  geom_density(alpha = 0.3) + 
+  geom_density(
+    data = ca_microsim_cc,
+    aes(x = electricity_baseline_sim, fill = 'Baseline + NSZ Energy Prices'),
+    alpha = 0.3) +
+   geom_density(
+    data = ca_microsim_cc,
+    aes(x = electricity_nzs_sim, fill = 'NSZ + NSZ Energy Prices'),
+    alpha = 0.3) +
+  labs(
+    fill = "Consumption Type", 
+    title = "Comparison of Energy Expenditure Distributions", 
+    x = "Energy Expenditure", 
+    y = "Density") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 40000)) + # Adjust the xlim for zoom
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+
+```
+
+Calculate losses in consumer surplus and purchasing power loss.
+
+```{r}
+
+# Calculate Purchasing Power loss for food1 and food2 and PI scenarios
+ca_microsim_cc <- ca_microsim_cc %>%
+  mutate(
+    across(
+      c(hous_23,
+        hous_29_b,
+        hous_36_b, 
+        totc_2030_baseline,
+        totc_2030_nzs), ~replace_na(., 0))) %>%
+  mutate(energy_baseline_PPloss = ((hous_23 + hous_29_b + hous_36_b) / 
+                           totc_2030_baseline) * energy_baseline_dprice,
+         energy_nzs_PPloss = ((hous_23 + hous_29_b + hous_36_b) / 
+                           totc_2030_nzs) * energy_nzs_dprice,
+         ttl_PPloss_1 = energy_baseline_PPloss,
+         ttl_PPloss_2 = energy_nzs_PPloss
+         )
+
+# Adjust total expenditure (totc) based on the purchasing power loss
+ca_microsim_cc <- ca_microsim_cc %>%
+  mutate(totc_2030_baseline_energy = totc_2030_baseline * (1 - ttl_PPloss_1),
+         totc_2030_nzs_energy = totc_2030_nzs * (1 - ttl_PPloss_2),
+         )
+
+# View the results
+print(ca_microsim_cc %>% select(decile, totc_2030_baseline, totc_2030_baseline_energy, totc_2030_nzs_energy))
+
+```
+
+Okay so now we estimate new welfare and poverty.
+
+```{r}
+ca_microsim_cc <- ca_microsim_cc %>%
+  mutate(aec_r_2030_baseline_energy = totc_2030_baseline_energy / ae_r / PI,
+         aec_r_2030_nzs_energy = totc_2030_nzs_energy / ae_r / PI) %>%
+  mutate(poor_2030_baseline_energy =
+           if_else(aec_r_2030_baseline_energy < 52883, 1, 0),
+         poor_2030_nzs_energy =
+           if_else(aec_r_2030_nzs_energy < 52883, 1, 0))
+
+```
+
+And now we see who became poor
+
+```{r}
+# We make a table to see who became poor. 
+test <- ca_microsim_cc
+
+test <- test%>%
+  rename(poor_original = poor_Avpovln2022_2030_baseline,
+         poor_baseline_energy = poor_2030_baseline_energy
+         ) %>%
+  group_by(poor_original) %>% 
+  summarize(no_hh = round(sum(weight_2030_nzs, na.rm = TRUE)),
+            no_pp = round(sum(weight_2030_nzs*hhsize, na.rm = TRUE)))
+
+test %>% 
+  gt()
+
+##write.table(test, "clipboard", sep="\t", row.names=FALSE)
+
+```
+
+And we map these results.
+
+```{r}
+# foodpoor <- ca_microsim_cc %>%
+#   mutate(new_poor_food_base = if_else(
+#     poor_cc_avg_food2 == 1 & poor_cc_avg == 0, 1, 0),
+#          new_poor_food_dryhot = if_else(
+#            poor_cc_avg_food1 == 1 & poor_cc_avg == 0, 1, 0),
+#     NAM_1 = as_factor(marz)) %>% 
+#   mutate(NAM_1 = if_else(NAM_1 == "VayotsDzor", "Vayots Dzor", NAM_1)) %>% 
+#   mutate(NAM_1 = if_else(NAM_1 == "Sjunik", "Syunik", NAM_1)) %>% 
+#   select(NAM_1, poor_Avpovln2022, poor_cc_avg, poor_cc_max,
+#          poor_cc_avg_food1, poor_cc_avg_food2, new_poor_food_base,
+#          new_poor_food_dryhot, weight, hhsize)
+# 
+# fp <-foodpoor %>% 
+#   group_by(NAM_1) %>% 
+#   summarize(new_poor = round(sum(new_poor_food_dryhot * weight*hhsize, na.rm = TRUE))) %>% 
+#   mutate(label = paste0(NAM_1," (", new_poor, ")"))
+# 
+# 
+# ##write.table(fp, "clipboard", sep="\t", row.names=FALSE)
+# fp_map <- adm1 |> 
+#   left_join(fp, join_by(NAM_1 == NAM_1))
+# 
+# fp_map <-tm_shape(fp_map)+
+#   tm_polygons("new_poor", legend.show = FALSE) +
+#   tm_text("label", size = .7, col = "black")+
+#   tm_layout(legend.position = c("right", "top"), 
+#             title= "Additional Poor Dry-Hot Scenario", 
+#             title.position = c('left', 'bottom'),
+#             title.size = 0.9)
+# 
+# fp_map
+
+```
+
+Let's plot how the distribution moves with all these measures.
+
+```{r}
+# Basic density plot comparing equivalized consumption per capita
+ggplot(ca_microsim_cc, 
+       aes(x = aec_r_2030_nzs_energy, fill = 'NZS + Energy Price')) +
+  geom_density(alpha = 0.5) +
+  # geom_density(
+  #   data = ca_microsim_cc,
+  #   aes(x = aec_r_2030_dry_hot, fill = 'Dry/Hot'),
+  #   alpha = 0.5) +
+  geom_density(
+    data = ca_microsim_cc,
+    aes(x = aec_r_2030_baseline_energy, fill = 'Baseline + Energy Price'),
+    alpha = 0.5) +
+  # geom_density(
+  #   data = ca_microsim_cc,
+  #   aes(x = aec_r_2030_baseline_lab_cc_avg, fill = 'Direct CC'),
+  #   alpha = 0.5) +
+  geom_density(
+    data = ca_microsim_cc,
+    aes(x = aec_r_2030_baseline, fill = 'Baseline'),
+    alpha = 0.5) +
+  labs(
+    fill = "Scenario Variant", 
+    # title = "Comparison of Consumption Distributions", 
+    x = "Equivalized consumption (Dram)", 
+    y = "Probability") +
+  theme_minimal()+
+  coord_cartesian(xlim = c(20000, 150000),
+                  ylim = c(0.000005,0.0000160)) + # Zoom in without removing data
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)+
+  geom_vline(xintercept = 55883, 
+             color = "red", 
+             linetype = "dotted", 
+             linewidth =0.8) +
+  annotate("text", 
+           x = 55883, 
+           y = 0.0000110, 
+           #label = "Poverty line\nAMD 55,883", 
+           label = "Poverty line", 
+           color = "black", 
+           hjust = -0.1, 
+           # vjust = -3.5,
+           #angle = 90, 
+           size = 3)
+```
+
+And we also plot the cumulative distributions.
+
+```{r}
+# Plot the cumulative distribution with left-facing arrows
+ggplot(ca_microsim_cc, 
+       aes(x = aec_r_2030_nzs_energy, color = 'NZS Energy Price')) +
+  stat_ecdf(geom = "step") +
+  # stat_ecdf(data = ca_microsim_cc, 
+  #           aes(x = aec_r_2030_baseline_lab_avg, color = 'Baseline + Labor Productivity')) +
+  stat_ecdf(data = ca_microsim_cc, 
+            aes(x = aec_r_2030_baseline_energy, color = 'Baseline + NZS Energy Price')) +
+  stat_ecdf(data = ca_microsim_cc, 
+            aes(x = aec_r_2030_baseline, color = 'Baseline')) +
+  labs(
+    color = "Scenario Variant", 
+    # title = "Comparison of Cumulative Consumption Distributions", 
+    x = "Equivalized consumption (Dram)", 
+    y = "Cumulative Probability") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(40000, 110000)) + 
+  scale_x_continuous(labels = scales::comma) +
+  # geom_vline(xintercept = 55883, 
+  #            color = "red", 
+  #            linetype = "dotted", 
+  #            linewidth = 0.8) +
+  # annotate("text", 
+  #          x = 55883, 
+  #          y = 0.5, 
+  #          label = "Poverty line", 
+  #          color = "black", 
+  #          hjust = -0.1, 
+  #          size = 3) +
+  annotate("segment", x = 70000, xend = 65000, y = 0.2, yend = 0.2, 
+           arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+  annotate("text", x = 72500, y = 0.2, label = "Shift due to shocks", hjust = 0) 
+  # annotate("segment", x = 80000, xend = 75000, y = 0.4, yend = 0.4, 
+  #          arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+  # annotate("text", x = 82500, y = 0.4, label = "Shift due to shocks", hjust = 0)
+
+
+
+```
+
+### Disaggregation of poverty measures
+
 We bring back poverty to the people's dataset.
 
 ```{r}
@@ -2360,6 +2830,7 @@ new_poor <- ca_microsim_cc %>%
          poor_Avpovln2022_2022, 
          poor_Avpovln2022_2030_baseline, 
          poor_Avpovln2022_2030_dry_hot,
+         poor_Avpovln2022_2030_nzs,
          poor_2030_baseline_lab_avg, 
          poor_2030_baseline_lab_max,
          poor_2030_baseline_cc_avg,
@@ -2368,7 +2839,9 @@ new_poor <- ca_microsim_cc %>%
          poor_2030_baseline_lab_cc_max, 
          poor_2030_baseline_food1,
          poor_2030_dry_hot_food2,
-         poor_2030_baseline_lab_cc_foodPI
+         poor_2030_baseline_lab_cc_foodPI,
+         poor_2030_baseline_energy,
+         poor_2030_nzs_energy
          )
 
 # And merge them back into the people dataset
@@ -2382,7 +2855,54 @@ pp_microsim_cc <- pp_microsim_cc %>%
 
 ```
 
-### Disaggregation of poverty measures
+
+Let's find homes where more than 50% of income comes from agriculture. We first find the fraction of household labor income that comes from agriculture.
+
+```{r}
+ag_labinc_fraction <- pp_microsim_cc %>% 
+  mutate(
+    ag_lab_income =
+      if_else(
+        lmarket == 1, 
+        monthly_labor_income_2030_baseline, NA)
+  ) %>% 
+  group_by(hhid) %>%
+  summarize(
+    ag_labinc =
+      sum(ag_lab_income, na.rm = TRUE),
+    hh_labinc = 
+      sum(monthly_labor_income_2030_baseline, na.rm = TRUE)) %>%
+  mutate(ag_lab_fraction = if_else(hh_labinc == 0, 0, ag_labinc/ hh_labinc)) %>% 
+  select(hhid, ag_lab_fraction)
+```
+
+And then we add ag income sources and evaluate if they are at least 50% of total income
+
+```{r}
+ag_income_50 <- ic_microsim_cc %>%
+  left_join(ag_labinc_fraction, join_by(interview__key==hhid)) %>% 
+  rename(hhid = interview__key) %>% 
+  mutate(
+    across(
+      c(inc2_2030_baseline,
+        inc3_2030_baseline,
+        inc4, 
+        totalinc_2030_baseline), ~replace_na(., 0))) %>%
+  mutate(
+    ag_income =
+      inc2_2030_baseline +
+      inc3_2030_baseline +
+      inc4 * ag_lab_fraction,
+    ag_fraction = if_else(
+      totalinc_2030_baseline == 0, 0, ag_income / totalinc_2030_baseline)
+    ) %>%
+  mutate(
+    is_ag_home = if_else(ag_fraction >= 0.5, "Ag. HH (>= 50%)", "Other HH")
+  ) %>% 
+  select(hhid, is_ag_home)
+  
+```
+
 
 We make a table to see who became poor. 
 
@@ -2390,26 +2910,31 @@ We make a table to see who became poor.
 test <- pp_microsim_cc
 
 test <- test%>%
+  left_join(ag_income_50, join_by(hhid)) %>% 
+#  filter(rural ==1 & is_ag_home == "Ag. HH (>= 50%)") %>%  
   rename(poor_original = poor_Avpovln2022_2030_baseline,
+         poor_nzs = poor_Avpovln2022_2030_nzs,
          poor_lab = poor_2030_baseline_lab_avg,
          poor_cc = poor_2030_baseline_cc_avg,
          poor_lab_cc = poor_2030_baseline_lab_cc_avg,
-         poor_foodPI = poor_2030_baseline_lab_cc_foodPI
+         poor_foodPI = poor_2030_baseline_lab_cc_foodPI,
+         poor_b_energy = poor_2030_baseline_energy,
+         poor_nzs_energy = poor_2030_nzs_energy
          ) %>%
-  group_by(poor_original) %>% 
-  summarise(no_pp = round(sum(weight_2030_baseline, na.rm = TRUE)),
-            female = round(sum(female*weight_2030_baseline, na.rm = TRUE)),
+  group_by(poor_nzs, poor_nzs_energy) %>% 
+  summarize(no_pp = sum(weight_2030_baseline, na.rm = TRUE),
+            female = sum(female*weight_2030_baseline, na.rm = TRUE),
             male = no_pp - female,
-            youth = round(sum(youth*weight_2030_baseline, na.rm = TRUE)),
+            youth = sum(youth*weight_2030_baseline, na.rm = TRUE),
             non_youth = no_pp - youth,
-            rural = round(sum(rural *weight_2030_baseline, na.rm = TRUE)),
+            rural = sum(rural *weight_2030_baseline, na.rm = TRUE),
             urban = no_pp - rural
             )
 
 test %>% 
   gt()
 
-##write.table(test, "clipboard", sep="\t", row.names=FALSE)
+write.table(test, "clipboard", sep="\t", row.names=FALSE)
 ```
 
 
@@ -2441,7 +2966,7 @@ test %>%
 # 
 # fp <-foodpoor %>% 
 #   group_by(NAM_1) %>% 
-#   summarise(new_poor = round(sum(new_poor_food_dryhot * weight*hhsize, na.rm = TRUE))) %>% 
+#   summarize(new_poor = round(sum(new_poor_food_dryhot * weight*hhsize, na.rm = TRUE))) %>% 
 #   mutate(label = paste0(NAM_1," (", new_poor, ")"))
 # 
 # 
@@ -2465,6 +2990,7 @@ test %>%
 new_poor_scenarios <- pp_microsim_cc %>%
   mutate(
     poor_baseline = poor_Avpovln2022_2030_baseline,
+    poor_nzs = poor_Avpovln2022_2030_dry_hot,
     new_poor_lab_cc = if_else(
       poor_Avpovln2022_2030_baseline == 0 &
         poor_2030_baseline_lab_cc_avg == 1,
@@ -2476,22 +3002,33 @@ new_poor_scenarios <- pp_microsim_cc %>%
         poor_2030_baseline_lab_cc_foodPI == 1,
       1,
       0
+    ),
+    new_poor_b_energy = if_else(
+      poor_Avpovln2022_2030_baseline == 0 &
+        poor_2030_baseline_energy == 1,
+      1,
+      0
+    ),
+    new_poor_nzs_energy = if_else(
+      poor_Avpovln2022_2030_nzs == 0 &
+        poor_2030_nzs_energy == 1,
+      1,
+      0
     )
   ) %>%
   group_by(NAM_1) %>%
-  summarise(
-    total_population = round(sum(weight_2030_baseline, na.rm = TRUE)),
+  summarize(
+    total_population = sum(weight_2030_baseline, na.rm = TRUE),
     poor_baseline =
-      round(sum(
-        poor_baseline * weight_2030_baseline, na.rm = TRUE
-      )),
+      sum(poor_baseline * weight_2030_baseline, na.rm = TRUE),
     new_p_lab_cc =
-      round(sum(
-        new_poor_lab_cc * weight_2030_baseline, na.rm = TRUE
-      )),
+      sum(new_poor_lab_cc * weight_2030_baseline, na.rm = TRUE),
     new_p_lab_cc_foodPI =
-      round(
-        sum(new_poor_lab_cc_foodPI * weight_2030_baseline, na.rm = TRUE))
+      sum(new_poor_lab_cc_foodPI * weight_2030_baseline, na.rm = TRUE),
+    new_p_baseline_energy =
+      sum(new_poor_b_energy * weight_2030_baseline, na.rm = TRUE),
+    new_p_nzs_energy = 
+      sum(new_poor_nzs_energy * weight_2030_nzs, na.rm = TRUE)
   )
 
 new_poor_map <- adm1 %>%
@@ -2500,11 +3037,16 @@ new_poor_map <- adm1 %>%
     new_p_lab_cc_pct = new_p_lab_cc / total_population *
           100,
     new_poor_lab_cc_foodPI_pct = new_p_lab_cc_foodPI /
-         total_population * 100
+         total_population * 100,
+    new_poor_baseline_energy_pct = new_p_baseline_energy /
+      total_population*100,
+    new_poor_nzs_energy_pct = new_p_nzs_energy / total_population * 100
   ) %>% 
   mutate(
     new_p_lab_cc_label    = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_p_lab_cc_pct), ")"),
-    new_p_lab_cc_food1PI_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_lab_cc_foodPI_pct), ")")
+    new_p_lab_cc_food1PI_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_lab_cc_foodPI_pct), ")"),
+    new_p_b_energy_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_baseline_energy_pct), ")"),
+    new_p_nzs_energy_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_nzs_energy_pct), ")")
   )
 
 # test <- as.data.frame(new_poor_map)[,c(1,2,4,5,6,7,8,9)]
@@ -2544,6 +3086,37 @@ tm_shape(new_poor_map)+
 
 ```
 
+And the third variant
+
+```{r}
+tm_shape(new_poor_map)+
+  tm_polygons("new_poor_baseline_energy_pct",
+              title="Percent", 
+              legend.show = TRUE) +
+  tm_text(c("new_p_b_energy_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"), 
+            title= "New poor as a percentage of Marz population\nBaseline + Energy Price",
+#            outer.margins=c(.10,.10, .10, .10), 
+            title.position = c('left', 'bottom'),
+            title.size = 0.9)
+
+```
+
+And the fourth variant
+
+```{r}
+tm_shape(new_poor_map)+
+  tm_polygons("new_poor_nzs_energy_pct",
+              title="Percent", 
+              legend.show = TRUE) +
+  tm_text(c("new_p_nzs_energy_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"), 
+            title= "New poor as a percentage of Marz population\nNZS + Energy Price",
+#            outer.margins=c(.10,.10, .10, .10), 
+            title.position = c('left', 'bottom'),
+            title.size = 0.9)
+
+```
 
 
 Now let's show average losses by decile as a percentage of total spending.
@@ -2561,7 +3134,7 @@ avg_scenario_losses <- ca_microsim_cc %>%
         totc_2030_baseline,NA)
          ) %>%
   group_by(decile) %>% 
-  summarise(no_hh = 
+  summarize(no_hh = 
               round(
                 sum(
                   weight_2030_baseline, na.rm = TRUE), digits = 0
