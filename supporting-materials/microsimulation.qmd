@@ -1395,15 +1395,20 @@ pp_microsim <- pp_microsim %>%
 # This takes care of different household members coming from different sectors
 hh_li <- pp_microsim %>% 
   group_by(hhid) %>% 
-  summarize(mli_2022 = sum(monthly_labor_income_2022),
-            mli_2030_baseline = sum(monthly_labor_income_2030_baseline),
-            mli_2030_dry_hot = sum(monthly_labor_income_2030_dry_hot),
-            mli_2030_nzs = sum(monthly_labor_income_2030_nzs),
-            mli_coef_2030_baseline = mli_2030_baseline / mli_2022,
-            mli_coef_2030_dry_hot = mli_2030_dry_hot / mli_2022,
-            mli_coef_2030_nzs = mli_2030_nzs / mli_2022,
+  summarize(mli_2022 = sum(monthly_labor_income_2022, na.rm = TRUE),
+            mli_2030_baseline = sum(monthly_labor_income_2030_baseline, na.rm = TRUE),
+            mli_2030_dry_hot = sum(monthly_labor_income_2030_dry_hot, na.rm = TRUE),
+            mli_2030_nzs = sum(monthly_labor_income_2030_nzs, na.rm = TRUE),
+            mli_coef_2030_baseline = if_else(mli_2022 == 0, 1, mli_2030_baseline / mli_2022),
+            mli_coef_2030_dry_hot = if_else(mli_2022 == 0, 1, mli_2030_dry_hot / mli_2022),
+            mli_coef_2030_nzs = if_else(mli_2022 == 0, 1, mli_2030_nzs / mli_2022)
             )%>% 
-  select(hhid, mli_coef_2030_baseline, 
+  select(hhid,
+         mli_2022,
+         mli_2030_baseline,
+         mli_2030_dry_hot,
+         mli_2030_nzs,
+         mli_coef_2030_baseline, 
          mli_coef_2030_dry_hot,
          mli_coef_2030_nzs)
   
@@ -1491,15 +1496,16 @@ We check that our reweighting was successful
 ```{r}
 # table <- pp_microsim %>%
 #   group_by(cohort) %>%
-# #  group_by(lmarket,sector_w) %>%
+# #  group_by(lmarket) %>%
 # #  group_by(gender) %>%
-#   summarize(total_pp = sum(weight_2030_nzs, na.rm = TRUE)) %>%
+#   summarize(no_weight = sum(n(), na.rm = TRUE),
+#             total_pp = sum(weight, na.rm = TRUE)) %>%
 #   ungroup()
 # 
 # table %>%
 #   gt() %>%
 #   fmt_number(columns = total_pp, decimals = 0)
-
+# 
 # write.table(
 #   table,
 #   "clipboard", sep="\t", row.names=FALSE
@@ -1574,16 +1580,16 @@ test_baseline <- ca_microsim %>%
     poor_2030_dry_hot = poor_Avpovln2022_2030_dry_hot,
     poor_2030_nzs = poor_Avpovln2022_2030_nzs
     ) %>%
-  group_by(poor_2030_nzs) %>% 
+  group_by(poor_original) %>% 
   summarize(
-    # no_hh_2022 = sum(weight_2022, na.rm = TRUE),
-    # no_pp_2022 = sum(weight_2022 * hhsize, na.rm = TRUE),
+    no_hh_2022 = sum(weight_2022, na.rm = TRUE),
+    no_pp_2022 = sum(weight_2022 * hhsize, na.rm = TRUE),
     # no_hh_baseline = sum(weight_2030_baseline, na.rm = TRUE),
     # no_pp_baseline = sum(weight_2030_baseline * hhsize, na.rm = TRUE),
     # no_hh_dry_hot = sum(weight_2030_dry_hot, na.rm = TRUE),
     # no_pp_dry_hot = sum(weight_2030_dry_hot * hhsize, na.rm = TRUE),
-    no_hh_nzs = sum(weight_2030_nzs, na.rm = TRUE),
-    no_pp_nzs = sum(weight_2030_nzs * hhsize, na.rm = TRUE)
+    # no_hh_nzs = sum(weight_2030_nzs, na.rm = TRUE),
+    # no_pp_nzs = sum(weight_2030_nzs * hhsize, na.rm = TRUE)
     ) %>% 
   ungroup()
 
@@ -2564,7 +2570,7 @@ ca_microsim_cc <- ca_microsim_cc %>%
     electricity_quantity = hous_23 / electricity_implicit_price,
     energy_price_elasticity = l_gas_price_elasticity)
 
-EM_elec_price <- 1.071353
+EM_elec_price <- 1.071353 # Price increase in Energy Model
 EM_gas_price <- 1.025514
 
 # Calculate the percentage change in prices by decile
@@ -2712,7 +2718,7 @@ ca_microsim_cc <- ca_microsim_cc %>%
 
 # Adjust total expenditure (totc) based on the purchasing power loss
 ca_microsim_cc <- ca_microsim_cc %>%
-  mutate(totc_2030_baseline_energy2 = totc_2030_baseline * (1 - ttl_PPloss_1),
+  mutate(#totc_2030_baseline_energy2 = totc_2030_baseline * (1 - ttl_PPloss_1),
          totc_2030_baseline_energy = 
            totc_2030_baseline -
            ((electricity_baseline_sim +
@@ -2721,7 +2727,7 @@ ca_microsim_cc <- ca_microsim_cc %>%
               (hous_23 + 
                  hous_36_b + 
                  hous_29_b)),
-         totc_2030_nzs_energy2 = totc_2030_nzs * (1 - ttl_PPloss_2),
+         #totc_2030_nzs_energy2 = totc_2030_nzs * (1 - ttl_PPloss_2),
          totc_2030_nzs_energy = 
            totc_2030_nzs -
            ((electricity_nzs_sim +
@@ -2766,7 +2772,7 @@ ca_microsim_cc <- ca_microsim_cc %>%
   mutate(poor_2030_baseline_energy =
            if_else(aec_r_2030_baseline_energy < 52883, 1, 0),
          poor_2030_nzs_energy =
-           if_else(aec_r_2030_EM_baseline_energy < 52883, 1, 0),
+           if_else(aec_r_2030_nzs_energy < 52883, 1, 0),
          poor_2030_EM_baseline_energy = 
            if_else(aec_r_2030_EM_baseline_energy < 52883, 1, 0),
          poor_2030_EM_nzs_energy = 
@@ -2837,7 +2843,7 @@ Let's plot how the distribution moves with all these measures.
 ```{r}
 # Basic density plot comparing equivalized consumption per capita
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_2030_EM_nzs_energy, fill = 'NZS + Energy Model Price')) +
+       aes(x = aec_r_2030_nzs_energy, fill = 'NZS + Energy Price')) +
   geom_density(alpha = 0.5) +
   # geom_density(
   #   data = ca_microsim_cc,
@@ -2845,7 +2851,7 @@ ggplot(ca_microsim_cc,
   #   alpha = 0.5) +
   geom_density(
     data = ca_microsim_cc,
-    aes(x = aec_r_2030_EM_baseline_energy, fill = 'Baseline + Energy Model Price'),
+    aes(x = aec_r_2030_baseline_energy, fill = 'Baseline + Energy Price'),
     alpha = 0.5) +
   # geom_density(
   #   data = ca_microsim_cc,
@@ -2886,12 +2892,12 @@ And we also plot the cumulative distributions.
 ```{r}
 # Plot the cumulative distribution with left-facing arrows
 ggplot(ca_microsim_cc, 
-       aes(x = aec_r_2030_EM_nzs_energy, color = 'NZS + Energy Model Price')) +
+       aes(x = aec_r_2030_EM_nzs_energy, color = 'NZS + Energy Price')) +
   stat_ecdf(geom = "step") +
   # stat_ecdf(data = ca_microsim_cc, 
   #           aes(x = aec_r_2030_baseline_lab_avg, color = 'Baseline + Labor Productivity')) +
   stat_ecdf(data = ca_microsim_cc, 
-            aes(x = aec_r_2030_EM_baseline_energy, color = 'Baseline + Energy Model Price')) +
+            aes(x = aec_r_2030_EM_baseline_energy, color = 'Baseline + Energy Price')) +
   stat_ecdf(data = ca_microsim_cc, 
             aes(x = aec_r_2030_baseline, color = 'Baseline')) +
   labs(
@@ -3032,13 +3038,13 @@ test <- test%>%
          poor_EM_b_energy = poor_2030_EM_baseline_energy,
          poor_EM_nzs_energy = poor_2030_EM_nzs_energy
          ) %>%
-  group_by(poor_nzs, poor_EM_nzs_energy) %>% 
-  summarize(no_pp = sum(weight_2030_nzs, na.rm = TRUE),
-            female = sum(female*weight_2030_nzs, na.rm = TRUE),
+  group_by(poor_original, poor_b_energy) %>% 
+  summarize(no_pp = sum(weight_2030_baseline, na.rm = TRUE),
+            female = sum(female*weight_2030_baseline, na.rm = TRUE),
             male = no_pp - female,
-            youth = sum(youth*weight_2030_nzs, na.rm = TRUE),
+            youth = sum(youth*weight_2030_baseline, na.rm = TRUE),
             non_youth = no_pp - youth,
-            rural = sum(rural *weight_2030_nzs, na.rm = TRUE),
+            rural = sum(rural *weight_2030_baseline, na.rm = TRUE),
             urban = no_pp - rural
             )
 
@@ -3125,6 +3131,18 @@ new_poor_scenarios <- pp_microsim_cc %>%
         poor_2030_nzs_energy == 1,
       1,
       0
+    ),
+    new_poor_EM_b_energy = if_else(
+      poor_Avpovln2022_2030_baseline == 0 &
+        poor_2030_baseline_energy == 1,
+      1,
+      0
+    ),
+    new_poor_EM_nzs_energy = if_else(
+      poor_Avpovln2022_2030_nzs == 0 &
+        poor_2030_nzs_energy == 1,
+      1,
+      0
     )
   ) %>%
   group_by(NAM_1) %>%
@@ -3139,7 +3157,11 @@ new_poor_scenarios <- pp_microsim_cc %>%
     new_p_baseline_energy =
       sum(new_poor_b_energy * weight_2030_baseline, na.rm = TRUE),
     new_p_nzs_energy = 
-      sum(new_poor_nzs_energy * weight_2030_nzs, na.rm = TRUE)
+      sum(new_poor_nzs_energy * weight_2030_nzs, na.rm = TRUE),
+    new_p_EM_baseline_energy =
+      sum(new_poor_EM_b_energy * weight_2030_baseline, na.rm = TRUE),
+    new_p_EM_nzs_energy = 
+      sum(new_poor_EM_nzs_energy * weight_2030_nzs, na.rm = TRUE)
   )
 
 new_poor_map <- adm1 %>%
@@ -3151,13 +3173,18 @@ new_poor_map <- adm1 %>%
          total_population * 100,
     new_poor_baseline_energy_pct = new_p_baseline_energy /
       total_population*100,
-    new_poor_nzs_energy_pct = new_p_nzs_energy / total_population * 100
+    new_poor_nzs_energy_pct = new_p_nzs_energy / total_population * 100,
+    new_poor_EM_baseline_energy_pct = new_p_EM_baseline_energy /
+      total_population*100,
+    new_poor_EM_nzs_energy_pct = new_p_EM_nzs_energy / total_population * 100
   ) %>% 
   mutate(
     new_p_lab_cc_label    = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_p_lab_cc_pct), ")"),
     new_p_lab_cc_food1PI_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_lab_cc_foodPI_pct), ")"),
     new_p_b_energy_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_baseline_energy_pct), ")"),
-    new_p_nzs_energy_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_nzs_energy_pct), ")")
+    new_p_nzs_energy_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_nzs_energy_pct), ")"),
+    new_p_EM_b_energy_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_EM_baseline_energy_pct), ")"),
+    new_p_EM_nzs_energy_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_EM_nzs_energy_pct), ")")
   )
 
 # test <- as.data.frame(new_poor_map)[,c(1,2,4,5,6,7,8,9)]
@@ -3229,6 +3256,39 @@ tm_shape(new_poor_map)+
 
 ```
 
+Fifth
+
+```{r}
+tm_shape(new_poor_map)+
+  tm_polygons("new_poor_EM_baseline_energy_pct",
+              title="Percent", 
+              legend.show = TRUE) +
+  tm_text(c("new_p_b_energy_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"), 
+            title= "New poor as a percentage of Marz population\nBaseline + Energy Model Price",
+#            outer.margins=c(.10,.10, .10, .10), 
+            title.position = c('left', 'bottom'),
+            title.size = 0.9)
+
+```
+
+
+Sixth
+
+```{r}
+tm_shape(new_poor_map)+
+  tm_polygons("new_poor_EM_nzs_energy_pct",
+              title="Percent", 
+              legend.show = TRUE) +
+  tm_text(c("new_p_nzs_energy_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"), 
+            title= "New poor as a percentage of Marz population\nNZS + Energy Model Price",
+#            outer.margins=c(.10,.10, .10, .10), 
+            title.position = c('left', 'bottom'),
+            title.size = 0.9)
+
+```
+
 
 Now let's show average losses by decile as a percentage of total spending.
 
@@ -3244,7 +3304,7 @@ avg_scenario_losses <- ca_microsim_cc %>%
       (totc_2030_baseline_lab_cc_foodPI - totc_2030_baseline)/
         totc_2030_baseline,NA)
          ) %>%
-  group_by(decile) %>% 
+#  group_by(decile) %>% 
   summarize(no_hh = 
               round(
                 sum(
@@ -3273,7 +3333,32 @@ avg_scenario_losses <- ca_microsim_cc %>%
                 weighted.mean(
                   totc_loss_lab_cc_foodPI, 
                   weight_2030_baseline, 
-                  na.rm = TRUE), digits = 4))
+                  na.rm = TRUE), digits = 4),
+            # avg_loss_b_energy = 
+            #   round(
+            #     weighted.mean(
+            #       totc_loss_lab_cc_foodPI, 
+            #       weight_2030_baseline, 
+            #       na.rm = TRUE), digits = 4),
+            # avg_loss_nzs_energy = 
+            #   round(
+            #     weighted.mean(
+            #       totc_loss_lab_cc_foodPI, 
+            #       weight_2030_baseline, 
+            #       na.rm = TRUE), digits = 4),
+            # avg_loss_EM_b_energy = 
+            #   round(
+            #     weighted.mean(
+            #       totc_loss_lab_cc_foodPI, 
+            #       weight_2030_baseline, 
+            #       na.rm = TRUE), digits = 4),
+            # avg_loss_EM_nzs_energy = 
+            #   round(
+            #     weighted.mean(
+            #       totc_loss_lab_cc_foodPI, 
+            #       weight_2030_baseline, 
+            #       na.rm = TRUE), digits = 4)
+            )
 
 ##write.table(avg_scenario_losses, "clipboard", sep="\t", row.names=FALSE)
 
@@ -3307,4 +3392,4 @@ print(interpolated_data)
 
 ```
 
-
+## End
