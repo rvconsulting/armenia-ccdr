@@ -3285,6 +3285,22 @@ tm_shape(new_poor_map)+
 
 ```
 
+Second variant b
+
+```{r}
+tm_shape(new_poor_map)+
+  tm_polygons("new_poor_dry_hot_food2_pct",
+              title="Percent", 
+              legend.show = TRUE) +
+  tm_text(c("new_p_lab_cc_foodPI_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"), 
+            title= "New poor as a percentage of Marz population\nDry/Hot + Food Price",
+#            outer.margins=c(.10,.10, .10, .10), 
+            title.position = c('left', 'bottom'),
+            title.size = 0.9)
+```
+
+
 And the third variant
 
 ```{r}
