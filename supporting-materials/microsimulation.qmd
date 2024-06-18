@@ -3340,7 +3340,7 @@ tm_shape(new_poor_map)+
   tm_polygons("new_poor_EM_baseline_energy_pct",
               title="Percent", 
               legend.show = TRUE) +
-  tm_text(c("new_p_b_energy_label"), size = .7, col = "black")+
+  tm_text(c("new_p_EM_b_energy_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"), 
             title= "New poor as a percentage of Marz population\nBaseline + Energy Model Price",
 #            outer.margins=c(.10,.10, .10, .10), 
