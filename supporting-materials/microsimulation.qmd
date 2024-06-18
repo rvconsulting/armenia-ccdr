@@ -1475,10 +1475,10 @@ ic_microsim <- ic_microsim %>%
   mutate(
     totalinc_2030_nzs = 
       case_when(
-        income_decile_group == 1 ~ totalinc_2030_nzs_noctr + 10934.510475,
-        income_decile_group == 2 ~ totalinc_2030_nzs_noctr + 10923.532151,
-        income_decile_group == 3 ~ totalinc_2030_nzs_noctr + 10949.535283,
-        income_decile_group == 4 ~ totalinc_2030_nzs_noctr + 10930.087743,
+        income_decile_group == 1 ~ totalinc_2030_nzs_noctr+ 10934.510475,
+        income_decile_group == 2 ~ totalinc_2030_nzs_noctr+ 10923.532151,
+        income_decile_group == 3 ~ totalinc_2030_nzs_noctr+ 10949.535283,
+        income_decile_group == 4 ~ totalinc_2030_nzs_noctr+ 10930.087743,
         .default = totalinc_2030_nzs_noctr
       )
   )
@@ -3083,7 +3083,7 @@ test <- test%>%
          poor_EM_b_energy = poor_2030_EM_baseline_energy,
          poor_EM_nzs_energy = poor_2030_EM_nzs_energy
          ) %>%
-  group_by(poor_nzs, poor_nzs_energy) %>% 
+  group_by(poor_nzs) %>% 
   summarize(no_pp = sum(weight_2030_nzs, na.rm = TRUE),
             female = sum(female*weight_2030_nzs, na.rm = TRUE),
             male = no_pp - female,
@@ -3276,7 +3276,7 @@ tm_shape(new_poor_map)+
   tm_polygons("new_poor_lab_cc_foodPI_pct",
               title="Percent", 
               legend.show = TRUE) +
-  tm_text(c("new_p_lab_cc_food1PI_label"), size = .7, col = "black")+
+  tm_text(c("new_p_lab_cc_foodPI_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"), 
             title= "New poor as a percentage of Marz population\nDirect CC + Food Price",
 #            outer.margins=c(.10,.10, .10, .10), 
