@@ -1468,7 +1468,7 @@ ic_microsim <- ic_microsim %>%
 
 ```
 
-Add back carbon tax revenue. We estimated weighted income deciles above and mapped number of households by decile. We divided the revenue by that number and we add that amount by the first four income deciles in this manner. Again, another one calculated in Excel because of time constraints. Needs fixing.
+Add back carbon tax revenue. We estimated weighted income deciles above and mapped number of households by decile. We divided the revenue by that number and we add that amount by the first four income deciles in this manner. Again, another one calculated in Excel because of time constraints. Needs fixing to make automatic.
 
 ```{r}
 ic_microsim <- ic_microsim %>% 
@@ -3150,6 +3150,7 @@ write.table(test, "clipboard", sep="\t", row.names=FALSE)
 
 ```{r}
 new_poor_scenarios <- pp_microsim_cc %>%
+  left_join(ag_income_50, join_by(hhid)) %>% 
   mutate(
     poor_baseline = poor_Avpovln2022_2030_baseline,
     poor_dry_hot = poor_Avpovln2022_2030_dry_hot,
@@ -3197,7 +3198,7 @@ new_poor_scenarios <- pp_microsim_cc %>%
       0
     )
   ) %>%
-  group_by(NAM_1) %>%
+  group_by(is_ag_home) %>%
   summarize(
     total_population = sum(weight_2030_baseline, na.rm = TRUE),
     poor_baseline =
@@ -3292,7 +3293,7 @@ tm_shape(new_poor_map)+
   tm_polygons("new_poor_dry_hot_food2_pct",
               title="Percent", 
               legend.show = TRUE) +
-  tm_text(c("new_p_lab_cc_foodPI_label"), size = .7, col = "black")+
+  tm_text(c("new_p_dry_hot_food2_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"), 
             title= "New poor as a percentage of Marz population\nDry/Hot + Food Price",
 #            outer.margins=c(.10,.10, .10, .10), 
@@ -3357,7 +3358,7 @@ tm_shape(new_poor_map)+
   tm_polygons("new_poor_EM_nzs_energy_pct",
               title="Percent", 
               legend.show = TRUE) +
-  tm_text(c("new_p_nzs_energy_label"), size = .7, col = "black")+
+  tm_text(c("new_p_EM_nzs_energy_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"), 
             title= "New poor as a percentage of Marz population\nNZS + Energy Model Price",
 #            outer.margins=c(.10,.10, .10, .10), 
