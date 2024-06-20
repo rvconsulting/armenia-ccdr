@@ -1447,7 +1447,7 @@ ic_microsim <- ic %>%
     totalinc_2030_nzs_noctr = 
       totalinc_2022 - coalesce(inc2_2022,0) - coalesce(inc3_2022,0) + 
       coalesce(inc2_2030_nzs,0) + coalesce(inc3_2030_nzs,0)
-    )
+    ) 
 
 # Calculate quantiles and create 'breaks'
 breaks <- Hmisc::wtd.quantile(ic_microsim$totalinc_2030_nzs_noctr, 
@@ -1461,29 +1461,13 @@ ic_microsim <- ic_microsim %>%
   mutate(income_decile_group = cut(totalinc_2030_nzs_noctr, 
                                    breaks = c(-Inf, breaks, Inf),
                                    labels = 1:10, 
-                                   include.lowest = TRUE)) 
+                                   include.lowest = TRUE))
 
-
+income_decile_group <- ic_microsim %>% 
+  select(interview__key, income_decile_group)
 
 
 ```
-
-Add back carbon tax revenue. We estimated weighted income deciles above and mapped number of households by decile. We divided the revenue by that number and we add that amount by the first four income deciles in this manner. Again, another one calculated in Excel because of time constraints. Needs fixing to make automatic.
-
-```{r}
-ic_microsim <- ic_microsim %>% 
-  mutate(
-    totalinc_2030_nzs = 
-      case_when(
-        income_decile_group == 1 ~ totalinc_2030_nzs_noctr+ 10934.510475,
-        income_decile_group == 2 ~ totalinc_2030_nzs_noctr+ 10923.532151,
-        income_decile_group == 3 ~ totalinc_2030_nzs_noctr+ 10949.535283,
-        income_decile_group == 4 ~ totalinc_2030_nzs_noctr+ 10930.087743,
-        .default = totalinc_2030_nzs_noctr
-      )
-  )
-```
-
 
 
 ```{r}
@@ -1499,11 +1483,11 @@ ic_microsim <- ic_microsim %>%
         totalinc_2022 == 0, 
         1, 
         totalinc_2030_dry_hot / totalinc_2022),
-    totinc_coef_2030_nzs = 
+    totinc_coef_2030_nzs_noctr = 
       if_else(
         totalinc_2022 == 0, 
         1, 
-        totalinc_2030_nzs / totalinc_2022)
+        totalinc_2030_nzs_noctr / totalinc_2022)
     ) %>% 
   mutate(
     totinc_coef_2030_baseline = 
@@ -1516,20 +1500,20 @@ ic_microsim <- ic_microsim %>%
         is.na(totinc_coef_2030_dry_hot), 
         1, 
         totinc_coef_2030_dry_hot),
-    totinc_coef_2030_nzs = 
+    totinc_coef_2030_nzs_noctr = 
       if_else(
-        is.na(totinc_coef_2030_nzs), 
+        is.na(totinc_coef_2030_nzs_noctr), 
         1, 
-        totinc_coef_2030_nzs)
+        totinc_coef_2030_nzs_noctr)
     )
 
 
-ic_coef_scenarios <- ic_microsim %>% 
+ic_coef_scenarios <- ic_microsim %>%
   select(
     interview__key, 
     totinc_coef_2030_baseline, 
     totinc_coef_2030_dry_hot,
-    totinc_coef_2030_nzs
+    totinc_coef_2030_nzs_noctr
     )
 ```
 
@@ -1575,11 +1559,46 @@ ca_microsim <- ca %>%
     poor_Avpovln2022_2022 = poor_Avpovln2022
     ) %>% 
   mutate(
-    totc_2030_baseline = totc_2022 * totinc_coef_2030_baseline,
-    totc_2030_dry_hot  = totc_2022 * totinc_coef_2030_dry_hot,
-    totc_2030_nzs      = totc_2022 * totinc_coef_2030_nzs
+    totc_2030_baseline   = totc_2022 * totinc_coef_2030_baseline,
+    totc_2030_dry_hot    = totc_2022 * totinc_coef_2030_dry_hot,
+    totc_2030_nzs_noctr  = totc_2022 * totinc_coef_2030_nzs_noctr
     )
 ```
+
+Here we add back the tax revenue
+
+Add back carbon tax revenue. We estimated weighted income deciles above and mapped number of households by decile. We divided the revenue by that number and we add that amount by the first four income deciles in this manner. Again, another one calculated in Excel because of time constraints. Needs fixing to make automatic.
+
+```{r}
+ca_microsim <- ca_microsim %>% 
+  left_join(income_decile_group, join_by(hhid == interview__key)) %>% 
+  mutate(
+    totc_2030_nzs = 
+      # Urban 40% and Rural 60%
+      case_when(
+        # Urban
+        income_decile_group == 1 & urb_rur == 1 ~ 
+          totc_2030_nzs_noctr + (1546.29 * hhsize),
+        income_decile_group == 2 & urb_rur == 1 ~ 
+          totc_2030_nzs_noctr + (1610.65 * hhsize),
+        income_decile_group == 3 & urb_rur == 1 ~ 
+          totc_2030_nzs_noctr + (1251.14 * hhsize),
+        income_decile_group == 4 & urb_rur == 1 ~ 
+          totc_2030_nzs_noctr + (1134.21 * hhsize),
+        # Rural
+        income_decile_group == 1 & urb_rur == 2 ~ 
+          totc_2030_nzs_noctr + (6323.09 * hhsize),
+        income_decile_group == 2 & urb_rur == 2 ~ 
+          totc_2030_nzs_noctr + (6109.07 * hhsize),
+        income_decile_group == 3 & urb_rur == 2 ~ 
+          totc_2030_nzs_noctr + (5599.16 * hhsize),
+        income_decile_group == 4 & urb_rur == 2 ~ 
+          totc_2030_nzs_noctr + (4420.53 * hhsize),
+        .default = totc_2030_nzs_noctr
+      )
+  )
+```
+
 
 And recalculate poverty.
 
@@ -1643,6 +1662,98 @@ write.table(test_baseline, "clipboard", sep="\t", row.names=FALSE)
 
 ```
  
+Let's plot the distributions.
+
+```{r}
+# # Basic density plot comparing equivalized consumption per capita
+# ggplot(ca_microsim, 
+#        aes(x = aec_r_2030_nzs, fill = 'NZS')) +
+#   geom_density(alpha = 0.5) +
+#   # geom_density(
+#   #   data = ca_microsim_cc,
+#   #   aes(x = aec_r_2030_dry_hot, fill = 'Dry/Hot'),
+#   #   alpha = 0.5) +
+#   # geom_density(
+#   #   data = ca_microsim_cc,
+#   #   aes(x = aec_r_2030_dry_hot_food2, fill = 'Dry/Hot + Food Price'),
+#   #   alpha = 0.5) +
+#   geom_density(
+#     data = ca_microsim,
+#     aes(x = aec_r_2030_dry_hot, fill = 'Dry/Hot'),
+#     alpha = 0.5) +
+#   geom_density(
+#     data = ca_microsim,
+#     aes(x = aec_r_2030_baseline, fill = 'Baseline'),
+#     alpha = 0.5) +
+#   labs(
+#     fill = "Scenario Variant", 
+#     # title = "Comparison of Consumption Distributions", 
+#     x = "Equivalized consumption (Dram)", 
+#     y = "Probability") +
+#   theme_minimal()+
+#   coord_cartesian(xlim = c(0, 500000),
+#           #        ylim = c(0.000005,0.0000160)
+#                   ) + # Zoom in without removing data
+#   scale_x_continuous(labels = scales::comma) +
+#   scale_y_continuous(labels = scales::comma)+
+#   geom_vline(xintercept = 55883, 
+#              color = "red", 
+#              linetype = "dotted", 
+#              linewidth =0.8) +
+#   annotate("text", 
+#            x = 55883, 
+#            y = 0.0000110, 
+#            #label = "Poverty line\nAMD 55,883", 
+#            label = "Poverty line", 
+#            color = "black", 
+#            hjust = -0.1, 
+#            # vjust = -3.5,
+#            #angle = 90, 
+#            size = 3)
+```
+
+And we also plot the cumulative distributions.
+
+```{r}
+# # Plot the cumulative distribution with left-facing arrows
+# ggplot(ca_microsim, 
+#        aes(x = aec_r_2030_baseline, color = 'Direct CC + Food Price')) +
+#   stat_ecdf(geom = "step") +
+#   # stat_ecdf(data = ca_microsim_cc, 
+#   #           aes(x = aec_r_2030_baseline_lab_avg, color = 'Baseline + Labor Productivity')) +
+#   stat_ecdf(data = ca_microsim_cc, 
+#             aes(x = aec_r_2030_baseline_lab_cc_avg, color = 'Direct CC')) +
+#   stat_ecdf(data = ca_microsim_cc, 
+#             aes(x = aec_r_2030_baseline, color = 'Baseline')) +
+#   labs(
+#     color = "Scenario Variant", 
+#     # title = "Comparison of Cumulative Consumption Distributions", 
+#     x = "Equivalized consumption (Dram)", 
+#     y = "Cumulative Probability") +
+#   theme_minimal() +
+#   coord_cartesian(xlim = c(40000, 110000)) + 
+#   scale_x_continuous(labels = scales::comma) +
+#   # geom_vline(xintercept = 55883, 
+#   #            color = "red", 
+#   #            linetype = "dotted", 
+#   #            linewidth = 0.8) +
+#   # annotate("text", 
+#   #          x = 55883, 
+#   #          y = 0.5, 
+#   #          label = "Poverty line", 
+#   #          color = "black", 
+#   #          hjust = -0.1, 
+#   #          size = 3) +
+#   annotate("segment", x = 70000, xend = 65000, y = 0.2, yend = 0.2, 
+#            arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+#   annotate("text", x = 72500, y = 0.2, label = "Shift due to shocks", hjust = 0) 
+#   # annotate("segment", x = 80000, xend = 75000, y = 0.4, yend = 0.4, 
+#   #          arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+#   # annotate("text", x = 82500, y = 0.4, label = "Shift due to shocks", hjust = 0)
+
+
+
+```
 
 ### Climate change
 
@@ -2117,9 +2228,9 @@ ca_microsim_cc <- ca_microsim_cc %>%
 test <- ca_microsim_cc %>%
   rename(poor_original = poor_Avpovln2022_2030_baseline,
          poor_cc = poor_2030_baseline_lab_avg) %>%
-  group_by(poor_Avpovln2022_2030_dry_hot) %>% 
-  summarize(no_hh = round(sum(weight_2030_dry_hot, na.rm = TRUE)),
-            no_pp = round(sum(weight_2030_dry_hot * hhsize, na.rm = TRUE))) %>% 
+  group_by(income_decile_group, urb_rur) %>% 
+  summarize(no_hh = round(sum(weight_2030_nzs, na.rm = TRUE)),
+            no_pp = round(sum(weight_2030_nzs * hhsize, na.rm = TRUE))) %>% 
   ungroup()
 
 test %>% 
@@ -2761,6 +2872,8 @@ ca_microsim_cc <- ca_microsim_cc %>%
 
 # Adjust total expenditure (totc) based on the purchasing power loss
 ca_microsim_cc <- ca_microsim_cc %>%
+  # mutate(nzs_scale_coef = if_else(
+  #   totc_2030_baseline==0, 1, totc_2030_nzs/totc_2022)) %>% 
   mutate(#totc_2030_baseline_energy2 = totc_2030_baseline * (1 - ttl_PPloss_1),
          totc_2030_baseline_energy = 
            totc_2030_baseline -
@@ -2883,6 +2996,59 @@ And we map these results.
 
 Let's plot how the distribution moves with all these measures.
 
+Food prices
+
+```{r}
+# Basic density plot comparing equivalized consumption per capita
+ggplot(ca_microsim_cc, 
+       aes(x = aec_r_2030_nzs_energy, fill = 'NZS + Energy Price')) +
+  geom_density(alpha = 0.5) +
+  # geom_density(
+  #   data = ca_microsim_cc,
+  #   aes(x = aec_r_2030_dry_hot, fill = 'Dry/Hot'),
+  #   alpha = 0.5) +
+  geom_density(
+    data = ca_microsim_cc,
+    aes(x = aec_r_2030_baseline_energy, fill = 'Baseline + Energy Price'),
+    alpha = 0.5) +
+  # geom_density(
+  #   data = ca_microsim_cc,
+  #   aes(x = aec_r_2030_baseline_lab_cc_avg, fill = 'Direct CC'),
+  #   alpha = 0.5) +
+  geom_density(
+    data = ca_microsim_cc,
+    aes(x = aec_r_2030_baseline, fill = 'Baseline'),
+    alpha = 0.5) +
+  labs(
+    fill = "Scenario Variant", 
+    # title = "Comparison of Consumption Distributions", 
+    x = "Equivalized consumption (Dram)", 
+    y = "Probability") +
+  theme_minimal()+
+  coord_cartesian(xlim = c(00000, 300000))+
+                 # ylim = c(0.000005,0.0000160)) + # Zoom in without removing data
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)+
+  geom_vline(xintercept = 55883, 
+             color = "red", 
+             linetype = "dotted", 
+             linewidth =0.8) +
+  annotate("text", 
+           x = 55883, 
+           y = 0.0000055, 
+           #label = "Poverty line\nAMD 55,883", 
+           label = "Poverty line", 
+           color = "black", 
+           hjust = -0.1, 
+           # vjust = -3.5,
+           #angle = 90, 
+           size = 3)
+```
+
+
+
+Energy
+
 ```{r}
 # Basic density plot comparing equivalized consumption per capita
 ggplot(ca_microsim_cc, 
@@ -2931,6 +3097,54 @@ ggplot(ca_microsim_cc,
 ```
 
 And we also plot the cumulative distributions.
+
+For food prices and cc
+
+```{r}
+# Plot the cumulative distribution with left-facing arrows
+ggplot(ca_microsim_cc, 
+       aes(x = aec_r_2030_baseline_foodPI, color = 'Direct CC + Food Price')) +
+  stat_ecdf(geom = "step") +
+  # stat_ecdf(data = ca_microsim_cc, 
+  #           aes(x = aec_r_2030_baseline_lab_avg, color = 'Baseline + Labor Productivity')) +
+  stat_ecdf(data = ca_microsim_cc, 
+            aes(x = aec_r_2030_dry_hot_food2, color = 'Dry/Hot + Food Price')) +
+  stat_ecdf(data = ca_microsim_cc, 
+            aes(x = aec_r_2030_baseline_lab_cc_avg, color = 'Direct CC')) +
+  stat_ecdf(data = ca_microsim_cc, 
+            aes(x = aec_r_2030_baseline, color = 'Baseline')) +
+  labs(
+    color = "Scenario Variant", 
+    # title = "Comparison of Cumulative Consumption Distributions", 
+    x = "Equivalized consumption (Dram)", 
+    y = "Cumulative Probability") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(40000, 110000)) + 
+  scale_x_continuous(labels = scales::comma) +
+  # geom_vline(xintercept = 55883, 
+  #            color = "red", 
+  #            linetype = "dotted", 
+  #            linewidth = 0.8) +
+  # annotate("text", 
+  #          x = 55883, 
+  #          y = 0.5, 
+  #          label = "Poverty line", 
+  #          color = "black", 
+  #          hjust = -0.1, 
+  #          size = 3) +
+  annotate("segment", x = 70000, xend = 65000, y = 0.2, yend = 0.2, 
+           arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+  annotate("text", x = 72500, y = 0.2, label = "Shift due to shocks", hjust = 0) 
+  # annotate("segment", x = 80000, xend = 75000, y = 0.4, yend = 0.4, 
+  #          arrow = arrow(length = unit(0.3, "cm")), color = "black") +
+  # annotate("text", x = 82500, y = 0.4, label = "Shift due to shocks", hjust = 0)
+
+
+
+```
+
+
+For energy prices
 
 ```{r}
 # Plot the cumulative distribution with left-facing arrows
@@ -3064,6 +3278,8 @@ ag_income_50 <- ic_microsim_cc %>%
 
 We make a table to see who became poor. 
 
+### The table
+
 ```{r}
 test <- pp_microsim_cc
 
@@ -3083,7 +3299,7 @@ test <- test%>%
          poor_EM_b_energy = poor_2030_EM_baseline_energy,
          poor_EM_nzs_energy = poor_2030_EM_nzs_energy
          ) %>%
-  group_by(poor_nzs) %>% 
+  group_by(poor_nzs, poor_EM_nzs_energy) %>% 
   summarize(no_pp = sum(weight_2030_nzs, na.rm = TRUE),
             female = sum(female*weight_2030_nzs, na.rm = TRUE),
             male = no_pp - female,
@@ -3198,7 +3414,7 @@ new_poor_scenarios <- pp_microsim_cc %>%
       0
     )
   ) %>%
-  group_by(is_ag_home) %>%
+  group_by(NAM_1) %>% # has to be NAM_1 for the next chunk to work
   summarize(
     total_population = sum(weight_2030_baseline, na.rm = TRUE),
     poor_baseline =
@@ -3223,14 +3439,23 @@ new_poor_scenarios <- pp_microsim_cc %>%
       sum(new_poor_EM_nzs_energy * weight_2030_nzs, na.rm = TRUE)
   )
 
-new_poor_map <- adm1 %>%
+write.table(new_poor_scenarios, "clipboard", sep="\t", row.names=FALSE)
+
+##write.table(test, "clipboard", sep="\t", row.names=FALSE)
+
+```
+
+And we create labels for our map.
+
+```{r}
+new_poor_map <- adm1 %>% # previous chunk has to be grouped by NAM_1
   left_join(new_poor_scenarios, join_by(NAM_1)) %>%
   mutate(
     new_p_lab_cc_pct = new_p_lab_cc / total_population *
           100,
     new_poor_lab_cc_foodPI_pct = new_p_lab_cc_foodPI /
          total_population * 100,
-    new_poor_dry_hot_food2_pct = new_p_lab_cc_foodPI /
+    new_poor_dry_hot_food2_pct = new_p_dry_hot_food2 /
          total_population * 100,
     new_poor_baseline_energy_pct = new_p_baseline_energy /
       total_population*100,
@@ -3248,12 +3473,9 @@ new_poor_map <- adm1 %>%
     new_p_EM_b_energy_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_EM_baseline_energy_pct), ")"),
     new_p_EM_nzs_energy_label = paste0(NAM_1, "\n(", sprintf("%.1f%%", new_poor_EM_nzs_energy_pct), ")")
   )
-
-# test <- as.data.frame(new_poor_map)[,c(1,2,4,5,6,7,8,9)]
-
-##write.table(test, "clipboard", sep="\t", row.names=FALSE)
-write.table(new_poor_scenarios, "clipboard", sep="\t", row.names=FALSE)
 ```
+
+
 
 Let's map different scenarios.
 
@@ -3382,7 +3604,7 @@ avg_scenario_losses <- ca_microsim_cc %>%
       (totc_2030_baseline_lab_cc_foodPI - totc_2030_baseline)/
         totc_2030_baseline,NA)
          ) %>%
-#  group_by(decile) %>% 
+  group_by(decile) %>% 
   summarize(no_hh = 
               round(
                 sum(
@@ -3469,5 +3691,22 @@ interpolated_data <- data.frame(
 print(interpolated_data)
 
 ```
+
+The inquiry is who is getting hit the most from changes to energy prices.
+
+```{r}
+energy_shares <- ca_microsim_cc %>% 
+  left_join(ag_income_50, join_by(hhid)) %>% 
+  mutate(
+    shr_energy = if_else(totc_2022==0,NA, (hous_23+hous_36_b+hous_29_b)/totc_2022)
+  ) %>% 
+  group_by(decile, is_ag_home) %>% 
+  summarize(no_hh= sum(weight_2022, na.rm = TRUE),
+            shr_e = weighted.mean(shr_energy, weight_2022, na.rm=TRUE))
+
+write.table(energy_shares, "clipboard", sep="\t", row.names=FALSE)
+```
+
+
 
 ## End
