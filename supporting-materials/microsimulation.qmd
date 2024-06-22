@@ -45,7 +45,7 @@ csl: apa-6th-edition.csl
 
 ## Introduction
 
-In this calculation file, we "age" the household survey according to demographic projections and different macroeconomic scenarios to explore the impact of climate-related risks and policy measures on the consumption expenditure distribution.
+In this calculation file, we "age" the household survey according to demographic projections and different macroeconomic scenarios to explore the impact of climate-related risks and policy measures on the consumption expenditure distribution. It is part of a larger project with all contributions to Armenia's CCDR, which can be [downloaded from GitHub](https://github.com/rvconsulting/armenia-ccdr) in the form of an [Rstudio project](https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects).
 
 As a convention, code is presented in the following format in this guide:
 
@@ -94,21 +94,20 @@ We call the appropriate libraries.
 Rather than calling our libraries as we go, we will make sure we have everything we need from the beginning.
 
 ```{r output=FALSE}
-#| label: load-packages
+#| label: lst-load-packages
 
 library(tidyverse) # includes dplyr, ggplot2 and others
 library(haven)     # to read SPSS and Stata datasets
 library(readxl)    # to read from MS-Excel
 library(openxlsx)  # to write to MS-Excel.
 library(gt)        # pretty tables
-library(car)       # Companion to applied regression
+library(car)       # companion to applied regression
 library(modelr)    # regression models
-#library(ebal)      # Entropy reweighting
 #library(anesrake)  
 # Raking reweighting but we don't load it, because 
 # it changes the meaning of summarize from dplyr, 
 # so we use the form anesrake::anesrake() when using it.
-#library(weights)   # Weigthed survey statistics
+#library(ebal)      # Entropy reweighting (not used)
 library(janitor)   # pretty subtotals
 library(broom)     # More regressions
 library(purrr)     # map vectors (aggregation)
@@ -144,7 +143,7 @@ food_with_prices <- read_dta("data/ARM-HH-survey/FOOD_with_prices_short.dta")
 We will work non-destructively, meaning we will not rewrite these data sets and we will only create intermediate data frame objects from them to perform transformations, selections and other data management tasks. For example, we will keep household assignment to poverty status and consumption deciles handy by creating a subset of our `ca` data with only our household identifiers, deciles, and poverty.
 
 ```{r warning=FALSE, message=FALSE}
-#| label: deciles
+#| label: lst-deciles
 
 # From the WB processed dataset, we extract deciles and poverty
 deciles <- ca %>% 
@@ -155,15 +154,15 @@ deciles <- ca %>%
 Our population data comes from UN's projections.
 
 ```{r warning=FALSE, message=FALSE}
-#| label: population-projections
+#| label: lst-population-projections
 population_projections <- read_dta("data/UN2022_population.dta") %>% 
   filter(country == iso) # we filter for Armenia
 ```
 
-Macro scenario dataset
+The macro scenario dataset is an input provided by the Macroeconomic CGE simulation team, with yearly information on GDP, working age population, employment by economic activity (for an aggregation of three sectors: agriculture, manufacturing, and services), wages by economic activity, value added by economic activity, remittances, consumer price index, food price index and energy price index (for a bundle of gas, oil, coal, electricity) by decile (10 representative households in the macro model), and carbon tax revenue transfers to household deciles.
 
 ```{r warning=FALSE, message=FALSE, output=FALSE}
-#| label: import-macro-scenarios
+#| label: lst-import-macro-scenarios
 
 
 scenario_file <- "data/ARM-Microsimulation/ARM_MacroScenarioInformation.xlsx"
@@ -173,10 +172,10 @@ prices_2030 <-
   read.csv("data/ARM-Microsimulation/prices2030.csv")
 ```
 
-Codes for Economic Activities in the Survey
+Economic Activities in the Survey is in Armenian. The following dataset is a lookup table with the English names.
 
 ```{r}
-#| label: import-economic-activity-codes
+#| label: lst-import-economic-activity-codes
 
 sectors <- read_xlsx("data/ARM-HH-survey/economic_activity_codes.xlsx")
 ```
@@ -184,20 +183,22 @@ sectors <- read_xlsx("data/ARM-HH-survey/economic_activity_codes.xlsx")
 We also have geographical information for level 1 in Shapefile format, which we import with the `sf` package. We rename the column with the name of the administrative region to match our household survey data set conventions to ease mergers. The `dplyr` package from the `tidyverse` meta package allows us to "pipe" or link processing steps using the `%>%` pipe. Although there is no geoprocessing in this analysis, this will come in handy for graphical presentations.
 
 ```{r warning=FALSE, message=FALSE}
-#| label: import-geodata
+#| label: lst-import-geodata
 
 # Armenia marzes or administrative level 1 shapefile
 adm1 <- read_sf("data/ARM-Geodata/ARM-ADM1.shp") %>% 
   select(NAM_1, COD_HH_SVY, geometry) %>% 
-    # Make sure that names match the rest of datasets
+  # Make sure that names match the rest of datasets
   mutate(NAM_1 = if_else(NAM_1 == "Gergharkunik", "Gegharkunik", NAM_1))
+# We rename with the survey designation
 names(adm1)[2] <- "hh_02" 
 ```
 
-And we plot it for reference.
+And we plot it for reference in @fig-armenia-map-example. This is done with the tmap R package.
 
 ```{r}
-#| label: plot-armenia-map-example
+#| label: fig-armenia-map-example
+#| fig-cap: "Map of Armenia at administrative level 1 (ADM1)"
 
 tm_shape(adm1)+
   tm_polygons("NAM_1", legend.show = FALSE) +
@@ -207,7 +208,7 @@ tm_shape(adm1)+
 Marzes names are more accurate in the shapefile than in the survey. We will use them from here on instead of the survey factor labels.
 
 ```{r warning=FALSE, message=FALSE}
-#| label: marz-name-from-geodata
+#| label: lst-marz-name-from-geodata
 
 hh <- hh %>% 
   left_join(adm1, join_by(hh_02 == hh_02)) %>% 
@@ -218,16 +219,16 @@ ic <- ic %>%
   select(-geometry)
 ```
 
-We have changes to labor productivity due to climate variability.
+We also have an Excel file with changes to labor productivity due to climate variability. We bind together the datasets found in each Excel sheet.
 
 ```{r}
-#| label: import-labor-productivity-data
+#| label: lst-import-labor-productivity-data
 
 file <- r"(data/ARM-Microsimulation/LaborProductivityChanges.xlsx)"
 sheets <- excel_sheets(file)
 
 # Use lapply to read and process each sheet
-heat_l_pdcty <- lapply(sheets, function(sheet) {
+labor_productivity <- lapply(sheets, function(sheet) {
   info <- read_excel(
     file,
     sheet = sheet,
@@ -239,22 +240,14 @@ heat_l_pdcty <- lapply(sheets, function(sheet) {
 })
 
 # Bind all data frames in the list into a single data frame
-heat_l_pdcty <- bind_rows(heat_l_pdcty)
+labor_productivity <- bind_rows(labor_productivity)
 ```
 
-Finally, but not less important, we have our vulnerability information.
+Finally, we have our climate vulnerability information. For this analysis we only use the `crops_productivity` and `livestock_productivity`.
 
 ```{r warning=FALSE, message=FALSE}
-#| label: import-vulnerability-data
+#| label: lst-import-vulnerability-data
 
-buildings_aal <- 
-  read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
-            sheet = "Building_AAL") %>% 
-    # Make sure that names match the rest of datasets
-  mutate(NAM_1 = if_else(NAM_1 == "Gergharkunik", "Gegharkunik", NAM_1))
-buildings_1in100 <-
-  read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
-            sheet = "Building_1in100")
 crops_productivity <- 
   read.csv("data/ARM-Vulnerability-Analysis/ARM_crops_combined_REF_shock_admin1.csv") %>% 
   rename(NAM_1 = Province)
@@ -263,21 +256,17 @@ livestock_productivity <-
     "data/ARM-Vulnerability-Analysis/ARM_livestock_REF_shock_admin1.csv"
     ) %>% 
   rename(NAM_1 = Province)
-crops_aal <- 
-  read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
-            sheet = "Agriculture_AAL")
-crops_1in100 <-
-  read_xlsx("data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx",
-            sheet = "Agriculture_1in100")
 ```
 
 ## Data preparation income outliers and missings
 
 ### Household consumption aggregates and characteristics
 
-Initial necessary variables.
+Initial necessary variables. Some of these choices come from conventions used in the guidance code. However, where possible, we've tried to continue using the names found in the datasets to avoid introducing more confusion.
 
 ```{r}
+#| label: lst-consumption-aggregates
+
 consumption_aggregates <- ca %>% 
   mutate(rural = ifelse(urb_rur == 2, 1, 0),  # Create rural indicator
          yhh = totc,              # Total household expenditure
@@ -290,13 +279,14 @@ consumption_aggregates <- ca %>%
 
 ### Demographic characteristics, education, labor force
 
-Here the original code calls for Zone data, which is not present in our dataset, due to the different administrative structure of Armenia. However, we use `hh_01_code` (settlement) for this purpose.
+Here the original code calls for Zone data, which is not present in our dataset, due to the different administrative structure of Armenia. However, we use `hh_01_code` (settlement) for this purpose. In the end, this variable was never used.
 
 ```{r}
-# Zone data
+#| label: lst-zone-data
+
 zone_data <- hh %>% 
   select(interview__key, hh_01_code, hh_02, hh_03, NAM_1) %>% 
-  mutate(
+  rename(
     hhid = interview__key, # Household id
     zone = hh_01_code,     # Settlement
     marz = hh_02,          # Marz
@@ -305,58 +295,66 @@ zone_data <- hh %>%
   )
 ```
 
-Demographic data, merge with zone data Note that ed_03 (educy) below is not years of education, but education level (primary, general, secondary, etc.) However, it is ordered in a way that higher levels imply more years of education. We perform several steps within the first pipe call.
+Demographic data, merge with zone data Note that ed_03 (educy) below is not years of education, but education level (primary, general, secondary, etc.) However, it is ordered in a way that higher levels imply more years of education. We perform several steps within the first pipe call. The variable `lstatus` (Labor Force Status) here is very important for the reweigthing of the dataset later on. Note that from here onwards we will be creating `_microsim` versions of our datasets with the transformations needed for calculations. That way we avoid changing our original data and can refer to it later without fearing we've left things behind.
 
 ```{r}
+#| label: lst-demographic-characteristics
+
 pp_microsim <- pp %>%
-  rename(hhid = interview__key) %>% 
-  left_join(zone_data, join_by( hhid == hhid))  %>%  
-  mutate(# Demographic characteristics
-         pid = paste0(interview__key, "-", 
-                      str_pad(mem_001__id, 2, pad = "0")), # Unique person id
+  rename(hhid = interview__key) %>%
+  left_join(zone_data, join_by(hhid == hhid))  %>%
+  mutate(
+    # Demographic characteristics
+    # Unique person id
+    pid = paste0(hhid, "-", str_pad(mem_001__id, 2, pad = "0")),
+    head = ifelse(mem_03 == 1, 1, 0),
+    # Education level
+    educy = ifelse(is.na(ed_03) | ed_03 == 8, 0, ed_03),
+    # Labor Force Status
+    lstatus = case_when(
+      # 1. Employed
+      est_03 == 1 | est_04 == 1 | est_05 == 1 |
+        est_06 == 1 | est_08 == 1 ~ 1L,
+      # 2. Unemployed (available, and searching)
+      est_10 == 1 ~ 2L,
+      # 3. Inactive (available, not searching)
+      est_10 == 2 ~ 3L,
+      # Out of the labor force
+      .default = 4L # Default to OLF
+    ),
+    employed = (lstatus == 1),
+    # Salaried status (1. paid employee; 2 self-employed)
+    salaried = ifelse(
+      !is.na(emp_11a),
+      1L,
+      ifelse(is.na(emp_11a) &
+               employed == TRUE, 0L, NA_integer_)
+    )
+  ) %>%
+  rename(rel = mem_03, # relationship to HH head
          gender = mem_02,
-         age = mem_05,
-         head = ifelse(mem_03 == 1, 1, 0),
-         # Education level
-         educy = ifelse(is.na(ed_03) | ed_03 == 8, 0, ed_03),
-         # Labor Force Status
-         lstatus = case_when(
-           # 1. Employed
-           est_03 == 1 | est_04 == 1 | est_05 == 1 |
-             est_06 == 1 | est_08 == 1 ~ 1L,
-           # 2. Unemployed (available, and searching)
-           est_10 == 1 ~ 2L,
-           # 3. Inactive (available, not searching)
-           est_10 == 2 ~ 3L,
-           # Out of the labor force
-           .default = 4L # Default to OLF
-         ),
-         employed = (lstatus == 1),
-         # Salaried status (1. paid employee; 2 self-employed)
-         salaried = ifelse(!is.na(emp_11a), 1L, 
-                           ifelse(is.na(emp_11a) & 
-                                    employed == TRUE, 0L, NA_integer_))
-         ) %>%
-  rename(rel = mem_03) # %>% 
-  # select(hhid, pid, gender, age, head, rel, zone, marz, urb_rur, educy,
-  #        lstatus, employed, salaried, )  
+         age = mem_05)
 ```
 
 Later, when we conduct the reweighting of the dataset, we need to summarize into three levels of education.
 
 ```{r}
+#| label: lst-education-information
+
 pp_microsim <- pp_microsim %>%
   mutate(calif = case_when(
     educy >= 0 & educy <= 2 ~ "None - General",
     educy > 3 & educy <= 7 ~ "Secondary - Vocational",
     educy > 7 & educy <= 11 ~ "Higher +",
-    TRUE ~ NA_character_  # This handles any values outside the specified ranges
+    TRUE ~ NA_character_  # Values outside the specified ranges
   ))
 ```
 
-Count the number of employed persons by household.
+Count the number of employed persons by household. Note that it is necessary to explicitly tell R to ignore missing values(`NA`). This is different from Stata where `1 + .= 1`  (where `.` is "missing"). In R 1 + `NA` = `NA` (where `NA` means "not available"). Not adding `na.rm = TRUE` to aggregation functions such as `sum()` in @lst-employed-in-hh below will not throw an error and only provide a column with `NA` for households where at least one individidual has an employed status of `NA`.
 
 ```{r}
+#| label: lst-employed-in-hh
+
 pp_microsim <- pp_microsim %>% 
   mutate(employed = (lstatus == 1)) %>% 
   group_by(hhid) %>% 
@@ -364,19 +362,22 @@ pp_microsim <- pp_microsim %>%
   ungroup() 
 ```
 
-Here the original Stata code calculates income variables and aggregates them by household. We skip that because the dataset "ic" already has these elements calculated by the WB poverty team. We'll add them later.
+Here the original Stata code calculates income variables and aggregates them by household. We skip that because the dataset "ic" already has these elements calculated by the WB poverty team. We'll add them later as we need them.
 
-**Primary and Secondary Job income**
+However, as we'll see later labor income information is heavily non-reported in the dataset. Labor income is a crucial step in merging the dataset with macroeconomic information and so we will predict income for those that do not report it below. These variables are related to labor income, amount and frequency. This has to be standardized to a monthly or yearly value.
+
+**Primary and Secondary Job income:**
 
 -   **emp_11** 11.How much was %rostertitle%'s payment for wages/salary/income for last month?
 -   **emp_12** 12.What period of time was the wage/income for?
 -   **emp_25** 25.How much was %rostertitle%'s payment for wages/salary/income for last month?
 -   **emp_26** 26.What period of time was the wage/income for?
 
-Bonus, In-Kind, and food from job was not asked in Armenia, If it were, you should add a mutate() statement like the ones below for each subcategory.
-
+Bonus, In-Kind, and food from job was not asked in Armenia, If it were, you should add a `mutate()` statement like the ones below for each subcategory in @lst-annualized-labor-income. We use `coalesce(colname, 0)` when adding the `annual_labor_total` again to prevent sums of `NA`'s. This function replaces a value with 0 within the calculation if it's missing, but doesn't change its value permanently.
 
 ```{r}
+#| label: lst-annualized-labor-income
+
 pp_microsim <- pp_microsim %>% 
   # Labor income primary job
   mutate(annual_labor_income_primary = case_when(
@@ -399,7 +400,8 @@ pp_microsim <- pp_microsim %>%
     emp_26 == 7 ~ NA
   )) %>% 
   # Annual labor total in thousands of dram
-  mutate(annual_labor_total = (coalesce(annual_labor_income_primary, 0) + 
+  mutate(annual_labor_total = 
+           (coalesce(annual_labor_income_primary, 0) + 
            coalesce(annual_labor_income_secondary, 0))/1000)
 
 # Restore annual_labor_total to NA if both NA
@@ -412,9 +414,11 @@ pp_microsim <- pp_microsim %>%
          annual_labor_total))
 ```
 
-28.57% employed with no labor income reported!!! We calculate this way:
+Now we need to check the share of individuals that are employed, but did not report income. This is done in @lst-employed-no-income below.
 
 ```{r}
+#| label: lst-employed-no-income
+
 total_employed_no_income <- pp_microsim %>%
   filter(employed == TRUE & is.na(annual_labor_total)) %>% 
   nrow()
@@ -425,29 +429,37 @@ total_employed <- pp_microsim %>%
 
 percent_employed_no_income <- (total_employed_no_income / total_employed) * 100
 
-print(percent_employed_no_income)
-
+print(
+  paste0(
+    "There is ",
+    format(
+      percent_employed_no_income,digits = 2, nsmall=2
+      ),
+    "% of the employed population that reports no income.")
+  )
 ```
 
-Let's flag outliers now
+We also need to mark income outliers as those with incomes outside 5 standard deviations.
 
 ```{r}
+#| label: lst-employed-outliers
+
 pp_microsim <- pp_microsim  %>% 
-  # Filter for employed and positive income 
-  #filter(employed == TRUE & annual_labor_total > 0) %>% 
   mutate(
-    sd = sd(annual_labor_total, na.rm = TRUE),   # Calculate standard deviation
+    sd = sd(annual_labor_total, na.rm = TRUE), # Calculate standard deviation
     d = annual_labor_total / sd,                
     # Combined outlier condition
     outlier = (d > 5) | (employed == TRUE & annual_labor_total == 0), 
     # Mark potential missings
-    missings = if_else(employed == TRUE, is.na(annual_labor_total), NA)           
+    missings = if_else(employed == TRUE, is.na(annual_labor_total), NA) 
   ) 
 ```
 
-Economic sector
+Economic sector. The economic sectors dataset contains a lookup table for sector aggregation which we add to the `pp_microsim` database in @lst-sector-aggregation.
 
 ```{r}
+#| label: lst-sector-aggregation
+
 pp_microsim <- pp_microsim %>%
   mutate(emp_04 = as.integer(emp_04)) %>% 
   left_join(sectors, join_by("emp_04" == "economic_activity_code") ) %>% 
@@ -462,19 +474,22 @@ Step 1: Impute sector for missing employed by the sector of any other hh member.
 pp_microsim <- pp_microsim %>%
   group_by(hhid) %>%
   mutate(
-    # Create a temporary variable 'other_sector' which captures the sector of any employed individual in the household
-    other_sector = if_else(employed == TRUE & !is.na(sector), sector, NA_real_)
+    # Create a temporary variable 'other_sector'
+    # which captures the sector of any employed 
+    # individual in the household
+    other_sector = 
+      if_else(employed == TRUE & !is.na(sector), sector, NA_real_)
   ) %>%
   # Use 'fill' to propagate 'other_sector' values within the household
   fill(other_sector, .direction = "downup") %>%
   mutate(
     # Impute missing 'sector' values based on the 'other_sector'
-    sector = if_else(is.na(sector) & employed == TRUE, other_sector, sector)
+    sector = 
+      if_else(is.na(sector) & employed == TRUE, other_sector, sector)
   ) %>%
   # Drop the temporary 'other_sector' variable
   select(-other_sector) %>%
   ungroup()
-
 ```
 
 Step 2: Assign a specific value for missing sectors for those employed with no one else in the hh to assign value. We select services as it's the heaviest sector in the dataset (we do it like this, instead of say, matching, because it's only 2 observations).
@@ -484,15 +499,14 @@ pp_microsim <- pp_microsim %>%
   mutate(sector = if_else(is.na(sector) & employed == TRUE, 3, sector))
 ```
 
-
 Step 4: Label the sector variable.
 
 ```{r}
 pp_microsim <- pp_microsim %>%
   mutate(sector_name = factor(sector, levels = c(1, 2, 3),
                          labels = c("Agriculture", 
-                                    "Manufacturing", "Services"))
-         )
+                                    "Manufacturing", 
+                                    "Services")))
 ```
 
 Step 5: No sector for OLF and clonevar industry=sector (this from original Stata code).
@@ -500,11 +514,14 @@ Step 5: No sector for OLF and clonevar industry=sector (this from original Stata
 ```{r}
 pp_microsim <- pp_microsim %>%
   mutate(lstatus = as.numeric(lstatus),
-         sector = if_else(lstatus == 4, as.character(NA), as.character(sector)),
-         industry = as.factor(sector)) %>% 
-   mutate(sector_w = sector) # We need this for reweighting and not messing up 
-                            # and not mess up the regression below.
-
+         sector = 
+           if_else(lstatus == 4, 
+                   as.character(NA), 
+                   as.character(sector)),
+         industry = as.factor(sector)) %>%
+  # We need this for reweighting and 
+  # not messing up the regression below.
+  mutate(sector_w = sector)
 ```
 
 ### The regression
@@ -671,8 +688,6 @@ pp_microsim <- pp_microsim %>%
 # write_dta(pp_microsim, path = "outputs/pp_microsim.dta", version = 10)
 ```
 
-
-
 ## UN Population Projections
 
 Now we are ready to move to our demographic projections and macroeconomic model information.
@@ -776,16 +791,13 @@ elasticities <- c(0.82, 0.9, 0.79) # Agr, Manuf, Services
 yearsto <- c(2030)
 ```
 
-
 ## Macro Scenarios
-
 
 The following code accomplishes the following:
 
 -   Import data from Excel sheets corresponding to each scenario and combine them into one data frame.
 -   Rename columns, create a 'scenid' to identify scenarios, and merge with population projections.
 -   Calculate real wages and consumption per capita.
-
 
 ```{r}
 # Macro Scenario File imported in "Datasets" section (scenario_file) 
@@ -910,7 +922,6 @@ macro_data <- macro_data %>%
 
 This is based on a custom command to reweight the survey according to macroeconomic data for every possible combination of variant, year, and country. In the macro data we know they only used the "medium" variant and we only need to reweight for a specific year (2030) for Armenia (ARM), so we will conduct the reweighting directly with these parameters.
 
-
 ```{r}
 # We join several cohorts from 0 to 29 years old and from
 # 60 onwards, because the reweighting procedure works
@@ -1011,7 +1022,6 @@ pp_microsim <- pp_microsim %>%
   ))
 ```
 
-
 Note that the differences between the totals of the survey and the macro file for the base year are very much different. We'll adjust the survey only with relative growth instead of total numbers so that labor income doesn't change completely.
 
 ### Reweigting
@@ -1070,7 +1080,7 @@ names(targets_nzs) <- c("gender_code",
 
 ```
 
-And now we perform the reweighting, using the original weights. Initially we had used the default option type = "pctlim" combined with pctlim=0.05, because the method recommends that if reweighting changes for one variable according to its target  are not of at least 5%, then it's not worth burdening the procedure with it. It then ignored sex as a reweighting variable, leaving a small percentage difference between the target and the final population. However, we then tried removing this limitation and the procedure reached convergence in 33 iterations very efficiently.
+And now we perform the reweighting, using the original weights. Initially we had used the default option type = "pctlim" combined with pctlim=0.05, because the method recommends that if reweighting changes for one variable according to its target are not of at least 5%, then it's not worth burdening the procedure with it. It then ignored sex as a reweighting variable, leaving a small percentage difference between the target and the final population. However, we then tried removing this limitation and the procedure reached convergence in 33 iterations very efficiently.
 
 ```{r}
 # Since this uses base R, we need to turn the data frame into base R object
@@ -1286,8 +1296,6 @@ rm(rakedata)
 
 ```
 
-
-
 ### Rescaling labor income according to changes to the wage bill
 
 As a last step, we rescale labor income according to changes to the wage bill in the macro scenario.
@@ -1469,7 +1477,6 @@ income_decile_group <- ic_microsim %>%
 
 ```
 
-
 ```{r}
 ic_microsim <- ic_microsim %>% 
   mutate(
@@ -1517,7 +1524,6 @@ ic_coef_scenarios <- ic_microsim %>%
     )
 ```
 
-
 We check that our reweighting was successful
 
 ```{r}
@@ -1539,7 +1545,6 @@ We check that our reweighting was successful
 #   )
 
 ```
-
 
 ## Microsimulation
 
@@ -1599,7 +1604,6 @@ ca_microsim <- ca_microsim %>%
   )
 ```
 
-
 And recalculate poverty.
 
 ```{r}
@@ -1630,9 +1634,7 @@ ca_microsim <- ca_microsim %>%
     )
 ```
 
-
-
-Test 
+Test
 
 ```{r}
 test_baseline <- ca_microsim %>%
@@ -1661,7 +1663,7 @@ test_baseline %>%
 write.table(test_baseline, "clipboard", sep="\t", row.names=FALSE)
 
 ```
- 
+
 Let's plot the distributions.
 
 ```{r}
@@ -1763,7 +1765,7 @@ We add a moving window average and max value for our labor productivity data.
 
 ```{r}
 # First calculate moving window average
-heat_l_pdcty <- heat_l_pdcty %>%
+labor_productivity <- labor_productivity %>%
   group_by(ADM1_EN, 
            clim_scenario) %>%
   arrange(year) %>%
@@ -1793,10 +1795,10 @@ heat_l_pdcty <- heat_l_pdcty %>%
   ungroup()
 
 # Clim scenarios to select
-cs <- unique(heat_l_pdcty$clim_scenario)
+cs <- unique(labor_productivity$clim_scenario)
 
 # Moving average for year of interest
-lab_loss_avg <- heat_l_pdcty %>%
+lab_loss_avg <- labor_productivity %>%
   filter(clim_scenario == cs[1], year == yearsto[1]) %>%
   select(-pct_change_productivity,
          -ADM1_PCODE,
@@ -1809,7 +1811,7 @@ lab_loss_avg <- heat_l_pdcty %>%
          ser_avg = Services)
 
 # Max value for year of interest
-lab_loss_max <- heat_l_pdcty %>%
+lab_loss_max <- labor_productivity %>%
   filter(clim_scenario == cs[1], year == yearsto[1]) %>%
   select(-pct_change_productivity,
          -ADM1_PCODE,
@@ -1916,7 +1918,6 @@ lvstk_pdcvty_loss <- livestock_productivity %>%
   rename(lvstk_avg_loss = moving_avg, 
          lvstk_max_loss = moving_max)
 ```
-
 
 And then we introduce these values in our ag income and labor income data. First, we attach the percentage losses to the appropriate data set.
 
@@ -2240,10 +2241,9 @@ test %>%
 
 ```
 
-
 ### Food prices
 
-We start by looking at the differences of food prices between scenarios. 
+We start by looking at the differences of food prices between scenarios.
 
 ```{r}
 # We extract and reformat the price data
@@ -2394,7 +2394,6 @@ print(ca_microsim_cc %>% select(decile, food1, baseline_2030_food, food_1_dprice
 
 
 ```
-
 
 Let's plot the distributions to see changes:
 
@@ -2701,7 +2700,6 @@ print(paste("Estimated price elasticity of gas quantity demanded:", l_gas_price_
 
 We see that this commodity is highly inelastic at -0.088781.The estimated price elasticity of -0.086 suggests that the demand for gas is inelastic. This means that a 1% increase in the price of gas would lead to only a 0.09% decrease in the quantity of gas demanded. The absolute value of the elasticity is much less than 1, indicating that consumers do not significantly reduce their gas consumption in response to price increases. This could be because gas is a necessity for many households, and they cannot easily reduce their usage or switch to alternative sources. We expect electricity, being so universal in the dataset to behave in the same manner. We wanted to use natural gas to compute a similar metric, but there is hardly any variation in prices. Everybody experiences the same price and so there is not enough variation to compute a valid model. We will use the elasticity from liquefied gas for our purposes.
 
-
 Let's add back the elasticity data to the analysis dataset.
 
 ```{r}
@@ -2779,7 +2777,6 @@ ca_microsim_cc <- ca_microsim_cc %>%
            n_gas_EM_q_sim * n_gas_price * EM_gas_price)
 ```
 
-
 Let's plot the distributions to see changes:
 
 ```{r}
@@ -2809,7 +2806,6 @@ ggplot(ca_microsim_cc, aes(x =  hous_23, fill = 'Baseline')) +
 
 ```
 
-
 ```{r}
 # Basic density plot comparing food1 and food_exp_sim
 ggplot(ca_microsim_cc, aes(x =  hous_23+hous_29_b+hous_36_b, fill = 'Baseline')) + 
@@ -2834,13 +2830,7 @@ ggplot(ca_microsim_cc, aes(x =  hous_23+hous_29_b+hous_36_b, fill = 'Baseline'))
   scale_y_continuous(labels = scales::comma)
 ```
 
-
-
 Calculate losses in consumer surplus and purchasing power loss.
-
-
-
-
 
 ```{r}
 
@@ -3045,8 +3035,6 @@ ggplot(ca_microsim_cc,
            size = 3)
 ```
 
-
-
 Energy
 
 ```{r}
@@ -3143,7 +3131,6 @@ ggplot(ca_microsim_cc,
 
 ```
 
-
 For energy prices
 
 ```{r}
@@ -3227,7 +3214,6 @@ pp_microsim_cc <- pp_microsim_cc %>%
 
 ```
 
-
 Let's find homes where more than 50% of income comes from agriculture. We first find the fraction of household labor income that comes from agriculture.
 
 ```{r}
@@ -3275,8 +3261,7 @@ ag_income_50 <- ic_microsim_cc %>%
   
 ```
 
-
-We make a table to see who became poor. 
+We make a table to see who became poor.
 
 ### The table
 
@@ -3314,7 +3299,6 @@ test %>%
 
 write.table(test, "clipboard", sep="\t", row.names=FALSE)
 ```
-
 
 ```{r}
 # foodpoor <- ca_microsim_cc %>%
@@ -3362,7 +3346,6 @@ write.table(test, "clipboard", sep="\t", row.names=FALSE)
 # 
 # fp_map
 ```
-
 
 ```{r}
 new_poor_scenarios <- pp_microsim_cc %>%
@@ -3475,8 +3458,6 @@ new_poor_map <- adm1 %>% # previous chunk has to be grouped by NAM_1
   )
 ```
 
-
-
 Let's map different scenarios.
 
 ```{r}
@@ -3522,7 +3503,6 @@ tm_shape(new_poor_map)+
             title.position = c('left', 'bottom'),
             title.size = 0.9)
 ```
-
 
 And the third variant
 
@@ -3572,7 +3552,6 @@ tm_shape(new_poor_map)+
 
 ```
 
-
 Sixth
 
 ```{r}
@@ -3588,7 +3567,6 @@ tm_shape(new_poor_map)+
             title.size = 0.9)
 
 ```
-
 
 Now let's show average losses by decile as a percentage of total spending.
 
@@ -3706,7 +3684,5 @@ energy_shares <- ca_microsim_cc %>%
 
 write.table(energy_shares, "clipboard", sep="\t", row.names=FALSE)
 ```
-
-
 
 ## End

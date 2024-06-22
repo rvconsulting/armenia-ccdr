@@ -338,7 +338,7 @@ div.csl-indent {
 
 <section id="introduction" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
-<p>In this calculation file, we “age” the household survey according to demographic projections and different macroeconomic scenarios to explore the impact of climate-related risks and policy measures on the consumption expenditure distribution.</p>
+<p>In this calculation file, we “age” the household survey according to demographic projections and different macroeconomic scenarios to explore the impact of climate-related risks and policy measures on the consumption expenditure distribution. It is part of a larger project with all contributions to Armenia’s CCDR, which can be <a href="https://github.com/rvconsulting/armenia-ccdr">downloaded from GitHub</a> in the form of an <a href="https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects">Rstudio project</a>.</p>
 <p>As a convention, code is presented in the following format in this guide:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Some comment that is not evaluated by R</span></span>
@@ -381,23 +381,22 @@ div.csl-indent {
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)    <span class="co"># to read from MS-Excel</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)  <span class="co"># to write to MS-Excel.</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)        <span class="co"># pretty tables</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)       <span class="co"># Companion to applied regression</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)       <span class="co"># companion to applied regression</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(modelr)    <span class="co"># regression models</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#library(ebal)      # Entropy reweighting</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#library(anesrake)  </span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Raking reweighting but we don't load it, because </span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># it changes the meaning of summarize from dplyr, </span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># so we use the form anesrake::anesrake() when using it.</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#library(weights)   # Weigthed survey statistics</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)   <span class="co"># pretty subtotals</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)     <span class="co"># More regressions</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)     <span class="co"># map vectors (aggregation)</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(zoo)       <span class="co"># Calculate moving window average and max value</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Geopackages</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)        <span class="co"># to read and write shapefile maps</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)     <span class="co"># to perform geocalculations</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)      <span class="co"># for static and interactive maps</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#library(anesrake)  </span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Raking reweighting but we don't load it, because </span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># it changes the meaning of summarize from dplyr, </span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># so we use the form anesrake::anesrake() when using it.</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#library(ebal)      # Entropy reweighting (not used)</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)   <span class="co"># pretty subtotals</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)     <span class="co"># More regressions</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)     <span class="co"># map vectors (aggregation)</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(zoo)       <span class="co"># Calculate moving window average and max value</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Geopackages</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)        <span class="co"># to read and write shapefile maps</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)     <span class="co"># to perform geocalculations</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)      <span class="co"># for static and interactive maps</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="datasets" class="level2" data-number="3">
@@ -431,7 +430,7 @@ div.csl-indent {
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>population_projections <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"data/UN2022_population.dta"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(country <span class="sc">==</span> iso) <span class="co"># we filter for Armenia</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Macro scenario dataset</p>
+<p>The macro scenario dataset is an input provided by the Macroeconomic CGE simulation team, with yearly information on GDP, working age population, employment by economic activity (for an aggregation of three sectors: agriculture, manufacturing, and services), wages by economic activity, value added by economic activity, remittances, consumer price index, food price index and energy price index (for a bundle of gas, oil, coal, electricity) by decile (10 representative households in the macro model), and carbon tax revenue transfers to household deciles.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>scenario_file <span class="ot">&lt;-</span> <span class="st">"data/ARM-Microsimulation/ARM_MacroScenarioInformation.xlsx"</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>scenario_varlist <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(</span>
@@ -439,7 +438,7 @@ div.csl-indent {
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>prices_2030 <span class="ot">&lt;-</span> </span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read.csv</span>(<span class="st">"data/ARM-Microsimulation/prices2030.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Codes for Economic Activities in the Survey</p>
+<p>Economic Activities in the Survey is in Armenian. The following dataset is a lookup table with the English names.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sectors <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">"data/ARM-HH-survey/economic_activity_codes.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -448,19 +447,25 @@ div.csl-indent {
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Armenia marzes or administrative level 1 shapefile</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>adm1 <span class="ot">&lt;-</span> <span class="fu">read_sf</span>(<span class="st">"data/ARM-Geodata/ARM-ADM1.shp"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(NAM_1, COD_HH_SVY, geometry) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Make sure that names match the rest of datasets</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Make sure that names match the rest of datasets</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NAM_1 =</span> <span class="fu">if_else</span>(NAM_1 <span class="sc">==</span> <span class="st">"Gergharkunik"</span>, <span class="st">"Gegharkunik"</span>, NAM_1))</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(adm1)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">"hh_02"</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># We rename with the survey designation</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(adm1)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">"hh_02"</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>And we plot it for reference.</p>
+<p>And we plot it for reference in <a href="#fig-armenia-map-example" class="quarto-xref">Figure&nbsp;1</a>. This is done with the tmap R package.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(adm1)<span class="sc">+</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"NAM_1"</span>, <span class="at">legend.show =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_text</span>(<span class="st">"NAM_1"</span>, <span class="at">size =</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="microsimulation_files/figure-html/plot-armenia-map-example-1.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-armenia-map-example" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-armenia-map-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="microsimulation_files/figure-html/fig-armenia-map-example-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-armenia-map-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Map of Armenia at administrative level 1 (ADM1)
+</figcaption>
 </figure>
 </div>
 </div>
@@ -475,13 +480,13 @@ div.csl-indent {
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(adm1, <span class="fu">join_by</span>(hh_02 <span class="sc">==</span> hh_02)) <span class="sc">%&gt;%</span> </span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>geometry)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We have changes to labor productivity due to climate variability.</p>
+<p>We also have an Excel file with changes to labor productivity due to climate variability. We bind together the datasets found in each Excel sheet.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>file <span class="ot">&lt;-</span> r<span class="st">"(data/ARM-Microsimulation/LaborProductivityChanges.xlsx)"</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sheets <span class="ot">&lt;-</span> <span class="fu">excel_sheets</span>(file)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Use lapply to read and process each sheet</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>heat_l_pdcty <span class="ot">&lt;-</span> <span class="fu">lapply</span>(sheets, <span class="cf">function</span>(sheet) {</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>labor_productivity <span class="ot">&lt;-</span> <span class="fu">lapply</span>(sheets, <span class="cf">function</span>(sheet) {</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  info <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    file,</span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">sheet =</span> sheet,</span>
@@ -493,39 +498,25 @@ div.csl-indent {
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Bind all data frames in the list into a single data frame</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>heat_l_pdcty <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(heat_l_pdcty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>labor_productivity <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(labor_productivity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Finally, but not less important, we have our vulnerability information.</p>
+<p>Finally, we have our climate vulnerability information. For this analysis we only use the <code>crops_productivity</code> and <code>livestock_productivity</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>buildings_aal <span class="ot">&lt;-</span> </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_xlsx</span>(<span class="st">"data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx"</span>,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">sheet =</span> <span class="st">"Building_AAL"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Make sure that names match the rest of datasets</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NAM_1 =</span> <span class="fu">if_else</span>(NAM_1 <span class="sc">==</span> <span class="st">"Gergharkunik"</span>, <span class="st">"Gegharkunik"</span>, NAM_1))</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>buildings_1in100 <span class="ot">&lt;-</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_xlsx</span>(<span class="st">"data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx"</span>,</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">sheet =</span> <span class="st">"Building_1in100"</span>)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>crops_productivity <span class="ot">&lt;-</span> </span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read.csv</span>(<span class="st">"data/ARM-Vulnerability-Analysis/ARM_crops_combined_REF_shock_admin1.csv"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">NAM_1 =</span> Province)</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>livestock_productivity <span class="ot">&lt;-</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read.csv</span>(</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data/ARM-Vulnerability-Analysis/ARM_livestock_REF_shock_admin1.csv"</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">NAM_1 =</span> Province)</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>crops_aal <span class="ot">&lt;-</span> </span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_xlsx</span>(<span class="st">"data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx"</span>,</span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">sheet =</span> <span class="st">"Agriculture_AAL"</span>)</span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>crops_1in100 <span class="ot">&lt;-</span></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_xlsx</span>(<span class="st">"data/ARM-Vulnerability-Analysis/Data_AAL_AAE.xlsx"</span>,</span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">sheet =</span> <span class="st">"Agriculture_1in100"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>crops_productivity <span class="ot">&lt;-</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read.csv</span>(<span class="st">"data/ARM-Vulnerability-Analysis/ARM_crops_combined_REF_shock_admin1.csv"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">NAM_1 =</span> Province)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>livestock_productivity <span class="ot">&lt;-</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read.csv</span>(</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data/ARM-Vulnerability-Analysis/ARM_livestock_REF_shock_admin1.csv"</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">NAM_1 =</span> Province)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="data-preparation-income-outliers-and-missings" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="data-preparation-income-outliers-and-missings"><span class="header-section-number">4</span> Data preparation income outliers and missings</h2>
 <section id="household-consumption-aggregates-and-characteristics" class="level3" data-number="4.1">
 <h3 data-number="4.1" class="anchored" data-anchor-id="household-consumption-aggregates-and-characteristics"><span class="header-section-number">4.1</span> Household consumption aggregates and characteristics</h3>
-<p>Initial necessary variables.</p>
+<p>Initial necessary variables. Some of these choices come from conventions used in the guidance code. However, where possible, we’ve tried to continue using the names found in the datasets to avoid introducing more confusion.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>consumption_aggregates <span class="ot">&lt;-</span> ca <span class="sc">%&gt;%</span> </span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rural =</span> <span class="fu">ifelse</span>(urb_rur <span class="sc">==</span> <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>),  <span class="co"># Create rural indicator</span></span>
@@ -539,53 +530,54 @@ div.csl-indent {
 </section>
 <section id="demographic-characteristics-education-labor-force" class="level3" data-number="4.2">
 <h3 data-number="4.2" class="anchored" data-anchor-id="demographic-characteristics-education-labor-force"><span class="header-section-number">4.2</span> Demographic characteristics, education, labor force</h3>
-<p>Here the original code calls for Zone data, which is not present in our dataset, due to the different administrative structure of Armenia. However, we use <code>hh_01_code</code> (settlement) for this purpose.</p>
+<p>Here the original code calls for Zone data, which is not present in our dataset, due to the different administrative structure of Armenia. However, we use <code>hh_01_code</code> (settlement) for this purpose. In the end, this variable was never used.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Zone data</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>zone_data <span class="ot">&lt;-</span> hh <span class="sc">%&gt;%</span> </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(interview__key, hh_01_code, hh_02, hh_03, NAM_1) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">hhid =</span> interview__key, <span class="co"># Household id</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">zone =</span> hh_01_code,     <span class="co"># Settlement</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">marz =</span> hh_02,          <span class="co"># Marz</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">NAM_1 =</span> NAM_1,         <span class="co"># Marz name</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">urb_rur =</span> hh_03        <span class="co"># Urban / rural</span></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>zone_data <span class="ot">&lt;-</span> hh <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(interview__key, hh_01_code, hh_02, hh_03, NAM_1) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">hhid =</span> interview__key, <span class="co"># Household id</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">zone =</span> hh_01_code,     <span class="co"># Settlement</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">marz =</span> hh_02,          <span class="co"># Marz</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">NAM_1 =</span> NAM_1,         <span class="co"># Marz name</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">urb_rur =</span> hh_03        <span class="co"># Urban / rural</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Demographic data, merge with zone data Note that ed_03 (educy) below is not years of education, but education level (primary, general, secondary, etc.) However, it is ordered in a way that higher levels imply more years of education. We perform several steps within the first pipe call.</p>
+<p>Demographic data, merge with zone data Note that ed_03 (educy) below is not years of education, but education level (primary, general, secondary, etc.) However, it is ordered in a way that higher levels imply more years of education. We perform several steps within the first pipe call. The variable <code>lstatus</code> (Labor Force Status) here is very important for the reweigthing of the dataset later on. Note that from here onwards we will be creating <code>_microsim</code> versions of our datasets with the transformations needed for calculations. That way we avoid changing our original data and can refer to it later without fearing we’ve left things behind.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">hhid =</span> interview__key) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(zone_data, <span class="fu">join_by</span>( hhid <span class="sc">==</span> hhid))  <span class="sc">%&gt;%</span>  </span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="co"># Demographic characteristics</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">pid =</span> <span class="fu">paste0</span>(interview__key, <span class="st">"-"</span>, </span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">str_pad</span>(mem_001__id, <span class="dv">2</span>, <span class="at">pad =</span> <span class="st">"0"</span>)), <span class="co"># Unique person id</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">gender =</span> mem_02,</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">age =</span> mem_05,</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">head =</span> <span class="fu">ifelse</span>(mem_03 <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>         <span class="co"># Education level</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">educy =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(ed_03) <span class="sc">|</span> ed_03 <span class="sc">==</span> <span class="dv">8</span>, <span class="dv">0</span>, ed_03),</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>         <span class="co"># Labor Force Status</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">lstatus =</span> <span class="fu">case_when</span>(</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>           <span class="co"># 1. Employed</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>           est_03 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> est_04 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> est_05 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>             est_06 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> est_08 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>L,</span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>           <span class="co"># 2. Unemployed (available, and searching)</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>           est_10 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">2</span>L,</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>           <span class="co"># 3. Inactive (available, not searching)</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>           est_10 <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">3</span>L,</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>           <span class="co"># Out of the labor force</span></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">.default =</span> <span class="dv">4</span>L <span class="co"># Default to OLF</span></span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>         ),</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>         <span class="at">employed =</span> (lstatus <span class="sc">==</span> <span class="dv">1</span>),</span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>         <span class="co"># Salaried status (1. paid employee; 2 self-employed)</span></span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>         <span class="at">salaried =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(emp_11a), <span class="dv">1</span>L, </span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">ifelse</span>(<span class="fu">is.na</span>(emp_11a) <span class="sc">&amp;</span> </span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>                                    employed <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="dv">0</span>L, <span class="cn">NA_integer_</span>))</span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">rel =</span> mem_03) <span class="co"># %&gt;% </span></span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select(hhid, pid, gender, age, head, rel, zone, marz, urb_rur, educy,</span></span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>  <span class="co">#        lstatus, employed, salaried, )  </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">hhid =</span> interview__key) <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(zone_data, <span class="fu">join_by</span>(hhid <span class="sc">==</span> hhid))  <span class="sc">%&gt;%</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Demographic characteristics</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Unique person id</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">pid =</span> <span class="fu">paste0</span>(hhid, <span class="st">"-"</span>, <span class="fu">str_pad</span>(mem_001__id, <span class="dv">2</span>, <span class="at">pad =</span> <span class="st">"0"</span>)),</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">head =</span> <span class="fu">ifelse</span>(mem_03 <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Education level</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">educy =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(ed_03) <span class="sc">|</span> ed_03 <span class="sc">==</span> <span class="dv">8</span>, <span class="dv">0</span>, ed_03),</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Labor Force Status</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">lstatus =</span> <span class="fu">case_when</span>(</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>      <span class="co"># 1. Employed</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>      est_03 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> est_04 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> est_05 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        est_06 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> est_08 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>L,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>      <span class="co"># 2. Unemployed (available, and searching)</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>      est_10 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">2</span>L,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>      <span class="co"># 3. Inactive (available, not searching)</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>      est_10 <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">3</span>L,</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Out of the labor force</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="dv">4</span>L <span class="co"># Default to OLF</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">employed =</span> (lstatus <span class="sc">==</span> <span class="dv">1</span>),</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Salaried status (1. paid employee; 2 self-employed)</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">salaried =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.na</span>(emp_11a),</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>      <span class="dv">1</span>L,</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="fu">is.na</span>(emp_11a) <span class="sc">&amp;</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>               employed <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="dv">0</span>L, <span class="cn">NA_integer_</span>)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">rel =</span> mem_03, <span class="co"># relationship to HH head</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>         <span class="at">gender =</span> mem_02,</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>         <span class="at">age =</span> mem_05)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Later, when we conduct the reweighting of the dataset, we need to summarize into three levels of education.</p>
 <div class="cell">
@@ -594,10 +586,10 @@ div.csl-indent {
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    educy <span class="sc">&gt;=</span> <span class="dv">0</span> <span class="sc">&amp;</span> educy <span class="sc">&lt;=</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"None - General"</span>,</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    educy <span class="sc">&gt;</span> <span class="dv">3</span> <span class="sc">&amp;</span> educy <span class="sc">&lt;=</span> <span class="dv">7</span> <span class="sc">~</span> <span class="st">"Secondary - Vocational"</span>,</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    educy <span class="sc">&gt;</span> <span class="dv">7</span> <span class="sc">&amp;</span> educy <span class="sc">&lt;=</span> <span class="dv">11</span> <span class="sc">~</span> <span class="st">"Higher +"</span>,</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span>  <span class="co"># This handles any values outside the specified ranges</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span>  <span class="co"># Values outside the specified ranges</span></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Count the number of employed persons by household.</p>
+<p>Count the number of employed persons by household. Note that it is necessary to explicitly tell R to ignore missing values(<code>NA</code>). This is different from Stata where <code>1 + .= 1</code> (where <code>.</code> is “missing”). In R 1 + <code>NA</code> = <code>NA</code> (where <code>NA</code> means “not available”). Not adding <code>na.rm = TRUE</code> to aggregation functions such as <code>sum()</code> in <strong>?@lst-employed-in-hh</strong> below will not throw an error and only provide a column with <code>NA</code> for households where at least one individidual has an employed status of <code>NA</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp_microsim <span class="sc">%&gt;%</span> </span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">employed =</span> (lstatus <span class="sc">==</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
@@ -605,15 +597,16 @@ div.csl-indent {
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">employed_hh =</span> <span class="fu">sum</span>(employed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span>  <span class="co"># Count within each household </span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Here the original Stata code calculates income variables and aggregates them by household. We skip that because the dataset “ic” already has these elements calculated by the WB poverty team. We’ll add them later.</p>
-<p><strong>Primary and Secondary Job income</strong></p>
+<p>Here the original Stata code calculates income variables and aggregates them by household. We skip that because the dataset “ic” already has these elements calculated by the WB poverty team. We’ll add them later as we need them.</p>
+<p>However, as we’ll see later labor income information is heavily non-reported in the dataset. Labor income is a crucial step in merging the dataset with macroeconomic information and so we will predict income for those that do not report it below. These variables are related to labor income, amount and frequency. This has to be standardized to a monthly or yearly value.</p>
+<p><strong>Primary and Secondary Job income:</strong></p>
 <ul>
 <li><strong>emp_11</strong> 11.How much was %rostertitle%’s payment for wages/salary/income for last month?</li>
 <li><strong>emp_12</strong> 12.What period of time was the wage/income for?</li>
 <li><strong>emp_25</strong> 25.How much was %rostertitle%’s payment for wages/salary/income for last month?</li>
 <li><strong>emp_26</strong> 26.What period of time was the wage/income for?</li>
 </ul>
-<p>Bonus, In-Kind, and food from job was not asked in Armenia, If it were, you should add a mutate() statement like the ones below for each subcategory.</p>
+<p>Bonus, In-Kind, and food from job was not asked in Armenia, If it were, you should add a <code>mutate()</code> statement like the ones below for each subcategory in <strong>?@lst-annualized-labor-income</strong>. We use <code>coalesce(colname, 0)</code> when adding the <code>annual_labor_total</code> again to prevent sums of <code>NA</code>’s. This function replaces a value with 0 within the calculation if it’s missing, but doesn’t change its value permanently.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp_microsim <span class="sc">%&gt;%</span> </span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Labor income primary job</span></span>
@@ -637,19 +630,20 @@ div.csl-indent {
 <span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    emp_26 <span class="sc">==</span> <span class="dv">7</span> <span class="sc">~</span> <span class="cn">NA</span></span>
 <span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span> </span>
 <span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Annual labor total in thousands of dram</span></span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">annual_labor_total =</span> (<span class="fu">coalesce</span>(annual_labor_income_primary, <span class="dv">0</span>) <span class="sc">+</span> </span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>           <span class="fu">coalesce</span>(annual_labor_income_secondary, <span class="dv">0</span>))<span class="sc">/</span><span class="dv">1000</span>)</span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Restore annual_labor_total to NA if both NA</span></span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp_microsim <span class="sc">%&gt;%</span> </span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">annual_labor_total =</span></span>
-<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>           <span class="fu">if_else</span>(</span>
-<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>             <span class="fu">is.na</span>(annual_labor_income_primary)</span>
-<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>             <span class="sc">&amp;</span> <span class="fu">is.na</span>(annual_labor_income_secondary),</span>
-<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>         <span class="cn">NA</span>, </span>
-<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>         annual_labor_total))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">annual_labor_total =</span> </span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>           (<span class="fu">coalesce</span>(annual_labor_income_primary, <span class="dv">0</span>) <span class="sc">+</span> </span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>           <span class="fu">coalesce</span>(annual_labor_income_secondary, <span class="dv">0</span>))<span class="sc">/</span><span class="dv">1000</span>)</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Restore annual_labor_total to NA if both NA</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp_microsim <span class="sc">%&gt;%</span> </span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">annual_labor_total =</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>           <span class="fu">if_else</span>(</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>             <span class="fu">is.na</span>(annual_labor_income_primary)</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>             <span class="sc">&amp;</span> <span class="fu">is.na</span>(annual_labor_income_secondary),</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>         <span class="cn">NA</span>, </span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>         annual_labor_total))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>28.57% employed with no labor income reported!!! We calculate this way:</p>
+<p>Now we need to check the share of individuals that are employed, but did not report income. This is done in <strong>?@lst-employed-no-income</strong> below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>total_employed_no_income <span class="ot">&lt;-</span> pp_microsim <span class="sc">%&gt;%</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(employed <span class="sc">==</span> <span class="cn">TRUE</span> <span class="sc">&amp;</span> <span class="fu">is.na</span>(annual_labor_total)) <span class="sc">%&gt;%</span> </span>
@@ -661,26 +655,31 @@ div.csl-indent {
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>percent_employed_no_income <span class="ot">&lt;-</span> (total_employed_no_income <span class="sc">/</span> total_employed) <span class="sc">*</span> <span class="dv">100</span></span>
 <span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(percent_employed_no_income)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"There is "</span>,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format</span>(</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>      percent_employed_no_income,<span class="at">digits =</span> <span class="dv">2</span>, <span class="at">nsmall=</span><span class="dv">2</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"% of the employed population that reports no income."</span>)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 28.57496</code></pre>
+<pre><code>[1] "There is 28.57% of the employed population that reports no income."</code></pre>
 </div>
 </div>
-<p>Let’s flag outliers now</p>
+<p>We also need to mark income outliers as those with incomes outside 5 standard deviations.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp_microsim  <span class="sc">%&gt;%</span> </span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Filter for employed and positive income </span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#filter(employed == TRUE &amp; annual_labor_total &gt; 0) %&gt;% </span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> <span class="fu">sd</span>(annual_labor_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),   <span class="co"># Calculate standard deviation</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">d =</span> annual_labor_total <span class="sc">/</span> sd,                </span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combined outlier condition</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">outlier =</span> (d <span class="sc">&gt;</span> <span class="dv">5</span>) <span class="sc">|</span> (employed <span class="sc">==</span> <span class="cn">TRUE</span> <span class="sc">&amp;</span> annual_labor_total <span class="sc">==</span> <span class="dv">0</span>), </span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Mark potential missings</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">missings =</span> <span class="fu">if_else</span>(employed <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="fu">is.na</span>(annual_labor_total), <span class="cn">NA</span>)           </span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> <span class="fu">sd</span>(annual_labor_total, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="co"># Calculate standard deviation</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">d =</span> annual_labor_total <span class="sc">/</span> sd,                </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combined outlier condition</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">outlier =</span> (d <span class="sc">&gt;</span> <span class="dv">5</span>) <span class="sc">|</span> (employed <span class="sc">==</span> <span class="cn">TRUE</span> <span class="sc">&amp;</span> annual_labor_total <span class="sc">==</span> <span class="dv">0</span>), </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Mark potential missings</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">missings =</span> <span class="fu">if_else</span>(employed <span class="sc">==</span> <span class="cn">TRUE</span>, <span class="fu">is.na</span>(annual_labor_total), <span class="cn">NA</span>) </span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Economic sector</p>
+<p>Economic sector. The economic sectors dataset contains a lookup table for sector aggregation which we add to the <code>pp_microsim</code> database in <strong>?@lst-sector-aggregation</strong>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp_microsim <span class="sc">%&gt;%</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">emp_04 =</span> <span class="fu">as.integer</span>(emp_04)) <span class="sc">%&gt;%</span> </span>
@@ -693,18 +692,22 @@ div.csl-indent {
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp_microsim <span class="sc">%&gt;%</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(hhid) <span class="sc">%&gt;%</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a temporary variable 'other_sector' which captures the sector of any employed individual in the household</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">other_sector =</span> <span class="fu">if_else</span>(employed <span class="sc">==</span> <span class="cn">TRUE</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(sector), sector, <span class="cn">NA_real_</span>)</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use 'fill' to propagate 'other_sector' values within the household</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fill</span>(other_sector, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Impute missing 'sector' values based on the 'other_sector'</span></span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">sector =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(sector) <span class="sc">&amp;</span> employed <span class="sc">==</span> <span class="cn">TRUE</span>, other_sector, sector)</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Drop the temporary 'other_sector' variable</span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>other_sector) <span class="sc">%&gt;%</span></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a temporary variable 'other_sector'</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># which captures the sector of any employed </span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># individual in the household</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">other_sector =</span> </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">if_else</span>(employed <span class="sc">==</span> <span class="cn">TRUE</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(sector), sector, <span class="cn">NA_real_</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use 'fill' to propagate 'other_sector' values within the household</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fill</span>(other_sector, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Impute missing 'sector' values based on the 'other_sector'</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">sector =</span> </span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">if_else</span>(<span class="fu">is.na</span>(sector) <span class="sc">&amp;</span> employed <span class="sc">==</span> <span class="cn">TRUE</span>, other_sector, sector)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Drop the temporary 'other_sector' variable</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>other_sector) <span class="sc">%&gt;%</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Step 2: Assign a specific value for missing sectors for those employed with no one else in the hh to assign value. We select services as it’s the heaviest sector in the dataset (we do it like this, instead of say, matching, because it’s only 2 observations).</p>
 <div class="cell">
@@ -716,17 +719,21 @@ div.csl-indent {
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp_microsim <span class="sc">%&gt;%</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sector_name =</span> <span class="fu">factor</span>(sector, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Agriculture"</span>, </span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">"Manufacturing"</span>, <span class="st">"Services"</span>))</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>         )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">"Manufacturing"</span>, </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">"Services"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Step 5: No sector for OLF and clonevar industry=sector (this from original Stata code).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>pp_microsim <span class="ot">&lt;-</span> pp_microsim <span class="sc">%&gt;%</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lstatus =</span> <span class="fu">as.numeric</span>(lstatus),</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">sector =</span> <span class="fu">if_else</span>(lstatus <span class="sc">==</span> <span class="dv">4</span>, <span class="fu">as.character</span>(<span class="cn">NA</span>), <span class="fu">as.character</span>(sector)),</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">industry =</span> <span class="fu">as.factor</span>(sector)) <span class="sc">%&gt;%</span> </span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">sector_w =</span> sector) <span class="co"># We need this for reweighting and not messing up </span></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>                            <span class="co"># and not mess up the regression below.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">sector =</span> </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">if_else</span>(lstatus <span class="sc">==</span> <span class="dv">4</span>, </span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">as.character</span>(<span class="cn">NA</span>), </span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">as.character</span>(sector)),</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">industry =</span> <span class="fu">as.factor</span>(sector)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># We need this for reweighting and </span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># not messing up the regression below.</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sector_w =</span> sector)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="the-regression" class="level3" data-number="4.3">
@@ -2306,23 +2313,23 @@ Total           0</code></pre>
 <span id="cb114-21"><a href="#cb114-21" aria-hidden="true" tabindex="-1"></a>test_baseline <span class="sc">%&gt;%</span> </span>
 <span id="cb114-22"><a href="#cb114-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="foyztmmnxj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#foyztmmnxj table {
+<div id="marnwrfrpk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#marnwrfrpk table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#foyztmmnxj thead, #foyztmmnxj tbody, #foyztmmnxj tfoot, #foyztmmnxj tr, #foyztmmnxj td, #foyztmmnxj th {
+#marnwrfrpk thead, #marnwrfrpk tbody, #marnwrfrpk tfoot, #marnwrfrpk tr, #marnwrfrpk td, #marnwrfrpk th {
   border-style: none;
 }
 
-#foyztmmnxj p {
+#marnwrfrpk p {
   margin: 0;
   padding: 0;
 }
 
-#foyztmmnxj .gt_table {
+#marnwrfrpk .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2348,12 +2355,12 @@ Total           0</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_caption {
+#marnwrfrpk .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#foyztmmnxj .gt_title {
+#marnwrfrpk .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2365,7 +2372,7 @@ Total           0</code></pre>
   border-bottom-width: 0;
 }
 
-#foyztmmnxj .gt_subtitle {
+#marnwrfrpk .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2377,7 +2384,7 @@ Total           0</code></pre>
   border-top-width: 0;
 }
 
-#foyztmmnxj .gt_heading {
+#marnwrfrpk .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2389,13 +2396,13 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_bottom_border {
+#marnwrfrpk .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_col_headings {
+#marnwrfrpk .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2410,7 +2417,7 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_col_heading {
+#marnwrfrpk .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2430,7 +2437,7 @@ Total           0</code></pre>
   overflow-x: hidden;
 }
 
-#foyztmmnxj .gt_column_spanner_outer {
+#marnwrfrpk .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2442,15 +2449,15 @@ Total           0</code></pre>
   padding-right: 4px;
 }
 
-#foyztmmnxj .gt_column_spanner_outer:first-child {
+#marnwrfrpk .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#foyztmmnxj .gt_column_spanner_outer:last-child {
+#marnwrfrpk .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#foyztmmnxj .gt_column_spanner {
+#marnwrfrpk .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2462,11 +2469,11 @@ Total           0</code></pre>
   width: 100%;
 }
 
-#foyztmmnxj .gt_spanner_row {
+#marnwrfrpk .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#foyztmmnxj .gt_group_heading {
+#marnwrfrpk .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2492,7 +2499,7 @@ Total           0</code></pre>
   text-align: left;
 }
 
-#foyztmmnxj .gt_empty_group_heading {
+#marnwrfrpk .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2507,15 +2514,15 @@ Total           0</code></pre>
   vertical-align: middle;
 }
 
-#foyztmmnxj .gt_from_md > :first-child {
+#marnwrfrpk .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#foyztmmnxj .gt_from_md > :last-child {
+#marnwrfrpk .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#foyztmmnxj .gt_row {
+#marnwrfrpk .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2534,7 +2541,7 @@ Total           0</code></pre>
   overflow-x: hidden;
 }
 
-#foyztmmnxj .gt_stub {
+#marnwrfrpk .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2547,7 +2554,7 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#foyztmmnxj .gt_stub_row_group {
+#marnwrfrpk .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2561,15 +2568,15 @@ Total           0</code></pre>
   vertical-align: top;
 }
 
-#foyztmmnxj .gt_row_group_first td {
+#marnwrfrpk .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#foyztmmnxj .gt_row_group_first th {
+#marnwrfrpk .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#foyztmmnxj .gt_summary_row {
+#marnwrfrpk .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2579,16 +2586,16 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#foyztmmnxj .gt_first_summary_row {
+#marnwrfrpk .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_first_summary_row.thick {
+#marnwrfrpk .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#foyztmmnxj .gt_last_summary_row {
+#marnwrfrpk .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2598,7 +2605,7 @@ Total           0</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_grand_summary_row {
+#marnwrfrpk .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2608,7 +2615,7 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#foyztmmnxj .gt_first_grand_summary_row {
+#marnwrfrpk .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2618,7 +2625,7 @@ Total           0</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_last_grand_summary_row_top {
+#marnwrfrpk .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2628,11 +2635,11 @@ Total           0</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_striped {
+#marnwrfrpk .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#foyztmmnxj .gt_table_body {
+#marnwrfrpk .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2641,7 +2648,7 @@ Total           0</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_footnotes {
+#marnwrfrpk .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2655,7 +2662,7 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_footnote {
+#marnwrfrpk .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2664,7 +2671,7 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#foyztmmnxj .gt_sourcenotes {
+#marnwrfrpk .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2678,7 +2685,7 @@ Total           0</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#foyztmmnxj .gt_sourcenote {
+#marnwrfrpk .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2686,63 +2693,63 @@ Total           0</code></pre>
   padding-right: 5px;
 }
 
-#foyztmmnxj .gt_left {
+#marnwrfrpk .gt_left {
   text-align: left;
 }
 
-#foyztmmnxj .gt_center {
+#marnwrfrpk .gt_center {
   text-align: center;
 }
 
-#foyztmmnxj .gt_right {
+#marnwrfrpk .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#foyztmmnxj .gt_font_normal {
+#marnwrfrpk .gt_font_normal {
   font-weight: normal;
 }
 
-#foyztmmnxj .gt_font_bold {
+#marnwrfrpk .gt_font_bold {
   font-weight: bold;
 }
 
-#foyztmmnxj .gt_font_italic {
+#marnwrfrpk .gt_font_italic {
   font-style: italic;
 }
 
-#foyztmmnxj .gt_super {
+#marnwrfrpk .gt_super {
   font-size: 65%;
 }
 
-#foyztmmnxj .gt_footnote_marks {
+#marnwrfrpk .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#foyztmmnxj .gt_asterisk {
+#marnwrfrpk .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#foyztmmnxj .gt_indent_1 {
+#marnwrfrpk .gt_indent_1 {
   text-indent: 5px;
 }
 
-#foyztmmnxj .gt_indent_2 {
+#marnwrfrpk .gt_indent_2 {
   text-indent: 10px;
 }
 
-#foyztmmnxj .gt_indent_3 {
+#marnwrfrpk .gt_indent_3 {
   text-indent: 15px;
 }
 
-#foyztmmnxj .gt_indent_4 {
+#marnwrfrpk .gt_indent_4 {
   text-indent: 20px;
 }
 
-#foyztmmnxj .gt_indent_5 {
+#marnwrfrpk .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2866,7 +2873,7 @@ Total           0</code></pre>
 <p>We add a moving window average and max value for our labor productivity data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First calculate moving window average</span></span>
-<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>heat_l_pdcty <span class="ot">&lt;-</span> heat_l_pdcty <span class="sc">%&gt;%</span></span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>labor_productivity <span class="ot">&lt;-</span> labor_productivity <span class="sc">%&gt;%</span></span>
 <span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ADM1_EN, </span>
 <span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a>           clim_scenario) <span class="sc">%&gt;%</span></span>
 <span id="cb118-5"><a href="#cb118-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year) <span class="sc">%&gt;%</span></span>
@@ -2896,10 +2903,10 @@ Total           0</code></pre>
 <span id="cb118-29"><a href="#cb118-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
 <span id="cb118-30"><a href="#cb118-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb118-31"><a href="#cb118-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Clim scenarios to select</span></span>
-<span id="cb118-32"><a href="#cb118-32" aria-hidden="true" tabindex="-1"></a>cs <span class="ot">&lt;-</span> <span class="fu">unique</span>(heat_l_pdcty<span class="sc">$</span>clim_scenario)</span>
+<span id="cb118-32"><a href="#cb118-32" aria-hidden="true" tabindex="-1"></a>cs <span class="ot">&lt;-</span> <span class="fu">unique</span>(labor_productivity<span class="sc">$</span>clim_scenario)</span>
 <span id="cb118-33"><a href="#cb118-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb118-34"><a href="#cb118-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Moving average for year of interest</span></span>
-<span id="cb118-35"><a href="#cb118-35" aria-hidden="true" tabindex="-1"></a>lab_loss_avg <span class="ot">&lt;-</span> heat_l_pdcty <span class="sc">%&gt;%</span></span>
+<span id="cb118-35"><a href="#cb118-35" aria-hidden="true" tabindex="-1"></a>lab_loss_avg <span class="ot">&lt;-</span> labor_productivity <span class="sc">%&gt;%</span></span>
 <span id="cb118-36"><a href="#cb118-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(clim_scenario <span class="sc">==</span> cs[<span class="dv">1</span>], year <span class="sc">==</span> yearsto[<span class="dv">1</span>]) <span class="sc">%&gt;%</span></span>
 <span id="cb118-37"><a href="#cb118-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>pct_change_productivity,</span>
 <span id="cb118-38"><a href="#cb118-38" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>ADM1_PCODE,</span>
@@ -2912,7 +2919,7 @@ Total           0</code></pre>
 <span id="cb118-45"><a href="#cb118-45" aria-hidden="true" tabindex="-1"></a>         <span class="at">ser_avg =</span> Services)</span>
 <span id="cb118-46"><a href="#cb118-46" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb118-47"><a href="#cb118-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Max value for year of interest</span></span>
-<span id="cb118-48"><a href="#cb118-48" aria-hidden="true" tabindex="-1"></a>lab_loss_max <span class="ot">&lt;-</span> heat_l_pdcty <span class="sc">%&gt;%</span></span>
+<span id="cb118-48"><a href="#cb118-48" aria-hidden="true" tabindex="-1"></a>lab_loss_max <span class="ot">&lt;-</span> labor_productivity <span class="sc">%&gt;%</span></span>
 <span id="cb118-49"><a href="#cb118-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(clim_scenario <span class="sc">==</span> cs[<span class="dv">1</span>], year <span class="sc">==</span> yearsto[<span class="dv">1</span>]) <span class="sc">%&gt;%</span></span>
 <span id="cb118-50"><a href="#cb118-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>pct_change_productivity,</span>
 <span id="cb118-51"><a href="#cb118-51" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>ADM1_PCODE,</span>
@@ -3321,23 +3328,23 @@ using the `.groups` argument.</code></pre>
 <div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span> </span>
 <span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="jovvxlbusg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#jovvxlbusg table {
+<div id="oqzxpbzrdf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#oqzxpbzrdf table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#jovvxlbusg thead, #jovvxlbusg tbody, #jovvxlbusg tfoot, #jovvxlbusg tr, #jovvxlbusg td, #jovvxlbusg th {
+#oqzxpbzrdf thead, #oqzxpbzrdf tbody, #oqzxpbzrdf tfoot, #oqzxpbzrdf tr, #oqzxpbzrdf td, #oqzxpbzrdf th {
   border-style: none;
 }
 
-#jovvxlbusg p {
+#oqzxpbzrdf p {
   margin: 0;
   padding: 0;
 }
 
-#jovvxlbusg .gt_table {
+#oqzxpbzrdf .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3363,12 +3370,12 @@ using the `.groups` argument.</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_caption {
+#oqzxpbzrdf .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#jovvxlbusg .gt_title {
+#oqzxpbzrdf .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3380,7 +3387,7 @@ using the `.groups` argument.</code></pre>
   border-bottom-width: 0;
 }
 
-#jovvxlbusg .gt_subtitle {
+#oqzxpbzrdf .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3392,7 +3399,7 @@ using the `.groups` argument.</code></pre>
   border-top-width: 0;
 }
 
-#jovvxlbusg .gt_heading {
+#oqzxpbzrdf .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3404,13 +3411,13 @@ using the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_bottom_border {
+#oqzxpbzrdf .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_col_headings {
+#oqzxpbzrdf .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3425,7 +3432,7 @@ using the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_col_heading {
+#oqzxpbzrdf .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3445,7 +3452,7 @@ using the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#jovvxlbusg .gt_column_spanner_outer {
+#oqzxpbzrdf .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3457,15 +3464,15 @@ using the `.groups` argument.</code></pre>
   padding-right: 4px;
 }
 
-#jovvxlbusg .gt_column_spanner_outer:first-child {
+#oqzxpbzrdf .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#jovvxlbusg .gt_column_spanner_outer:last-child {
+#oqzxpbzrdf .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#jovvxlbusg .gt_column_spanner {
+#oqzxpbzrdf .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3477,11 +3484,11 @@ using the `.groups` argument.</code></pre>
   width: 100%;
 }
 
-#jovvxlbusg .gt_spanner_row {
+#oqzxpbzrdf .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#jovvxlbusg .gt_group_heading {
+#oqzxpbzrdf .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3507,7 +3514,7 @@ using the `.groups` argument.</code></pre>
   text-align: left;
 }
 
-#jovvxlbusg .gt_empty_group_heading {
+#oqzxpbzrdf .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3522,15 +3529,15 @@ using the `.groups` argument.</code></pre>
   vertical-align: middle;
 }
 
-#jovvxlbusg .gt_from_md > :first-child {
+#oqzxpbzrdf .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#jovvxlbusg .gt_from_md > :last-child {
+#oqzxpbzrdf .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#jovvxlbusg .gt_row {
+#oqzxpbzrdf .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3549,7 +3556,7 @@ using the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#jovvxlbusg .gt_stub {
+#oqzxpbzrdf .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3562,7 +3569,7 @@ using the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#jovvxlbusg .gt_stub_row_group {
+#oqzxpbzrdf .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3576,15 +3583,15 @@ using the `.groups` argument.</code></pre>
   vertical-align: top;
 }
 
-#jovvxlbusg .gt_row_group_first td {
+#oqzxpbzrdf .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#jovvxlbusg .gt_row_group_first th {
+#oqzxpbzrdf .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#jovvxlbusg .gt_summary_row {
+#oqzxpbzrdf .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3594,16 +3601,16 @@ using the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#jovvxlbusg .gt_first_summary_row {
+#oqzxpbzrdf .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_first_summary_row.thick {
+#oqzxpbzrdf .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#jovvxlbusg .gt_last_summary_row {
+#oqzxpbzrdf .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3613,7 +3620,7 @@ using the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_grand_summary_row {
+#oqzxpbzrdf .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3623,7 +3630,7 @@ using the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#jovvxlbusg .gt_first_grand_summary_row {
+#oqzxpbzrdf .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3633,7 +3640,7 @@ using the `.groups` argument.</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_last_grand_summary_row_top {
+#oqzxpbzrdf .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3643,11 +3650,11 @@ using the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_striped {
+#oqzxpbzrdf .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#jovvxlbusg .gt_table_body {
+#oqzxpbzrdf .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3656,7 +3663,7 @@ using the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_footnotes {
+#oqzxpbzrdf .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3670,7 +3677,7 @@ using the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_footnote {
+#oqzxpbzrdf .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3679,7 +3686,7 @@ using the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#jovvxlbusg .gt_sourcenotes {
+#oqzxpbzrdf .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3693,7 +3700,7 @@ using the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#jovvxlbusg .gt_sourcenote {
+#oqzxpbzrdf .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3701,63 +3708,63 @@ using the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#jovvxlbusg .gt_left {
+#oqzxpbzrdf .gt_left {
   text-align: left;
 }
 
-#jovvxlbusg .gt_center {
+#oqzxpbzrdf .gt_center {
   text-align: center;
 }
 
-#jovvxlbusg .gt_right {
+#oqzxpbzrdf .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#jovvxlbusg .gt_font_normal {
+#oqzxpbzrdf .gt_font_normal {
   font-weight: normal;
 }
 
-#jovvxlbusg .gt_font_bold {
+#oqzxpbzrdf .gt_font_bold {
   font-weight: bold;
 }
 
-#jovvxlbusg .gt_font_italic {
+#oqzxpbzrdf .gt_font_italic {
   font-style: italic;
 }
 
-#jovvxlbusg .gt_super {
+#oqzxpbzrdf .gt_super {
   font-size: 65%;
 }
 
-#jovvxlbusg .gt_footnote_marks {
+#oqzxpbzrdf .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#jovvxlbusg .gt_asterisk {
+#oqzxpbzrdf .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#jovvxlbusg .gt_indent_1 {
+#oqzxpbzrdf .gt_indent_1 {
   text-indent: 5px;
 }
 
-#jovvxlbusg .gt_indent_2 {
+#oqzxpbzrdf .gt_indent_2 {
   text-indent: 10px;
 }
 
-#jovvxlbusg .gt_indent_3 {
+#oqzxpbzrdf .gt_indent_3 {
   text-indent: 15px;
 }
 
-#jovvxlbusg .gt_indent_4 {
+#oqzxpbzrdf .gt_indent_4 {
   text-indent: 20px;
 }
 
-#jovvxlbusg .gt_indent_5 {
+#oqzxpbzrdf .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -3932,23 +3939,23 @@ using the `.groups` argument.</code></pre>
 the `.groups` argument.</code></pre>
 </div>
 <div class="cell-output-display">
-<div id="ifjtvuxkkq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ifjtvuxkkq table {
+<div id="lkjyrevwfc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lkjyrevwfc table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ifjtvuxkkq thead, #ifjtvuxkkq tbody, #ifjtvuxkkq tfoot, #ifjtvuxkkq tr, #ifjtvuxkkq td, #ifjtvuxkkq th {
+#lkjyrevwfc thead, #lkjyrevwfc tbody, #lkjyrevwfc tfoot, #lkjyrevwfc tr, #lkjyrevwfc td, #lkjyrevwfc th {
   border-style: none;
 }
 
-#ifjtvuxkkq p {
+#lkjyrevwfc p {
   margin: 0;
   padding: 0;
 }
 
-#ifjtvuxkkq .gt_table {
+#lkjyrevwfc .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3974,12 +3981,12 @@ the `.groups` argument.</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_caption {
+#lkjyrevwfc .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ifjtvuxkkq .gt_title {
+#lkjyrevwfc .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3991,7 +3998,7 @@ the `.groups` argument.</code></pre>
   border-bottom-width: 0;
 }
 
-#ifjtvuxkkq .gt_subtitle {
+#lkjyrevwfc .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -4003,7 +4010,7 @@ the `.groups` argument.</code></pre>
   border-top-width: 0;
 }
 
-#ifjtvuxkkq .gt_heading {
+#lkjyrevwfc .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -4015,13 +4022,13 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_bottom_border {
+#lkjyrevwfc .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_col_headings {
+#lkjyrevwfc .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4036,7 +4043,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_col_heading {
+#lkjyrevwfc .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4056,7 +4063,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#ifjtvuxkkq .gt_column_spanner_outer {
+#lkjyrevwfc .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4068,15 +4075,15 @@ the `.groups` argument.</code></pre>
   padding-right: 4px;
 }
 
-#ifjtvuxkkq .gt_column_spanner_outer:first-child {
+#lkjyrevwfc .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ifjtvuxkkq .gt_column_spanner_outer:last-child {
+#lkjyrevwfc .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ifjtvuxkkq .gt_column_spanner {
+#lkjyrevwfc .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -4088,11 +4095,11 @@ the `.groups` argument.</code></pre>
   width: 100%;
 }
 
-#ifjtvuxkkq .gt_spanner_row {
+#lkjyrevwfc .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ifjtvuxkkq .gt_group_heading {
+#lkjyrevwfc .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4118,7 +4125,7 @@ the `.groups` argument.</code></pre>
   text-align: left;
 }
 
-#ifjtvuxkkq .gt_empty_group_heading {
+#lkjyrevwfc .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -4133,15 +4140,15 @@ the `.groups` argument.</code></pre>
   vertical-align: middle;
 }
 
-#ifjtvuxkkq .gt_from_md > :first-child {
+#lkjyrevwfc .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ifjtvuxkkq .gt_from_md > :last-child {
+#lkjyrevwfc .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ifjtvuxkkq .gt_row {
+#lkjyrevwfc .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4160,7 +4167,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#ifjtvuxkkq .gt_stub {
+#lkjyrevwfc .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4173,7 +4180,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#ifjtvuxkkq .gt_stub_row_group {
+#lkjyrevwfc .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4187,15 +4194,15 @@ the `.groups` argument.</code></pre>
   vertical-align: top;
 }
 
-#ifjtvuxkkq .gt_row_group_first td {
+#lkjyrevwfc .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ifjtvuxkkq .gt_row_group_first th {
+#lkjyrevwfc .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ifjtvuxkkq .gt_summary_row {
+#lkjyrevwfc .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4205,16 +4212,16 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#ifjtvuxkkq .gt_first_summary_row {
+#lkjyrevwfc .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_first_summary_row.thick {
+#lkjyrevwfc .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ifjtvuxkkq .gt_last_summary_row {
+#lkjyrevwfc .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4224,7 +4231,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_grand_summary_row {
+#lkjyrevwfc .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4234,7 +4241,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#ifjtvuxkkq .gt_first_grand_summary_row {
+#lkjyrevwfc .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4244,7 +4251,7 @@ the `.groups` argument.</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_last_grand_summary_row_top {
+#lkjyrevwfc .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4254,11 +4261,11 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_striped {
+#lkjyrevwfc .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ifjtvuxkkq .gt_table_body {
+#lkjyrevwfc .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4267,7 +4274,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_footnotes {
+#lkjyrevwfc .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4281,7 +4288,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_footnote {
+#lkjyrevwfc .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -4290,7 +4297,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#ifjtvuxkkq .gt_sourcenotes {
+#lkjyrevwfc .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4304,7 +4311,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ifjtvuxkkq .gt_sourcenote {
+#lkjyrevwfc .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -4312,63 +4319,63 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#ifjtvuxkkq .gt_left {
+#lkjyrevwfc .gt_left {
   text-align: left;
 }
 
-#ifjtvuxkkq .gt_center {
+#lkjyrevwfc .gt_center {
   text-align: center;
 }
 
-#ifjtvuxkkq .gt_right {
+#lkjyrevwfc .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ifjtvuxkkq .gt_font_normal {
+#lkjyrevwfc .gt_font_normal {
   font-weight: normal;
 }
 
-#ifjtvuxkkq .gt_font_bold {
+#lkjyrevwfc .gt_font_bold {
   font-weight: bold;
 }
 
-#ifjtvuxkkq .gt_font_italic {
+#lkjyrevwfc .gt_font_italic {
   font-style: italic;
 }
 
-#ifjtvuxkkq .gt_super {
+#lkjyrevwfc .gt_super {
   font-size: 65%;
 }
 
-#ifjtvuxkkq .gt_footnote_marks {
+#lkjyrevwfc .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ifjtvuxkkq .gt_asterisk {
+#lkjyrevwfc .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ifjtvuxkkq .gt_indent_1 {
+#lkjyrevwfc .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ifjtvuxkkq .gt_indent_2 {
+#lkjyrevwfc .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ifjtvuxkkq .gt_indent_3 {
+#lkjyrevwfc .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ifjtvuxkkq .gt_indent_4 {
+#lkjyrevwfc .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ifjtvuxkkq .gt_indent_5 {
+#lkjyrevwfc .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -4679,23 +4686,23 @@ the `.groups` argument.</code></pre>
 <span id="cb146-14"><a href="#cb146-14" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span> </span>
 <span id="cb146-15"><a href="#cb146-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="rzlkzstlad" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#rzlkzstlad table {
+<div id="eohebjvzrl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#eohebjvzrl table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#rzlkzstlad thead, #rzlkzstlad tbody, #rzlkzstlad tfoot, #rzlkzstlad tr, #rzlkzstlad td, #rzlkzstlad th {
+#eohebjvzrl thead, #eohebjvzrl tbody, #eohebjvzrl tfoot, #eohebjvzrl tr, #eohebjvzrl td, #eohebjvzrl th {
   border-style: none;
 }
 
-#rzlkzstlad p {
+#eohebjvzrl p {
   margin: 0;
   padding: 0;
 }
 
-#rzlkzstlad .gt_table {
+#eohebjvzrl .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -4721,12 +4728,12 @@ the `.groups` argument.</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_caption {
+#eohebjvzrl .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#rzlkzstlad .gt_title {
+#eohebjvzrl .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -4738,7 +4745,7 @@ the `.groups` argument.</code></pre>
   border-bottom-width: 0;
 }
 
-#rzlkzstlad .gt_subtitle {
+#eohebjvzrl .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -4750,7 +4757,7 @@ the `.groups` argument.</code></pre>
   border-top-width: 0;
 }
 
-#rzlkzstlad .gt_heading {
+#eohebjvzrl .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -4762,13 +4769,13 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_bottom_border {
+#eohebjvzrl .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_col_headings {
+#eohebjvzrl .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4783,7 +4790,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_col_heading {
+#eohebjvzrl .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4803,7 +4810,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#rzlkzstlad .gt_column_spanner_outer {
+#eohebjvzrl .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4815,15 +4822,15 @@ the `.groups` argument.</code></pre>
   padding-right: 4px;
 }
 
-#rzlkzstlad .gt_column_spanner_outer:first-child {
+#eohebjvzrl .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#rzlkzstlad .gt_column_spanner_outer:last-child {
+#eohebjvzrl .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#rzlkzstlad .gt_column_spanner {
+#eohebjvzrl .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -4835,11 +4842,11 @@ the `.groups` argument.</code></pre>
   width: 100%;
 }
 
-#rzlkzstlad .gt_spanner_row {
+#eohebjvzrl .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#rzlkzstlad .gt_group_heading {
+#eohebjvzrl .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4865,7 +4872,7 @@ the `.groups` argument.</code></pre>
   text-align: left;
 }
 
-#rzlkzstlad .gt_empty_group_heading {
+#eohebjvzrl .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -4880,15 +4887,15 @@ the `.groups` argument.</code></pre>
   vertical-align: middle;
 }
 
-#rzlkzstlad .gt_from_md > :first-child {
+#eohebjvzrl .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#rzlkzstlad .gt_from_md > :last-child {
+#eohebjvzrl .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#rzlkzstlad .gt_row {
+#eohebjvzrl .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4907,7 +4914,7 @@ the `.groups` argument.</code></pre>
   overflow-x: hidden;
 }
 
-#rzlkzstlad .gt_stub {
+#eohebjvzrl .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4920,7 +4927,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#rzlkzstlad .gt_stub_row_group {
+#eohebjvzrl .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4934,15 +4941,15 @@ the `.groups` argument.</code></pre>
   vertical-align: top;
 }
 
-#rzlkzstlad .gt_row_group_first td {
+#eohebjvzrl .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#rzlkzstlad .gt_row_group_first th {
+#eohebjvzrl .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#rzlkzstlad .gt_summary_row {
+#eohebjvzrl .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4952,16 +4959,16 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#rzlkzstlad .gt_first_summary_row {
+#eohebjvzrl .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_first_summary_row.thick {
+#eohebjvzrl .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#rzlkzstlad .gt_last_summary_row {
+#eohebjvzrl .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4971,7 +4978,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_grand_summary_row {
+#eohebjvzrl .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4981,7 +4988,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#rzlkzstlad .gt_first_grand_summary_row {
+#eohebjvzrl .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4991,7 +4998,7 @@ the `.groups` argument.</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_last_grand_summary_row_top {
+#eohebjvzrl .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5001,11 +5008,11 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_striped {
+#eohebjvzrl .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#rzlkzstlad .gt_table_body {
+#eohebjvzrl .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -5014,7 +5021,7 @@ the `.groups` argument.</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_footnotes {
+#eohebjvzrl .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5028,7 +5035,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_footnote {
+#eohebjvzrl .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -5037,7 +5044,7 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#rzlkzstlad .gt_sourcenotes {
+#eohebjvzrl .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5051,7 +5058,7 @@ the `.groups` argument.</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#rzlkzstlad .gt_sourcenote {
+#eohebjvzrl .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -5059,63 +5066,63 @@ the `.groups` argument.</code></pre>
   padding-right: 5px;
 }
 
-#rzlkzstlad .gt_left {
+#eohebjvzrl .gt_left {
   text-align: left;
 }
 
-#rzlkzstlad .gt_center {
+#eohebjvzrl .gt_center {
   text-align: center;
 }
 
-#rzlkzstlad .gt_right {
+#eohebjvzrl .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#rzlkzstlad .gt_font_normal {
+#eohebjvzrl .gt_font_normal {
   font-weight: normal;
 }
 
-#rzlkzstlad .gt_font_bold {
+#eohebjvzrl .gt_font_bold {
   font-weight: bold;
 }
 
-#rzlkzstlad .gt_font_italic {
+#eohebjvzrl .gt_font_italic {
   font-style: italic;
 }
 
-#rzlkzstlad .gt_super {
+#eohebjvzrl .gt_super {
   font-size: 65%;
 }
 
-#rzlkzstlad .gt_footnote_marks {
+#eohebjvzrl .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#rzlkzstlad .gt_asterisk {
+#eohebjvzrl .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#rzlkzstlad .gt_indent_1 {
+#eohebjvzrl .gt_indent_1 {
   text-indent: 5px;
 }
 
-#rzlkzstlad .gt_indent_2 {
+#eohebjvzrl .gt_indent_2 {
   text-indent: 10px;
 }
 
-#rzlkzstlad .gt_indent_3 {
+#eohebjvzrl .gt_indent_3 {
   text-indent: 15px;
 }
 
-#rzlkzstlad .gt_indent_4 {
+#eohebjvzrl .gt_indent_4 {
   text-indent: 20px;
 }
 
-#rzlkzstlad .gt_indent_5 {
+#eohebjvzrl .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -5624,23 +5631,23 @@ Removed 5184 rows containing non-finite outside the scale range
 <span id="cb164-12"><a href="#cb164-12" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span> </span>
 <span id="cb164-13"><a href="#cb164-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="varbwioznl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#varbwioznl table {
+<div id="rhldcwtzwc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rhldcwtzwc table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#varbwioznl thead, #varbwioznl tbody, #varbwioznl tfoot, #varbwioznl tr, #varbwioznl td, #varbwioznl th {
+#rhldcwtzwc thead, #rhldcwtzwc tbody, #rhldcwtzwc tfoot, #rhldcwtzwc tr, #rhldcwtzwc td, #rhldcwtzwc th {
   border-style: none;
 }
 
-#varbwioznl p {
+#rhldcwtzwc p {
   margin: 0;
   padding: 0;
 }
 
-#varbwioznl .gt_table {
+#rhldcwtzwc .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -5666,12 +5673,12 @@ Removed 5184 rows containing non-finite outside the scale range
   border-left-color: #D3D3D3;
 }
 
-#varbwioznl .gt_caption {
+#rhldcwtzwc .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#varbwioznl .gt_title {
+#rhldcwtzwc .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -5683,7 +5690,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-width: 0;
 }
 
-#varbwioznl .gt_subtitle {
+#rhldcwtzwc .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -5695,7 +5702,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-top-width: 0;
 }
 
-#varbwioznl .gt_heading {
+#rhldcwtzwc .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -5707,13 +5714,13 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#varbwioznl .gt_bottom_border {
+#rhldcwtzwc .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#varbwioznl .gt_col_headings {
+#rhldcwtzwc .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -5728,7 +5735,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#varbwioznl .gt_col_heading {
+#rhldcwtzwc .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5748,7 +5755,7 @@ Removed 5184 rows containing non-finite outside the scale range
   overflow-x: hidden;
 }
 
-#varbwioznl .gt_column_spanner_outer {
+#rhldcwtzwc .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5760,15 +5767,15 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 4px;
 }
 
-#varbwioznl .gt_column_spanner_outer:first-child {
+#rhldcwtzwc .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#varbwioznl .gt_column_spanner_outer:last-child {
+#rhldcwtzwc .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#varbwioznl .gt_column_spanner {
+#rhldcwtzwc .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -5780,11 +5787,11 @@ Removed 5184 rows containing non-finite outside the scale range
   width: 100%;
 }
 
-#varbwioznl .gt_spanner_row {
+#rhldcwtzwc .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#varbwioznl .gt_group_heading {
+#rhldcwtzwc .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5810,7 +5817,7 @@ Removed 5184 rows containing non-finite outside the scale range
   text-align: left;
 }
 
-#varbwioznl .gt_empty_group_heading {
+#rhldcwtzwc .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -5825,15 +5832,15 @@ Removed 5184 rows containing non-finite outside the scale range
   vertical-align: middle;
 }
 
-#varbwioznl .gt_from_md > :first-child {
+#rhldcwtzwc .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#varbwioznl .gt_from_md > :last-child {
+#rhldcwtzwc .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#varbwioznl .gt_row {
+#rhldcwtzwc .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5852,7 +5859,7 @@ Removed 5184 rows containing non-finite outside the scale range
   overflow-x: hidden;
 }
 
-#varbwioznl .gt_stub {
+#rhldcwtzwc .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5865,7 +5872,7 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#varbwioznl .gt_stub_row_group {
+#rhldcwtzwc .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5879,15 +5886,15 @@ Removed 5184 rows containing non-finite outside the scale range
   vertical-align: top;
 }
 
-#varbwioznl .gt_row_group_first td {
+#rhldcwtzwc .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#varbwioznl .gt_row_group_first th {
+#rhldcwtzwc .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#varbwioznl .gt_summary_row {
+#rhldcwtzwc .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -5897,16 +5904,16 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#varbwioznl .gt_first_summary_row {
+#rhldcwtzwc .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#varbwioznl .gt_first_summary_row.thick {
+#rhldcwtzwc .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#varbwioznl .gt_last_summary_row {
+#rhldcwtzwc .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5916,7 +5923,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-color: #D3D3D3;
 }
 
-#varbwioznl .gt_grand_summary_row {
+#rhldcwtzwc .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -5926,7 +5933,7 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#varbwioznl .gt_first_grand_summary_row {
+#rhldcwtzwc .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5936,7 +5943,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-top-color: #D3D3D3;
 }
 
-#varbwioznl .gt_last_grand_summary_row_top {
+#rhldcwtzwc .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5946,11 +5953,11 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-color: #D3D3D3;
 }
 
-#varbwioznl .gt_striped {
+#rhldcwtzwc .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#varbwioznl .gt_table_body {
+#rhldcwtzwc .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -5959,7 +5966,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-color: #D3D3D3;
 }
 
-#varbwioznl .gt_footnotes {
+#rhldcwtzwc .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5973,7 +5980,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#varbwioznl .gt_footnote {
+#rhldcwtzwc .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -5982,7 +5989,7 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#varbwioznl .gt_sourcenotes {
+#rhldcwtzwc .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5996,7 +6003,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#varbwioznl .gt_sourcenote {
+#rhldcwtzwc .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -6004,63 +6011,63 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#varbwioznl .gt_left {
+#rhldcwtzwc .gt_left {
   text-align: left;
 }
 
-#varbwioznl .gt_center {
+#rhldcwtzwc .gt_center {
   text-align: center;
 }
 
-#varbwioznl .gt_right {
+#rhldcwtzwc .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#varbwioznl .gt_font_normal {
+#rhldcwtzwc .gt_font_normal {
   font-weight: normal;
 }
 
-#varbwioznl .gt_font_bold {
+#rhldcwtzwc .gt_font_bold {
   font-weight: bold;
 }
 
-#varbwioznl .gt_font_italic {
+#rhldcwtzwc .gt_font_italic {
   font-style: italic;
 }
 
-#varbwioznl .gt_super {
+#rhldcwtzwc .gt_super {
   font-size: 65%;
 }
 
-#varbwioznl .gt_footnote_marks {
+#rhldcwtzwc .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#varbwioznl .gt_asterisk {
+#rhldcwtzwc .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#varbwioznl .gt_indent_1 {
+#rhldcwtzwc .gt_indent_1 {
   text-indent: 5px;
 }
 
-#varbwioznl .gt_indent_2 {
+#rhldcwtzwc .gt_indent_2 {
   text-indent: 10px;
 }
 
-#varbwioznl .gt_indent_3 {
+#rhldcwtzwc .gt_indent_3 {
   text-indent: 15px;
 }
 
-#varbwioznl .gt_indent_4 {
+#rhldcwtzwc .gt_indent_4 {
   text-indent: 20px;
 }
 
-#varbwioznl .gt_indent_5 {
+#rhldcwtzwc .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -6446,23 +6453,23 @@ Removed 5184 rows containing non-finite outside the scale range
 <div class="sourceCode cell-code" id="cb178"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href="#cb178-1" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span> </span>
 <span id="cb178-2"><a href="#cb178-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="ardqfssuld" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ardqfssuld table {
+<div id="erznrkkbpi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#erznrkkbpi table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ardqfssuld thead, #ardqfssuld tbody, #ardqfssuld tfoot, #ardqfssuld tr, #ardqfssuld td, #ardqfssuld th {
+#erznrkkbpi thead, #erznrkkbpi tbody, #erznrkkbpi tfoot, #erznrkkbpi tr, #erznrkkbpi td, #erznrkkbpi th {
   border-style: none;
 }
 
-#ardqfssuld p {
+#erznrkkbpi p {
   margin: 0;
   padding: 0;
 }
 
-#ardqfssuld .gt_table {
+#erznrkkbpi .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -6488,12 +6495,12 @@ Removed 5184 rows containing non-finite outside the scale range
   border-left-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_caption {
+#erznrkkbpi .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ardqfssuld .gt_title {
+#erznrkkbpi .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -6505,7 +6512,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-width: 0;
 }
 
-#ardqfssuld .gt_subtitle {
+#erznrkkbpi .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -6517,7 +6524,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-top-width: 0;
 }
 
-#ardqfssuld .gt_heading {
+#erznrkkbpi .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -6529,13 +6536,13 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_bottom_border {
+#erznrkkbpi .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_col_headings {
+#erznrkkbpi .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -6550,7 +6557,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_col_heading {
+#erznrkkbpi .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6570,7 +6577,7 @@ Removed 5184 rows containing non-finite outside the scale range
   overflow-x: hidden;
 }
 
-#ardqfssuld .gt_column_spanner_outer {
+#erznrkkbpi .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6582,15 +6589,15 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 4px;
 }
 
-#ardqfssuld .gt_column_spanner_outer:first-child {
+#erznrkkbpi .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ardqfssuld .gt_column_spanner_outer:last-child {
+#erznrkkbpi .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ardqfssuld .gt_column_spanner {
+#erznrkkbpi .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -6602,11 +6609,11 @@ Removed 5184 rows containing non-finite outside the scale range
   width: 100%;
 }
 
-#ardqfssuld .gt_spanner_row {
+#erznrkkbpi .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ardqfssuld .gt_group_heading {
+#erznrkkbpi .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6632,7 +6639,7 @@ Removed 5184 rows containing non-finite outside the scale range
   text-align: left;
 }
 
-#ardqfssuld .gt_empty_group_heading {
+#erznrkkbpi .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -6647,15 +6654,15 @@ Removed 5184 rows containing non-finite outside the scale range
   vertical-align: middle;
 }
 
-#ardqfssuld .gt_from_md > :first-child {
+#erznrkkbpi .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ardqfssuld .gt_from_md > :last-child {
+#erznrkkbpi .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ardqfssuld .gt_row {
+#erznrkkbpi .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6674,7 +6681,7 @@ Removed 5184 rows containing non-finite outside the scale range
   overflow-x: hidden;
 }
 
-#ardqfssuld .gt_stub {
+#erznrkkbpi .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6687,7 +6694,7 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#ardqfssuld .gt_stub_row_group {
+#erznrkkbpi .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -6701,15 +6708,15 @@ Removed 5184 rows containing non-finite outside the scale range
   vertical-align: top;
 }
 
-#ardqfssuld .gt_row_group_first td {
+#erznrkkbpi .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ardqfssuld .gt_row_group_first th {
+#erznrkkbpi .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ardqfssuld .gt_summary_row {
+#erznrkkbpi .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -6719,16 +6726,16 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#ardqfssuld .gt_first_summary_row {
+#erznrkkbpi .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_first_summary_row.thick {
+#erznrkkbpi .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ardqfssuld .gt_last_summary_row {
+#erznrkkbpi .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6738,7 +6745,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_grand_summary_row {
+#erznrkkbpi .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -6748,7 +6755,7 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#ardqfssuld .gt_first_grand_summary_row {
+#erznrkkbpi .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6758,7 +6765,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-top-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_last_grand_summary_row_top {
+#erznrkkbpi .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -6768,11 +6775,11 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_striped {
+#erznrkkbpi .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ardqfssuld .gt_table_body {
+#erznrkkbpi .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -6781,7 +6788,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_footnotes {
+#erznrkkbpi .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -6795,7 +6802,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_footnote {
+#erznrkkbpi .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -6804,7 +6811,7 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#ardqfssuld .gt_sourcenotes {
+#erznrkkbpi .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -6818,7 +6825,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#ardqfssuld .gt_sourcenote {
+#erznrkkbpi .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -6826,63 +6833,63 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#ardqfssuld .gt_left {
+#erznrkkbpi .gt_left {
   text-align: left;
 }
 
-#ardqfssuld .gt_center {
+#erznrkkbpi .gt_center {
   text-align: center;
 }
 
-#ardqfssuld .gt_right {
+#erznrkkbpi .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ardqfssuld .gt_font_normal {
+#erznrkkbpi .gt_font_normal {
   font-weight: normal;
 }
 
-#ardqfssuld .gt_font_bold {
+#erznrkkbpi .gt_font_bold {
   font-weight: bold;
 }
 
-#ardqfssuld .gt_font_italic {
+#erznrkkbpi .gt_font_italic {
   font-style: italic;
 }
 
-#ardqfssuld .gt_super {
+#erznrkkbpi .gt_super {
   font-size: 65%;
 }
 
-#ardqfssuld .gt_footnote_marks {
+#erznrkkbpi .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ardqfssuld .gt_asterisk {
+#erznrkkbpi .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ardqfssuld .gt_indent_1 {
+#erznrkkbpi .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ardqfssuld .gt_indent_2 {
+#erznrkkbpi .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ardqfssuld .gt_indent_3 {
+#erznrkkbpi .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ardqfssuld .gt_indent_4 {
+#erznrkkbpi .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ardqfssuld .gt_indent_5 {
+#erznrkkbpi .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -7309,23 +7316,23 @@ Removed 5184 rows containing non-finite outside the scale range
 <span id="cb190-70"><a href="#cb190-70" aria-hidden="true" tabindex="-1"></a>avg_scenario_losses <span class="sc">%&gt;%</span> </span>
 <span id="cb190-71"><a href="#cb190-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="josjjwboga" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#josjjwboga table {
+<div id="czcodolimh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#czcodolimh table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#josjjwboga thead, #josjjwboga tbody, #josjjwboga tfoot, #josjjwboga tr, #josjjwboga td, #josjjwboga th {
+#czcodolimh thead, #czcodolimh tbody, #czcodolimh tfoot, #czcodolimh tr, #czcodolimh td, #czcodolimh th {
   border-style: none;
 }
 
-#josjjwboga p {
+#czcodolimh p {
   margin: 0;
   padding: 0;
 }
 
-#josjjwboga .gt_table {
+#czcodolimh .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -7351,12 +7358,12 @@ Removed 5184 rows containing non-finite outside the scale range
   border-left-color: #D3D3D3;
 }
 
-#josjjwboga .gt_caption {
+#czcodolimh .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#josjjwboga .gt_title {
+#czcodolimh .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -7368,7 +7375,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-width: 0;
 }
 
-#josjjwboga .gt_subtitle {
+#czcodolimh .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -7380,7 +7387,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-top-width: 0;
 }
 
-#josjjwboga .gt_heading {
+#czcodolimh .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -7392,13 +7399,13 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#josjjwboga .gt_bottom_border {
+#czcodolimh .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#josjjwboga .gt_col_headings {
+#czcodolimh .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -7413,7 +7420,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#josjjwboga .gt_col_heading {
+#czcodolimh .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -7433,7 +7440,7 @@ Removed 5184 rows containing non-finite outside the scale range
   overflow-x: hidden;
 }
 
-#josjjwboga .gt_column_spanner_outer {
+#czcodolimh .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -7445,15 +7452,15 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 4px;
 }
 
-#josjjwboga .gt_column_spanner_outer:first-child {
+#czcodolimh .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#josjjwboga .gt_column_spanner_outer:last-child {
+#czcodolimh .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#josjjwboga .gt_column_spanner {
+#czcodolimh .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -7465,11 +7472,11 @@ Removed 5184 rows containing non-finite outside the scale range
   width: 100%;
 }
 
-#josjjwboga .gt_spanner_row {
+#czcodolimh .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#josjjwboga .gt_group_heading {
+#czcodolimh .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -7495,7 +7502,7 @@ Removed 5184 rows containing non-finite outside the scale range
   text-align: left;
 }
 
-#josjjwboga .gt_empty_group_heading {
+#czcodolimh .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -7510,15 +7517,15 @@ Removed 5184 rows containing non-finite outside the scale range
   vertical-align: middle;
 }
 
-#josjjwboga .gt_from_md > :first-child {
+#czcodolimh .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#josjjwboga .gt_from_md > :last-child {
+#czcodolimh .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#josjjwboga .gt_row {
+#czcodolimh .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -7537,7 +7544,7 @@ Removed 5184 rows containing non-finite outside the scale range
   overflow-x: hidden;
 }
 
-#josjjwboga .gt_stub {
+#czcodolimh .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -7550,7 +7557,7 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#josjjwboga .gt_stub_row_group {
+#czcodolimh .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -7564,15 +7571,15 @@ Removed 5184 rows containing non-finite outside the scale range
   vertical-align: top;
 }
 
-#josjjwboga .gt_row_group_first td {
+#czcodolimh .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#josjjwboga .gt_row_group_first th {
+#czcodolimh .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#josjjwboga .gt_summary_row {
+#czcodolimh .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -7582,16 +7589,16 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#josjjwboga .gt_first_summary_row {
+#czcodolimh .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#josjjwboga .gt_first_summary_row.thick {
+#czcodolimh .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#josjjwboga .gt_last_summary_row {
+#czcodolimh .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -7601,7 +7608,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-color: #D3D3D3;
 }
 
-#josjjwboga .gt_grand_summary_row {
+#czcodolimh .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -7611,7 +7618,7 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#josjjwboga .gt_first_grand_summary_row {
+#czcodolimh .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -7621,7 +7628,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-top-color: #D3D3D3;
 }
 
-#josjjwboga .gt_last_grand_summary_row_top {
+#czcodolimh .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -7631,11 +7638,11 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-color: #D3D3D3;
 }
 
-#josjjwboga .gt_striped {
+#czcodolimh .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#josjjwboga .gt_table_body {
+#czcodolimh .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -7644,7 +7651,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-bottom-color: #D3D3D3;
 }
 
-#josjjwboga .gt_footnotes {
+#czcodolimh .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -7658,7 +7665,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#josjjwboga .gt_footnote {
+#czcodolimh .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -7667,7 +7674,7 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#josjjwboga .gt_sourcenotes {
+#czcodolimh .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -7681,7 +7688,7 @@ Removed 5184 rows containing non-finite outside the scale range
   border-right-color: #D3D3D3;
 }
 
-#josjjwboga .gt_sourcenote {
+#czcodolimh .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -7689,63 +7696,63 @@ Removed 5184 rows containing non-finite outside the scale range
   padding-right: 5px;
 }
 
-#josjjwboga .gt_left {
+#czcodolimh .gt_left {
   text-align: left;
 }
 
-#josjjwboga .gt_center {
+#czcodolimh .gt_center {
   text-align: center;
 }
 
-#josjjwboga .gt_right {
+#czcodolimh .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#josjjwboga .gt_font_normal {
+#czcodolimh .gt_font_normal {
   font-weight: normal;
 }
 
-#josjjwboga .gt_font_bold {
+#czcodolimh .gt_font_bold {
   font-weight: bold;
 }
 
-#josjjwboga .gt_font_italic {
+#czcodolimh .gt_font_italic {
   font-style: italic;
 }
 
-#josjjwboga .gt_super {
+#czcodolimh .gt_super {
   font-size: 65%;
 }
 
-#josjjwboga .gt_footnote_marks {
+#czcodolimh .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#josjjwboga .gt_asterisk {
+#czcodolimh .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#josjjwboga .gt_indent_1 {
+#czcodolimh .gt_indent_1 {
   text-indent: 5px;
 }
 
-#josjjwboga .gt_indent_2 {
+#czcodolimh .gt_indent_2 {
   text-indent: 10px;
 }
 
-#josjjwboga .gt_indent_3 {
+#czcodolimh .gt_indent_3 {
   text-indent: 15px;
 }
 
-#josjjwboga .gt_indent_4 {
+#czcodolimh .gt_indent_4 {
   text-indent: 20px;
 }
 
-#josjjwboga .gt_indent_5 {
+#czcodolimh .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
