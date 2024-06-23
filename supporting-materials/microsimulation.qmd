@@ -208,10 +208,12 @@ adm1 <- read_sf("data/ARM-Geodata/ARM-ADM1.shp") %>%
 names(adm1)[2] <- "hh_02" 
 ```
 
-And we plot it for reference in @fig-armenia-map-example. This is done with the tmap R package.
+And we plot it for reference (see @fig-map-example). This is done with the tmap R package and the code shown in @lst-map-example.
 
 ```{r}
-#| label: fig-armenia-map-example
+#| lst-label: lst-map-example
+#| lst-cap: "Plotting a map with with the tmap package"
+#| label: fig-map-example
 #| fig-cap: "Map of Armenia at administrative level 1 (ADM1)"
 
 tm_shape(adm1)+
@@ -285,7 +287,6 @@ Initial necessary variables. Some of these choices come from conventions used in
 
 ```{r}
 #| lst-label: lst-consumption-aggregates
-#| lst-cap: "Consumption aggregates"
 
 consumption_aggregates <- ca %>% 
   mutate(rural = ifelse(urb_rur == 2, 1, 0),  # Create rural indicator
@@ -493,11 +494,11 @@ pp_microsim <- pp_microsim %>%
   rename(sector = ea_shortcode)
 ```
 
-Impute sector for those with missing employed by hh head sector.
+Some individuals report no sector for either their primary or secondary job. In @lst-assign-sector we find out the sector of other family members in their home and assign the sector of whoever is closest using `fill( other_sector, .direction = "downup")`.
 
 ```{r}
-#| lst-label: lst-impute-sector
-#| lst-cap: "Impute sector to employed missing it"
+#| lst-label: lst-assign-sector
+#| lst-cap: "Assign sector to those who don't report one"
 
 pp_microsim <- pp_microsim %>%
   group_by(hhid) %>%
@@ -524,7 +525,6 @@ We then assign a specific value for missing sectors for those employed with no o
 
 ```{r}
 #| lst-label: lst-sector-no-alternatives
-#| lst-cap: "Assign sector to individuals that have no close alternative"
 
 pp_microsim <- pp_microsim %>%
   mutate(sector = if_else(is.na(sector) & employed == TRUE, 3, sector))
@@ -534,7 +534,6 @@ We provide value labels for sector factors.
 
 ```{r}
 #| lst-label: lst-sector-labels
-#| lst-cap: "Factors as sector labels"
 
 pp_microsim <- pp_microsim %>%
   mutate(sector_name = factor(sector, levels = c(1, 2, 3),
@@ -563,11 +562,11 @@ pp_microsim <- pp_microsim %>%
 
 ### The regression
 
-Since labor income was a key variable, which we needed to match with the future wage bill by economic activity, we first checked for missing values among employed individuals. We found that almost a third of respondents (28.6%) did not report income for either their primary or secondary job. To overcome this limitation, we used the available information from the remaining respondents to estimate an extended Mincer equation where the dependent variable is the natural logarithm of labor income (lnlab) and the independent variables include age, gender, education (educy), the square of age (age2), the region (marz), and the sector of employment (sector), which could take three factors: agriculture, manufacturing or services. For the respondents with available information, we also identified outliers as those outside of five standard deviations from the mean labor income. The formula is shown below.
+Since labor income was a key variable, which we needed to match with the future wage bill by economic activity, we first checked for missing values among employed individuals. We found that almost a third of respondents (28.6%) did not report income for either their primary or secondary job. To overcome this limitation, we used the available information from the remaining respondents to estimate an extended Mincer equation, as shown in @eq-labor-income-regression, and implemented in @lst-regression-model. For the respondents with available information, we also identified outliers as those outside of five standard deviations from the mean labor income.
 
 $$
 \ln(lab_i) = \beta_0 + \beta_1 \text{age}_i + \beta_2 \text{gender}_i + \beta_3 \text{educy}_i + \beta_4 \text{age}^2_i + \beta_5 \text{marz}_i + \beta_6 \text{sector}_i + \epsilon_i
-$$
+$$ {#eq-labor-income-regression}
 
 Where:
 
