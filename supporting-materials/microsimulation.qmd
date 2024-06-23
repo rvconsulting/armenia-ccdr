@@ -379,20 +379,21 @@ Count the number of employed persons by household. Note that it is necessary to 
 pp_microsim <- pp_microsim %>% 
   mutate(employed = (lstatus == 1)) %>% 
   group_by(hhid) %>% 
-  mutate(employed_hh = sum(employed, na.rm = TRUE)) %>%  # Count within each household 
+  # Count within each household
+  mutate(employed_hh = sum(employed, na.rm = TRUE)) %>%   
   ungroup() 
 ```
 
-Here the original Stata code calculates income variables and aggregates them by household. We skip that because the dataset "ic" already has these elements calculated by the WB poverty team. We'll add them later as we need them.
+Here the original Stata code calculates income variables and aggregates them by household. We skip that because the dataset `ic` already has these elements calculated by the WB poverty team. We'll add them later as we need them.
 
-However, as we'll see later labor income information is heavily non-reported in the dataset. Labor income is a crucial step in merging the dataset with macroeconomic information and so we will predict income for those that do not report it below. These variables are related to labor income, amount and frequency. This has to be standardized to a monthly or yearly value.
+However, as we'll see later labor income information is heavily non-reported in the dataset. Labor income is a crucial step in merging the dataset with macroeconomic information and so we will predict income for those that do not report it below. These variables are related to labor income, amount and frequency, which we have to standardized to a monthly or yearly value.
 
 **Primary and Secondary Job income:**
 
--   **emp_11** 11.How much was %rostertitle%'s payment for wages/salary/income for last month?
--   **emp_12** 12.What period of time was the wage/income for?
--   **emp_25** 25.How much was %rostertitle%'s payment for wages/salary/income for last month?
--   **emp_26** 26.What period of time was the wage/income for?
+-   **emp_11** How much was %rostertitle%'s payment for wages/salary/income for last month?
+-   **emp_12** What period of time was the wage/income for?
+-   **emp_25** How much was %rostertitle%'s payment for wages/salary/income for last month?
+-   **emp_26** What period of time was the wage/income for?
 
 Bonus, In-Kind, and food from job was not asked in Armenia, If it were, you should add a `mutate()` statement like the ones below for each subcategory in @lst-annualized-labor-income. We use `coalesce(colname, 0)` when adding the `annual_labor_total` again to prevent sums of `NA`'s. This function replaces a value with 0 within the calculation if it's missing, but doesn't change its value permanently.
 
@@ -450,7 +451,8 @@ total_employed <- pp_microsim %>%
   filter(employed == TRUE) %>%
   nrow()
 
-percent_employed_no_income <- (total_employed_no_income / total_employed) * 100
+percent_employed_no_income <- 
+  (total_employed_no_income / total_employed) * 100
 
 print(
   paste0(
@@ -469,7 +471,8 @@ We also need to mark income outliers as those with incomes outside 5 standard de
 
 pp_microsim <- pp_microsim  %>% 
   mutate(
-    sd = sd(annual_labor_total, na.rm = TRUE), # Calculate standard deviation
+    # Calculate standard deviation
+    sd = sd(annual_labor_total, na.rm = TRUE), 
     d = annual_labor_total / sd,                
     # Combined outlier condition
     outlier = (d > 5) | (employed == TRUE & annual_labor_total == 0), 
@@ -492,9 +495,10 @@ pp_microsim <- pp_microsim %>%
 
 Impute sector for those with missing employed by hh head sector.
 
-Step 1: Impute sector for missing employed by the sector of any other hh member.
-
 ```{r}
+#| lst-label: lst-impute-sector
+#| lst-cap: "Impute sector to employed missing it"
+
 pp_microsim <- pp_microsim %>%
   group_by(hhid) %>%
   mutate(
@@ -516,16 +520,22 @@ pp_microsim <- pp_microsim %>%
   ungroup()
 ```
 
-Step 2: Assign a specific value for missing sectors for those employed with no one else in the hh to assign value. We select services as it's the heaviest sector in the dataset (we do it like this, instead of say, matching, because it's only 2 observations).
+We then assign a specific value for missing sectors for those employed with no one else in the hh to assign value. We select services as it's the heaviest sector in the dataset (we do it like this, instead of say, any matching technique, because it's only 2 observations).
 
 ```{r}
+#| lst-label: lst-sector-no-alternatives
+#| lst-cap: "Assign sector to individuals that have no close alternative"
+
 pp_microsim <- pp_microsim %>%
   mutate(sector = if_else(is.na(sector) & employed == TRUE, 3, sector))
 ```
 
-Step 4: Label the sector variable.
+We provide value labels for sector factors.
 
 ```{r}
+#| lst-label: lst-sector-labels
+#| lst-cap: "Factors as sector labels"
+
 pp_microsim <- pp_microsim %>%
   mutate(sector_name = factor(sector, levels = c(1, 2, 3),
                          labels = c("Agriculture", 
@@ -533,9 +543,12 @@ pp_microsim <- pp_microsim %>%
                                     "Services")))
 ```
 
-Step 5: No sector for OLF and clonevar industry=sector (this from original Stata code).
+We make sure that those outside the labor force (OLF) do not report a sector, which we replace with `NA` for those who meet the condition.
 
 ```{r}
+#| lst-label: lst-no-sector-olf
+#| lst-cap: "No sector for OLF"
+
 pp_microsim <- pp_microsim %>%
   mutate(lstatus = as.numeric(lstatus),
          sector = 
@@ -550,7 +563,26 @@ pp_microsim <- pp_microsim %>%
 
 ### The regression
 
-Prepare the data.
+Since labor income was a key variable, which we needed to match with the future wage bill by economic activity, we first checked for missing values among employed individuals. We found that almost a third of respondents (28.6%) did not report income for either their primary or secondary job. To overcome this limitation, we used the available information from the remaining respondents to estimate an extended Mincer equation where the dependent variable is the natural logarithm of labor income (lnlab) and the independent variables include age, gender, education (educy), the square of age (age2), the region (marz), and the sector of employment (sector), which could take three factors: agriculture, manufacturing or services. For the respondents with available information, we also identified outliers as those outside of five standard deviations from the mean labor income. The formula is shown below.
+
+$$
+\ln(lab_i) = \beta_0 + \beta_1 \text{age}_i + \beta_2 \text{gender}_i + \beta_3 \text{educy}_i + \beta_4 \text{age}^2_i + \beta_5 \text{marz}_i + \beta_6 \text{sector}_i + \epsilon_i
+$$
+
+Where:
+
+- $\ln(lab_i)$ is the natural logarithm of labor income for individual $i$.
+- $\beta_0$ is the intercept term.
+- $\beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6$ are the coefficients for the respective independent variables.
+- $\text{age}_i$ is the age of individual $i$.
+- $\text{gender}_i$ is a binary variable indicating the gender of individual $i$ (1 for male, 2 for female).
+- $\text{educy}_i$ represents the level of education for individual $i$ (ordered: 1) None to General, 2) Secondary to Vocational, 3) Higher education).
+- $\text{age}^2_i$ is the square of the age of individual $i$, included to capture non-linear effects of age on labor income.
+- $\text{marz}_i$ represents the region where individual $i$ resides.
+- $\text{sector}_i$ represents the sector of employment for individual $i$ (i.e., agriculture, manufacturing or services).
+- $\epsilon_i$ is the error term for individual $i$.
+
+We first prepare our variables for the regression.
 
 ```{r}
 pp_microsim <- pp_microsim %>%
@@ -576,6 +608,9 @@ regression_data <- pp_microsim %>%
 Regression model.
 
 ```{r}
+#| lst-label: lst-regression-model
+#| lst-cap: "Income regression model"
+
 model <- lm(lnlab ~ age + gender + educy + age2 + marz + sector, 
             data = regression_data)
 ```
