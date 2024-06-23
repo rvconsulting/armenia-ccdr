@@ -49,7 +49,9 @@ In this calculation file, we "age" the household survey according to demographic
 
 As a convention, code is presented in the following format in this guide:
 
-```{r eval=FALSE}
+```{r}
+#| eval= FALSE
+
 # Some comment that is not evaluated by R
 some_variable <- some_function(some_object, some_parameter = TRUE)
 ```
@@ -76,6 +78,8 @@ Using RStudio project makes it possible to not use `setwd()` to establish the ro
 We start with a clean environment, making sure that any objects from a previous session are not present. We take this opportunity to keep our country ISO code in a variable `iso` in case we need it later.
 
 ```{r warning=FALSE, message=FALSE}
+
+
 # Clean workspace
 rm(list = ls())
 
@@ -93,8 +97,9 @@ We call the appropriate libraries.
 
 Rather than calling our libraries as we go, we will make sure we have everything we need from the beginning.
 
-```{r output=FALSE}
-#| label: lst-load-packages
+```{r}
+#| output: FALSE
+#| lst-label: lst-load-packages
 
 library(tidyverse) # includes dplyr, ggplot2 and others
 library(haven)     # to read SPSS and Stata datasets
@@ -123,8 +128,11 @@ library(tmap)      # for static and interactive maps
 
 We then load the datasets that we need for this study. The World Bank has processed some of these already for poverty analysis and so we have the original SPSS datasets with all variables for Households `hh` and for Individuals `pp`, as well as a consumption aggregate `ca` and a household income `ic` dataset, which are Stata datasets. This is for the year 2022. These are imported using the `haven` package. These are based on Armenia Integrated Living Conditions Survey 2022 [@armstat_integrated_2023].
 
-```{r warning=FALSE, message=FALSE, output=FALSE}
-# | label: original-datasets
+```{r}
+#| warning: FALSE
+#| message: FALSE
+#| output: FALSE
+#| lst-label: original-datasets
 
 # Households (hh)
 hh <- read_sav(
@@ -142,8 +150,8 @@ food_with_prices <- read_dta("data/ARM-HH-survey/FOOD_with_prices_short.dta")
 
 We will work non-destructively, meaning we will not rewrite these data sets and we will only create intermediate data frame objects from them to perform transformations, selections and other data management tasks. For example, we will keep household assignment to poverty status and consumption deciles handy by creating a subset of our `ca` data with only our household identifiers, deciles, and poverty.
 
-```{r warning=FALSE, message=FALSE}
-#| label: lst-deciles
+```{r warning=FALSE, message=FALSE,}
+#| lst-label: lst-deciles
 
 # From the WB processed dataset, we extract deciles and poverty
 deciles <- ca %>% 
@@ -153,16 +161,20 @@ deciles <- ca %>%
 
 Our population data comes from UN's projections.
 
-```{r warning=FALSE, message=FALSE}
-#| label: lst-population-projections
+```{r warning=FALSE, message=FALSE,}
+#| lst-label: lst-population-projections
+
 population_projections <- read_dta("data/UN2022_population.dta") %>% 
   filter(country == iso) # we filter for Armenia
 ```
 
 The macro scenario dataset is an input provided by the Macroeconomic CGE simulation team, with yearly information on GDP, working age population, employment by economic activity (for an aggregation of three sectors: agriculture, manufacturing, and services), wages by economic activity, value added by economic activity, remittances, consumer price index, food price index and energy price index (for a bundle of gas, oil, coal, electricity) by decile (10 representative households in the macro model), and carbon tax revenue transfers to household deciles.
 
-```{r warning=FALSE, message=FALSE, output=FALSE}
-#| label: lst-import-macro-scenarios
+```{r}
+#| warning: FALSE
+#| message: FALSE
+#| output: FALSE
+#| lst-label: lst-import-macro-scenarios
 
 
 scenario_file <- "data/ARM-Microsimulation/ARM_MacroScenarioInformation.xlsx"
@@ -175,15 +187,17 @@ prices_2030 <-
 Economic Activities in the Survey is in Armenian. The following dataset is a lookup table with the English names.
 
 ```{r}
-#| label: lst-import-economic-activity-codes
+#| lst-label: lst-import-economic-activity-codes
 
 sectors <- read_xlsx("data/ARM-HH-survey/economic_activity_codes.xlsx")
 ```
 
 We also have geographical information for level 1 in Shapefile format, which we import with the `sf` package. We rename the column with the name of the administrative region to match our household survey data set conventions to ease mergers. The `dplyr` package from the `tidyverse` meta package allows us to "pipe" or link processing steps using the `%>%` pipe. Although there is no geoprocessing in this analysis, this will come in handy for graphical presentations.
 
-```{r warning=FALSE, message=FALSE}
-#| label: lst-import-geodata
+```{r}
+#| warning: FALSE 
+#| message: FALSE
+#| lst-label: lst-import-geodata
 
 # Armenia marzes or administrative level 1 shapefile
 adm1 <- read_sf("data/ARM-Geodata/ARM-ADM1.shp") %>% 
@@ -208,7 +222,8 @@ tm_shape(adm1)+
 Marzes names are more accurate in the shapefile than in the survey. We will use them from here on instead of the survey factor labels.
 
 ```{r warning=FALSE, message=FALSE}
-#| label: lst-marz-name-from-geodata
+#| lst-label: lst-marz-name-from-geodata
+#| lst-cap: "Marz name from geodata"
 
 hh <- hh %>% 
   left_join(adm1, join_by(hh_02 == hh_02)) %>% 
@@ -222,7 +237,8 @@ ic <- ic %>%
 We also have an Excel file with changes to labor productivity due to climate variability. We bind together the datasets found in each Excel sheet.
 
 ```{r}
-#| label: lst-import-labor-productivity-data
+#| lst-label: lst-import-labor-productivity-data
+#| lst-cap: "Import labor productivity data"
 
 file <- r"(data/ARM-Microsimulation/LaborProductivityChanges.xlsx)"
 sheets <- excel_sheets(file)
@@ -245,8 +261,11 @@ labor_productivity <- bind_rows(labor_productivity)
 
 Finally, we have our climate vulnerability information. For this analysis we only use the `crops_productivity` and `livestock_productivity`.
 
-```{r warning=FALSE, message=FALSE}
-#| label: lst-import-vulnerability-data
+```{r}
+#| warning: FALSE 
+#| message: FALSE
+#| lst-label: lst-import-vulnerability-data
+#| lst-cap: "Import crops and livestock yield loss data"
 
 crops_productivity <- 
   read.csv("data/ARM-Vulnerability-Analysis/ARM_crops_combined_REF_shock_admin1.csv") %>% 
@@ -265,7 +284,8 @@ livestock_productivity <-
 Initial necessary variables. Some of these choices come from conventions used in the guidance code. However, where possible, we've tried to continue using the names found in the datasets to avoid introducing more confusion.
 
 ```{r}
-#| label: lst-consumption-aggregates
+#| lst-label: lst-consumption-aggregates
+#| lst-cap: "Consumption aggregates"
 
 consumption_aggregates <- ca %>% 
   mutate(rural = ifelse(urb_rur == 2, 1, 0),  # Create rural indicator
@@ -350,10 +370,11 @@ pp_microsim <- pp_microsim %>%
   ))
 ```
 
-Count the number of employed persons by household. Note that it is necessary to explicitly tell R to ignore missing values(`NA`). This is different from Stata where `1 + .= 1`  (where `.` is "missing"). In R 1 + `NA` = `NA` (where `NA` means "not available"). Not adding `na.rm = TRUE` to aggregation functions such as `sum()` in @lst-employed-in-hh below will not throw an error and only provide a column with `NA` for households where at least one individidual has an employed status of `NA`.
+Count the number of employed persons by household. Note that it is necessary to explicitly tell R to ignore missing values(`NA`). This is different from Stata where `1 + .= 1`  (where `.` is "missing"). In R 1 + `NA` = `NA` (where `NA` means "not available"). Not adding `na.rm = TRUE` to aggregation functions such as `sum()` in @lst-employed-hh below will not throw an error and only provide a column with `NA` for households where at least one individidual has an employed status of `NA`.
 
 ```{r}
-#| label: lst-employed-in-hh
+#| lst-label: lst-employed-hh
+#| lst-cap: "Employed in household"
 
 pp_microsim <- pp_microsim %>% 
   mutate(employed = (lstatus == 1)) %>% 
@@ -376,7 +397,8 @@ However, as we'll see later labor income information is heavily non-reported in 
 Bonus, In-Kind, and food from job was not asked in Armenia, If it were, you should add a `mutate()` statement like the ones below for each subcategory in @lst-annualized-labor-income. We use `coalesce(colname, 0)` when adding the `annual_labor_total` again to prevent sums of `NA`'s. This function replaces a value with 0 within the calculation if it's missing, but doesn't change its value permanently.
 
 ```{r}
-#| label: lst-annualized-labor-income
+#| lst-label: lst-annualized-labor-income
+#| lst-cap: "Annualized labor income"
 
 pp_microsim <- pp_microsim %>% 
   # Labor income primary job
@@ -417,7 +439,8 @@ pp_microsim <- pp_microsim %>%
 Now we need to check the share of individuals that are employed, but did not report income. This is done in @lst-employed-no-income below.
 
 ```{r}
-#| label: lst-employed-no-income
+#| lst-label: lst-employed-no-income
+#| lst-cap: "Employed with no income reported"
 
 total_employed_no_income <- pp_microsim %>%
   filter(employed == TRUE & is.na(annual_labor_total)) %>% 
@@ -458,7 +481,8 @@ pp_microsim <- pp_microsim  %>%
 Economic sector. The economic sectors dataset contains a lookup table for sector aggregation which we add to the `pp_microsim` database in @lst-sector-aggregation.
 
 ```{r}
-#| label: lst-sector-aggregation
+#| lst-label: lst-sector-aggregation
+#| lst-cap: "Sector aggregation"
 
 pp_microsim <- pp_microsim %>%
   mutate(emp_04 = as.integer(emp_04)) %>% 
