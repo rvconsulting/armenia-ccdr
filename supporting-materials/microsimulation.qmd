@@ -6,21 +6,6 @@ author:
     email: renovargas@gmail.com
     affiliation: 
       - name: Consultant
-  - name: "Julie Rozenberg"
-    id: jr
-    email: jrozenberg@worldbank.org
-    affiliation: 
-      - name: The World Bank
-  - name: "Colin Lenoble"
-    id: cl
-    email: clenoble@worldbank.org
-    affiliation: 
-      - name: The World Bank
-  - name: "Natsuko Kiso Nozaki"
-    id: nk
-    email: nkiso@worldbank.org
-    affiliation:
-      - name: The World Bank  
             
 format:
   html:
@@ -261,7 +246,7 @@ labor_productivity <- lapply(sheets, function(sheet) {
 labor_productivity <- bind_rows(labor_productivity)
 ```
 
-Finally, we have our climate vulnerability information. For this analysis we only use the `crops_productivity` and `livestock_productivity`.
+Finally, we have our climate vulnerability information. For this analysis we only use the `crops_productivity` and `livestock_productivity` that comes from *Estimating the Economic Impacts of Climate Change in Armenia* [@strzepek_estimating_2024].
 
 ```{r}
 #| warning: FALSE 
@@ -371,7 +356,7 @@ pp_microsim <- pp_microsim %>%
   ))
 ```
 
-Count the number of employed persons by household. Note that it is necessary to explicitly tell R to ignore missing values(`NA`). This is different from Stata where `1 + .= 1`  (where `.` is "missing"). In R 1 + `NA` = `NA` (where `NA` means "not available"). Not adding `na.rm = TRUE` to aggregation functions such as `sum()` in @lst-employed-hh below will not throw an error and only provide a column with `NA` for households where at least one individidual has an employed status of `NA`.
+Count the number of employed persons by household. Note that it is necessary to explicitly tell R to ignore missing values(`NA`). This is different from Stata where `1 + .= 1` (where `.` is "missing"). In R 1 + `NA` = `NA` (where `NA` means "not available"). Not adding `na.rm = TRUE` to aggregation functions such as `sum()` in @lst-employed-hh below will not throw an error and only provide a column with `NA` for households where at least one individidual has an employed status of `NA`.
 
 ```{r}
 #| lst-label: lst-employed-hh
@@ -570,16 +555,16 @@ $$ {#eq-labor-income-regression}
 
 Where:
 
-- $\ln(lab_i)$ is the natural logarithm of labor income for individual $i$.
-- $\beta_0$ is the intercept term.
-- $\beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6$ are the coefficients for the respective independent variables.
-- $\text{age}_i$ is the age of individual $i$.
-- $\text{gender}_i$ is a binary variable indicating the gender of individual $i$ (1 for male, 2 for female).
-- $\text{educy}_i$ represents the level of education for individual $i$ (ordered: 1) None to General, 2) Secondary to Vocational, 3) Higher education).
-- $\text{age}^2_i$ is the square of the age of individual $i$, included to capture non-linear effects of age on labor income.
-- $\text{marz}_i$ represents the region where individual $i$ resides.
-- $\text{sector}_i$ represents the sector of employment for individual $i$ (i.e., agriculture, manufacturing or services).
-- $\epsilon_i$ is the error term for individual $i$.
+-   $\ln(lab_i)$ is the natural logarithm of labor income for individual $i$.
+-   $\beta_0$ is the intercept term.
+-   $\beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6$ are the coefficients for the respective independent variables.
+-   $\text{age}_i$ is the age of individual $i$.
+-   $\text{gender}_i$ is a binary variable indicating the gender of individual $i$ (1 for male, 2 for female).
+-   $\text{educy}_i$ represents the level of education for individual $i$ (ordered: 1) None to General, 2) Secondary to Vocational, 3) Higher education).
+-   $\text{age}^2_i$ is the square of the age of individual $i$, included to capture non-linear effects of age on labor income.
+-   $\text{marz}_i$ represents the region where individual $i$ resides.
+-   $\text{sector}_i$ represents the sector of employment for individual $i$ (i.e., agriculture, manufacturing or services).
+-   $\epsilon_i$ is the error term for individual $i$.
 
 We first prepare our variables for the regression.
 
@@ -1816,6 +1801,8 @@ And we also plot the cumulative distributions.
 ```
 
 ### Climate change
+
+In these sections we use Administrative Level 1 data on yield losses and labor productivity losses due to climate change that are provided in the study commissioned for Armenia's CCDR *Estimating the Economic Impacts of Climate Change in Armenia* [@strzepek_estimating_2024].
 
 In the climate change scenario, we ask ourselves, what would happen if agriculture revenues from crops and livestock are reduced due to losses in productivity due to heat? For this, we use crops data.
 
