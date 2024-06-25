@@ -5,7 +5,7 @@ author:
     id: rv
     email: renovargas@gmail.com
     affiliation: 
-      - name: Consultant
+      - name: Consultant for The World Bank
             
 format:
   html:
@@ -745,6 +745,9 @@ population_projections <- population_projections  %>%
 Collapsing data by summing up variables starting with "yf" and "ym" and reshaping data to long format.
 
 ```{r}
+#| warning: FALSE
+#| message: FALSE
+
 population_projections <- population_projections %>%
   group_by(Variant, country, cohort) %>%
   summarize(across(starts_with(c("yf", "ym")), sum)) %>%
@@ -843,6 +846,9 @@ The following code accomplishes the following:
 -   Calculate real wages and consumption per capita.
 
 ```{r}
+#| warning: FALSE
+#| message: FALSE
+
 # Macro Scenario File imported in "Datasets" section (scenario_file) 
 sheets <- excel_sheets(scenario_file)
 scenario_sheets <- sheets[c(1,2,3)]
@@ -1017,6 +1023,9 @@ pp_microsim <- pp_microsim %>%
 We also need demographic targets for 2030
 
 ```{r}
+#| warning: FALSE
+#| message: FALSE
+
 # Ensure pop_targets_2030 is correctly prepared
 # We use the "Medium" variant = variants[7]
 pop_targets_2030 <- population_projections  %>% 
@@ -1146,7 +1155,7 @@ outsave <- anesrake::anesrake(targets_baseline,
                     verbose = TRUE,
                     weightvec = rakedata$weight)
 
-summary(outsave)
+#summary(outsave)
 
 # add weights to the dataset
 
@@ -1220,7 +1229,7 @@ outsave <- anesrake::anesrake(targets_dry_hot,
                     verbose = TRUE,
                     weightvec = rakedata$weight)
 
-summary(outsave)
+#summary(outsave)
 
 # add weights to the dataset
 
@@ -1282,7 +1291,7 @@ outsave <- anesrake::anesrake(targets_nzs,
                     verbose = TRUE,
                     weightvec = rakedata$weight)
 
-summary(outsave)
+#summary(outsave)
 
 # add weights to the dataset
 
@@ -1707,96 +1716,93 @@ write.table(test_baseline, "clipboard", sep="\t", row.names=FALSE)
 
 ```
 
-Let's plot the distributions.
+We plot the distributions in @fig-scenario-distribution-plots.
 
 ```{r}
-# # Basic density plot comparing equivalized consumption per capita
-# ggplot(ca_microsim, 
-#        aes(x = aec_r_2030_nzs, fill = 'NZS')) +
-#   geom_density(alpha = 0.5) +
-#   # geom_density(
-#   #   data = ca_microsim_cc,
-#   #   aes(x = aec_r_2030_dry_hot, fill = 'Dry/Hot'),
-#   #   alpha = 0.5) +
-#   # geom_density(
-#   #   data = ca_microsim_cc,
-#   #   aes(x = aec_r_2030_dry_hot_food2, fill = 'Dry/Hot + Food Price'),
-#   #   alpha = 0.5) +
-#   geom_density(
-#     data = ca_microsim,
-#     aes(x = aec_r_2030_dry_hot, fill = 'Dry/Hot'),
-#     alpha = 0.5) +
-#   geom_density(
-#     data = ca_microsim,
-#     aes(x = aec_r_2030_baseline, fill = 'Baseline'),
-#     alpha = 0.5) +
-#   labs(
-#     fill = "Scenario Variant", 
-#     # title = "Comparison of Consumption Distributions", 
-#     x = "Equivalized consumption (Dram)", 
-#     y = "Probability") +
-#   theme_minimal()+
-#   coord_cartesian(xlim = c(0, 500000),
-#           #        ylim = c(0.000005,0.0000160)
-#                   ) + # Zoom in without removing data
-#   scale_x_continuous(labels = scales::comma) +
-#   scale_y_continuous(labels = scales::comma)+
-#   geom_vline(xintercept = 55883, 
-#              color = "red", 
-#              linetype = "dotted", 
-#              linewidth =0.8) +
-#   annotate("text", 
-#            x = 55883, 
-#            y = 0.0000110, 
-#            #label = "Poverty line\nAMD 55,883", 
-#            label = "Poverty line", 
-#            color = "black", 
-#            hjust = -0.1, 
-#            # vjust = -3.5,
-#            #angle = 90, 
-#            size = 3)
+#| warning: FALSE
+#| message: FALSE
+#| lst-label: lst-scenario-distribution-plots
+#| lst-cap: "Plotting equivalized consumption per capita distribution by scenario"
+#| label: fig-scenario-distribution-plots
+#| fig-cap: "Equivalized consumption per capita distribution by scenario"
+
+# Basic density plot comparing equivalized consumption per capita
+ggplot(ca_microsim,
+       aes(x = aec_r_2030_nzs, fill = 'NZS')) +
+  geom_density(alpha = 0.3) +
+  geom_density(
+    data = ca_microsim,
+    aes(x = aec_r_2030_dry_hot, fill = 'Dry/Hot'),
+    alpha = 0.3) +
+  geom_density(
+    data = ca_microsim,
+    aes(x = aec_r_2030_baseline, fill = 'Baseline'),
+    alpha = 0.3) +
+  labs(
+    fill = "Scenario Variant",
+    # title = "Comparison of Consumption Distributions",
+    x = "Equivalized consumption (Dram)",
+    y = "Probability") +
+  theme_minimal()+
+  coord_cartesian(xlim = c(0, 500000),
+          #        ylim = c(0.000005,0.0000160)
+                  ) + # Zoom in without removing data
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)+
+  geom_vline(xintercept = 55883,
+             color = "red",
+             linetype = "dotted",
+             linewidth =0.8) +
+  annotate("text",
+           x = 55883,
+           y = 0.0000025,
+           #label = "Poverty line\nAMD 55,883",
+           label = "Poverty line",
+           color = "black",
+           hjust = -0.1,
+           # vjust = -3.5,
+           #angle = 90,
+           size = 3)
 ```
 
-And we also plot the cumulative distributions.
+And we also plot the cumulative distributions to make the distinctions more evident in @fig-scenario-cumulative-distribution-plots.
 
 ```{r}
-# # Plot the cumulative distribution with left-facing arrows
-# ggplot(ca_microsim, 
-#        aes(x = aec_r_2030_baseline, color = 'Direct CC + Food Price')) +
-#   stat_ecdf(geom = "step") +
-#   # stat_ecdf(data = ca_microsim_cc, 
-#   #           aes(x = aec_r_2030_baseline_lab_avg, color = 'Baseline + Labor Productivity')) +
-#   stat_ecdf(data = ca_microsim_cc, 
-#             aes(x = aec_r_2030_baseline_lab_cc_avg, color = 'Direct CC')) +
-#   stat_ecdf(data = ca_microsim_cc, 
-#             aes(x = aec_r_2030_baseline, color = 'Baseline')) +
-#   labs(
-#     color = "Scenario Variant", 
-#     # title = "Comparison of Cumulative Consumption Distributions", 
-#     x = "Equivalized consumption (Dram)", 
-#     y = "Cumulative Probability") +
-#   theme_minimal() +
-#   coord_cartesian(xlim = c(40000, 110000)) + 
-#   scale_x_continuous(labels = scales::comma) +
-#   # geom_vline(xintercept = 55883, 
-#   #            color = "red", 
-#   #            linetype = "dotted", 
-#   #            linewidth = 0.8) +
-#   # annotate("text", 
-#   #          x = 55883, 
-#   #          y = 0.5, 
-#   #          label = "Poverty line", 
-#   #          color = "black", 
-#   #          hjust = -0.1, 
-#   #          size = 3) +
-#   annotate("segment", x = 70000, xend = 65000, y = 0.2, yend = 0.2, 
-#            arrow = arrow(length = unit(0.3, "cm")), color = "black") +
-#   annotate("text", x = 72500, y = 0.2, label = "Shift due to shocks", hjust = 0) 
-#   # annotate("segment", x = 80000, xend = 75000, y = 0.4, yend = 0.4, 
-#   #          arrow = arrow(length = unit(0.3, "cm")), color = "black") +
-#   # annotate("text", x = 82500, y = 0.4, label = "Shift due to shocks", hjust = 0)
+#| warning: FALSE
+#| message: FALSE
+#| lst-label: lst-scenario-cumulative-distribution-plots
+#| lst-cap: "Plotting equivalized consumption per capita cumulative distribution by scenario"
+#| label: fig-scenario-cumulative-distribution-plots
+#| fig-cap: "Equivalized consumption per capita cumulative distribution by scenario"
 
-
+# Plot the cumulative distribution with left-facing arrows
+ggplot(ca_microsim,
+       aes(x = aec_r_2030_nzs, color = 'NZS')) +
+  stat_ecdf(geom = "step") +
+  stat_ecdf(data = ca_microsim,
+            aes(x = aec_r_2030_dry_hot, color = 'Dry/Hot')) +
+  stat_ecdf(data = ca_microsim,
+            aes(x = aec_r_2030_baseline, color = 'Baseline')) +
+  labs(
+    color = "Scenario Variant",
+    # title = "Comparison of Cumulative Consumption Distributions",
+    x = "Equivalized consumption (Dram)",
+    y = "Cumulative Probability") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(40000, 110000)) +
+  scale_x_continuous(labels = scales::comma) +
+  annotate("segment", 
+           x = 70000, 
+           xend = 65000, 
+           y = 0.2, 
+           yend = 0.2,
+           arrow = arrow(length = unit(0.3, "cm")), 
+           color = "black") +
+  annotate("text", 
+           x = 72500, 
+           y = 0.2,
+           label = "Shift due to scenario conditions", 
+           hjust = 0)
 
 ```
 
@@ -2214,6 +2220,9 @@ ic_microsim_cc <- ic_microsim_cc %>%
 We assume that the loss in income translates into a loss of expenditure.
 
 ```{r}
+#| warning: FALSE
+#| message: FALSE
+
 income_losses <- ic_microsim_cc %>% 
   select(interview__key,
          totalinc_2030_baseline_lab_avg_coef, 
@@ -2291,6 +2300,9 @@ test %>%
 We start by looking at the differences of food prices between scenarios.
 
 ```{r}
+#| warning: FALSE
+#| message: FALSE
+
 # We extract and reformat the price data
 price_data <- macro_data %>% 
   select(year, scenario_id, starts_with( c("fpi" , "epi") )) %>% 
@@ -3311,6 +3323,9 @@ We make a table to see who became poor.
 ### The table
 
 ```{r}
+#| warning: FALSE
+#| message: FALSE
+
 test <- pp_microsim_cc
 
 test <- test%>%
@@ -3718,6 +3733,9 @@ print(interpolated_data)
 The inquiry is who is getting hit the most from changes to energy prices.
 
 ```{r}
+#| warning: FALSE
+#| message: FALSE
+
 energy_shares <- ca_microsim_cc %>% 
   left_join(ag_income_50, join_by(hhid)) %>% 
   mutate(
