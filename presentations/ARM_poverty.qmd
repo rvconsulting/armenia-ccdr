@@ -1,0 +1,11 @@
+---
+title: "Global Decarbonization and Impacts on Poverty in Armenia"
+author: "Renato Vargas"
+format: 
+  revealjs:
+    icremental: true
+    theme: serif
+    footer: "Armenia CCDR - The World Bank"
+---
+
+## Content
