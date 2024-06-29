@@ -1,0 +1,113 @@
+---
+title: "Poverty Dashboards"
+author: "Renato Vargas"
+format: dashboard
+---
+
+```{r}
+#| warning: FALSE
+#| message: FALSE
+#| output: FALSE
+#| lst-label: lst-load-packages
+
+# Clean workspace
+rm(list = ls())
+
+# Armenia country ISO code
+iso <- "ARM"
+
+# Survey year
+surveyyear <- 2022
+
+# Exchange rate USD per dram
+er <- 0.002310
+
+library(tidyverse) # includes dplyr, ggplot2 and others
+library(haven)     # to read SPSS and Stata datasets
+library(readxl)    # to read from MS-Excel
+library(openxlsx)  # to write to MS-Excel.
+library(gt)        # pretty tables
+library(car)       # companion to applied regression
+library(modelr)    # regression models
+#library(anesrake)  
+# Raking reweighting but we don't load it, because 
+# it changes the meaning of summarize from dplyr, 
+# so we use the form anesrake::anesrake() when using it.
+#library(ebal)      # Entropy reweighting (not used)
+library(janitor)   # pretty subtotals
+library(broom)     # More regressions
+library(purrr)     # map vectors (aggregation)
+library(zoo)       # Calculate moving window average and max value
+
+# Geopackages
+library(sf)        # to read and write shapefile maps
+library(terra)     # to perform geocalculations
+library(tmap)  
+
+# Load data
+load("outputs/microsimulation.RData")
+
+```
+
+## Row {height=70%}
+
+```{r}
+#| warning: FALSE
+#| message: FALSE
+#| lst-label: lst-scenario-distribution-plots
+#| lst-cap: "Plotting equivalized consumption per capita distribution by scenario"
+#| label: fig-scenario-distribution-plots
+#| fig-cap: "Equivalized consumption per capita distribution by scenario"
+
+# Basic density plot comparing equivalized consumption per capita
+ggplot(ca_microsim) +
+  geom_density(
+    data = ca_microsim,
+    aes(x = aec_r_2022, fill = 'Baseline 2022'),
+    alpha = 0.4) +
+  geom_density(
+    data = ca_microsim,
+    aes(x = aec_r_2030_nzs, fill = 'NZS 2030'),
+    alpha = 0.4) +
+  geom_density(
+    data = ca_microsim,
+    aes(x = aec_r_2030_dry_hot, fill = 'Dry/Hot 2030'),
+    alpha = 0.4) +
+  geom_density(
+    data = ca_microsim,
+    aes(x = aec_r_2030_baseline, fill = 'Baseline 2030'),
+    alpha = 0.4) +
+  labs(
+    fill = "Scenario Variant",
+    # title = "Comparison of Consumption Distributions",
+    x = "Equivalized consumption (Dram)",
+    y = "Probability") +
+  theme_minimal()+
+  coord_cartesian(xlim = c(0, 500000),
+          #        ylim = c(0.000005,0.0000160)
+                  ) + # Zoom in without removing data
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)+
+  geom_vline(xintercept = 55883,
+             color = "red",
+             linetype = "dotted",
+             linewidth =0.8) +
+  annotate("text",
+           x = 55883,
+           y = 0.0000025,
+           #label = "Poverty line\nAMD 55,883",
+           label = "Poverty line",
+           color = "black",
+           hjust = -0.1,
+           # vjust = -3.5,
+           #angle = 90,
+           size = 3)
+```
+
+## Row {height=30%}
+
+```{r}
+```
+
+```{r}
+```

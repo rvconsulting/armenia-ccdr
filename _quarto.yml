@@ -22,6 +22,8 @@ website:
         contents: bg-notes/*
       - section: "Supporting materials"
         contents: supporting-materials/*
+      - section: "Dashboards"
+        contents: dashboards/*
 
 format:
   html:
