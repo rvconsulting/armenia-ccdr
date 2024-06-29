@@ -54,13 +54,12 @@ load("outputs/microsimulation.RData")
 
 ## Column {width="60%"}
 
-### Row
+### Row 
 
-```{.card}
+:::{.card title="Macro Results"}
 
 In the shorter term —between 2022 and 2030—, baseline demographic, employment and wage level in the labor market alone are expected to reduce poverty by 9.9 percentage points to reach 14.8% in 2030 from 24.7% in 2022. The drastic reduction in poverty is due to important increases in the wage bill by sector (agriculture 1.25, manufacturing 1.34, and services 1.38 times larger in real times for the Baseline 2030 scenario in real terms), with sustained employment numbers, despite a shrinking population.
-
-```
+:::
 
 
 ### Row
@@ -91,7 +90,7 @@ new_poor_scenarios %>%
 
 
 ## Column {width="40%"}
-### Column
+### Row
 
 ```{r}
 #| title: Changes to the distribution from macro scenarios
@@ -148,7 +147,7 @@ ggplot(ca_microsim) +
            size = 3)
 ```
 
-### Column {.tabset}
+### Row {.tabset}
 
 ```{r}
 #| title: Direct CC
