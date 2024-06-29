@@ -3582,7 +3582,7 @@ tm_shape(new_poor_map)+
   tm_text(c("new_p_b_energy_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"), 
             title= "New poor as a percentage of Marz population\nBaseline + Energy Price",
-#            outer.margins=c(.10,.10, .10, .10), 
+            # outer.margins=c(.10,.10, .10, .10), 
             title.position = c('left', 'bottom'),
             title.size = 0.9)
 
@@ -3598,9 +3598,10 @@ tm_shape(new_poor_map)+
   tm_text(c("new_p_nzs_energy_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"), 
             title= "New poor as a percentage of Marz population\nNZS + Energy Price",
-#            outer.margins=c(.10,.10, .10, .10), 
+            #outer.margins=c(.10,.10, .10, .10), 
             title.position = c('left', 'bottom'),
-            title.size = 0.9)
+            title.size = 0.9,
+            asp = 1)
 
 ```
 

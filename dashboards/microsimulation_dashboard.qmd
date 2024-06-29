@@ -49,9 +49,39 @@ load("outputs/microsimulation.RData")
 
 ```
 
-## Row {height=70%}
+## Row {height="40%"}
 
 ```{r}
+#| title: Poverty results
+
+new_poor_scenarios %>% 
+  gt(rowname_col = "NAM_1") %>% 
+  cols_label(
+    total_population = md("Total"),
+    poor_baseline = md("Baseline"),
+    poor_dry_hot = md("Dry/Hot"),
+    poor_nzs = md("NZS"),
+    new_p_lab_cc = md("CC"),
+    new_p_lab_cc_foodPI = md("BL + Food P."),
+    new_p_dry_hot_food2 = md("D/H + Food P."),
+    new_p_baseline_energy = md("BL + Energy P."),
+    new_p_nzs_energy = md("NZS + Energy P."),
+    new_p_EM_baseline_energy = md("BL + EModel P."),
+    new_p_EM_nzs_energy = md("NZS + EModel P.")
+  ) %>% 
+  fmt_number(columns = everything(),
+             decimals = 0)
+
+```
+
+
+
+## Row {height="60%"}
+### Column
+
+```{r}
+#| title: Changes to the distribution from macro scenarios
+#| padding: 0px
 #| warning: FALSE
 #| message: FALSE
 #| lst-label: lst-scenario-distribution-plots
@@ -104,10 +134,69 @@ ggplot(ca_microsim) +
            size = 3)
 ```
 
-## Row {height=30%}
+### Column {.tabset}
 
 ```{r}
+#| title: Direct CC
+#| padding: 0px
+tm_shape(new_poor_map)+
+  tm_polygons("new_p_lab_cc_pct", title="Percent", legend.show = TRUE) +
+  tm_text(c("new_p_lab_cc_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"),
+            #legend.outside = TRUE,
+            title= "New poor as a percentage of Marz population\nDirect CC",
+            title.position = c('left', 'bottom'),
+            title.size = 0.9,
+            asp = 1)
+
 ```
 
 ```{r}
+#| title: Direct CC + Food Price
+#| padding: 0px
+tm_shape(new_poor_map)+
+  tm_polygons("new_poor_lab_cc_foodPI_pct",
+              title="Percent", 
+              legend.show = TRUE) +
+  tm_text(c("new_p_lab_cc_foodPI_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"), 
+            title= "New poor as a percentage of Marz population\nDirect CC + Food Price",
+            title.position = c('left', 'bottom'),
+            title.size = 0.9,
+            asp=1)
 ```
+
+```{r}
+#| title: Baseline + Energy Price
+#| padding: 0px
+tm_shape(new_poor_map)+
+  tm_polygons("new_poor_baseline_energy_pct",
+              title="Percent", 
+              legend.show = TRUE) +
+  tm_text(c("new_p_b_energy_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"), 
+            title= "New poor as a percentage of Marz population\nBaseline + Energy Price",
+            # outer.margins=c(.10,.10, .10, .10), 
+            title.position = c('left', 'bottom'),
+            title.size = 0.9,
+            asp = 1)
+
+```
+
+```{r}
+#| title: NZS + Energy Price
+#| padding: 0px
+tm_shape(new_poor_map)+
+  tm_polygons("new_poor_nzs_energy_pct",
+              title="Percent", 
+              legend.show = TRUE) +
+  tm_text(c("new_p_nzs_energy_label"), size = .7, col = "black")+
+  tm_layout(legend.position = c("right", "top"), 
+            title= "New poor as a percentage of Marz population\nNZS + Energy Price",
+            #outer.margins=c(.10,.10, .10, .10), 
+            title.position = c('left', 'bottom'),
+            title.size = 0.9,
+            asp = 1)
+
+```
+
