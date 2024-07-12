@@ -105,6 +105,7 @@ library(modelr)    # regression models
 library(janitor)   # pretty subtotals
 library(broom)     # More regressions
 library(zoo)       # Calculate moving window average and max value
+library("ineq") # Inequality measures
 
 # Geopackages
 library(sf)        # to read and write shapefile maps
@@ -1183,9 +1184,9 @@ gender_code <- c(
 cohort_code <- pop_targets_2030$pct_total
 
 # Four digits are better than two in this case, raking is quite accurate.
-lmarket_baseline <- c(0.1342, 0.0494, 0.2611, 0.2473, 0.3080)
-lmarket_dry_hot  <- c(0.1369, 0.0489, 0.2593, 0.2473, 0.3076)
-lmarket_nzs      <- c(0.1251, 0.0516, 0.2623, 0.2516, 0.3094)
+lmarket_baseline <- c(0.1325, 0.0495, 0.2598, 0.2451, 0.3132)
+lmarket_dry_hot  <- c(0.1348, 0.0490, 0.2582, 0.2459, 0.3120)
+lmarket_nzs      <- c(0.1237, 0.0510, 0.2594, 0.2488, 0.3171)
 # Note how similar the scenarios are
 
 # Target list baseline
@@ -1445,9 +1446,9 @@ As a last step, we rescale labor income according to changes to the wage bill in
 
 ```{r}
 # Wage rescale factor by sector from macro (Agriculture, Manufacturing, Services)
-wrf_2030_baseline  <- c(1.250520168, 1.336828769, 1.378384149)
-wrf_2030_dry_hot   <- c(1.287103700, 1.297391076, 1.343485236)
-wrf_2030_nzs       <- c(1.054278195, 1.317612666, 1.272275437)
+wrf_2030_baseline  <- c(1.22786496, 1.32301655, 1.34032297)
+wrf_2030_dry_hot   <- c(1.24850624, 1.27740284, 1.30020020)
+wrf_2030_nzs       <- c(1.05423642, 1.30685398, 1.27521304)
 
 # We check the wage bill by sector
 wages_by_sector <- pp_microsim %>%
@@ -1787,16 +1788,16 @@ test_baseline <- ca_microsim %>%
     poor_2030_dry_hot = poor_Avpovln2022_2030_dry_hot,
     poor_2030_nzs = poor_Avpovln2022_2030_nzs
     ) %>%
-  group_by(poor_original) %>% 
+  group_by(poor_2030_nzs) %>% 
   summarize(
-    no_hh_2022 = sum(weight_2022, na.rm = TRUE),
-    no_pp_2022 = sum(weight_2022 * hhsize, na.rm = TRUE),
+    # no_hh_2022 = sum(weight_2022, na.rm = TRUE),
+    # no_pp_2022 = sum(weight_2022 * hhsize, na.rm = TRUE),
     # no_hh_baseline = sum(weight_2030_baseline, na.rm = TRUE),
     # no_pp_baseline = sum(weight_2030_baseline * hhsize, na.rm = TRUE),
     # no_hh_dry_hot = sum(weight_2030_dry_hot, na.rm = TRUE),
     # no_pp_dry_hot = sum(weight_2030_dry_hot * hhsize, na.rm = TRUE),
-    # no_hh_nzs = sum(weight_2030_nzs, na.rm = TRUE),
-    # no_pp_nzs = sum(weight_2030_nzs * hhsize, na.rm = TRUE)
+    no_hh_nzs = sum(weight_2030_nzs, na.rm = TRUE),
+    no_pp_nzs = sum(weight_2030_nzs * hhsize, na.rm = TRUE)
     ) %>% 
   ungroup()
 
@@ -3443,13 +3444,13 @@ test <- test%>%
          poor_EM_b_energy = poor_2030_EM_baseline_energy,
          poor_EM_nzs_energy = poor_2030_EM_nzs_energy
          ) %>%
-  group_by(poor_nzs, poor_EM_nzs_energy) %>% 
-  summarize(no_pp = sum(weight_2030_nzs, na.rm = TRUE),
-            female = sum(female*weight_2030_nzs, na.rm = TRUE),
+  group_by(poor_original, poor_b_energy) %>% 
+  summarize(no_pp = sum(weight_2030_baseline, na.rm = TRUE),
+            female = sum(female*weight_2030_baseline, na.rm = TRUE),
             male = no_pp - female,
-            youth = sum(youth*weight_2030_nzs, na.rm = TRUE),
+            youth = sum(youth*weight_2030_baseline, na.rm = TRUE),
             non_youth = no_pp - youth,
-            rural = sum(rural_dummy *weight_2030_nzs, na.rm = TRUE),
+            rural = sum(rural_dummy *weight_2030_baseline, na.rm = TRUE),
             urban = no_pp - rural
             )
 
@@ -3458,6 +3459,155 @@ test %>%
 
 write.table(test, "clipboard", sep="\t", row.names=FALSE)
 ```
+
+### Poverty gap
+
+```{r}
+aecrs <- ca_microsim_cc %>% 
+  select(household_id, all_of(income_columns))
+
+pp_microsim_cc_pov <- pp_microsim_cc %>% 
+  left_join(aecrs, join_by(household_id))
+```
+
+This one is unweighted, just for reference.
+
+```{r}
+# Define the poverty line
+poverty_line <- 52883
+
+# Get the list of columns that start with 'aec_r_2030'
+income_columns <- names(pp_microsim_cc_pov)[grepl("^aec_r", names(pp_microsim_cc_pov))]
+
+# Create a function to calculate both measures
+calculate_measures <- function(column) {
+  income <- pp_microsim_cc_pov[[column]]
+  fgt1 <- Foster(income, poverty_line, parameter = 1)
+  fgt2 <- Foster(income, poverty_line, parameter = 2)
+  gini <- Gini(income, corr = FALSE, na.rm = TRUE)
+  return(data.frame(
+    `Scenario / Variant` = column,
+    `FGT (alpha=1)` = fgt1,
+    `FGT (alpha=2)` = fgt2,
+    `Gini Coefficient` = gini
+  ))
+}
+
+# Apply the function to each income column and bind the results into a single dataframe
+results_df <- income_columns %>%
+  map_dfr(calculate_measures)
+
+# Print the results
+results_df
+
+write.table(results_df, "clipboard", sep="\t", row.names=FALSE)
+```
+
+
+This one is weighted.
+
+```{r}
+# Define the poverty line
+poverty_line <- 52883
+
+# Create a lookup table for the weights
+lookup_table <- data.frame(
+  Income_Variable = 
+    c("aec_r_2022",
+      "aec_r_2030_baseline", 
+      "aec_r_2030_dry_hot", 
+      "aec_r_2030_nzs",
+      "aec_r_2030_baseline_lab_avg",
+      "aec_r_2030_baseline_lab_max",
+      "aec_r_2030_baseline_cc_avg",
+      "aec_r_2030_baseline_cc_max",
+      "aec_r_2030_baseline_lab_cc_avg",
+      "aec_r_2030_baseline_lab_cc_max",
+      "aec_r_2030_baseline_food1", 
+      "aec_r_2030_dry_hot_food2",
+      "aec_r_2030_baseline_foodPI",
+      "aec_r_2030_baseline_energy",
+      "aec_r_2030_nzs_energy", 
+      "aec_r_2030_EM_baseline_energy",
+      "aec_r_2030_EM_nzs_energy"),
+  Weight_Variable = 
+    c("weight", 
+      "weight_2030_baseline", 
+      "weight_2030_dry_hot", 
+      "weight_2030_nzs",
+      "weight_2030_baseline", 
+      "weight_2030_baseline",
+      "weight_2030_baseline", 
+      "weight_2030_baseline",
+      "weight_2030_baseline", 
+      "weight_2030_baseline",
+      "weight_2030_baseline", 
+      "weight_2030_dry_hot",
+      "weight_2030_baseline", 
+      "weight_2030_baseline",
+      "weight_2030_nzs", 
+      "weight_2030_baseline",
+      "weight_2030_nzs")
+)
+
+# Function to calculate the weighted FGT
+weighted_FGT <- function(
+    income, 
+    weight, 
+    poverty_line, 
+    alpha) {
+  if (alpha == 0) {
+    # Calculate weighted poverty headcount
+    poverty_headcount <- sum(
+      weight[income < poverty_line]) / sum(weight)
+    return(poverty_headcount)
+  } else {
+    # Calculate the normalized poverty gap
+    # and ensure it is non-negative
+    poverty_gap <- pmax(
+      0, (poverty_line - income) / poverty_line)
+    weighted_poverty_gap <- (poverty_gap ^ alpha) * weight
+    FGT <- sum(weighted_poverty_gap) / sum(weight)
+    return(FGT)
+  }
+}
+
+
+# Function to calculate both measures with weights
+calculate_measures <- function(Income_Variable, Weight_Variable) {
+  income <- pp_microsim_cc_pov[[Income_Variable]]
+  weight <- pp_microsim_cc_pov[[Weight_Variable]]
+  
+  # Calculate weighted FGT (alpha = 0) for poverty headcount
+  fgt0 <- weighted_FGT(income, weight, poverty_line, alpha = 0)
+  
+  # Calculate weighted FGT (alpha = 1) for poverty gap
+  fgt1 <- weighted_FGT(income, weight, poverty_line, alpha = 1)
+  
+  # Calculate weighted FGT (alpha = 2) for poverty severity
+  fgt2 <- weighted_FGT(income, weight, poverty_line, alpha = 2)
+  
+  # Calculate weighted Gini coefficient
+  gini <- weighted.gini(income, w = weight)
+  
+  return(data.frame(
+    `Income Variable` = Income_Variable,
+    `FGT (alpha=0) - Poverty Headcount` = fgt0,
+    `FGT (alpha=1) - Poverty Gap` = fgt1,
+    `FGT (alpha=2) - Poverty Severity` = fgt2,
+    `Gini Coefficient` = gini
+  ))
+}
+
+# Apply the function to each row in the lookup table and bind the results into a single dataframe
+results_df1 <- pmap_dfr(list(lookup_table$Income_Variable, lookup_table$Weight_Variable), calculate_measures)
+
+# Print the results
+print(results_df1)
+
+write.table(results_df1, "clipboard", sep="\t", row.names=FALSE)
+```
+
 
 ```{r}
 # foodpoor <- ca_microsim_cc %>%
