@@ -105,7 +105,8 @@ library(modelr)    # regression models
 library(janitor)   # pretty subtotals
 library(broom)     # More regressions
 library(zoo)       # Calculate moving window average and max value
-library("ineq") # Inequality measures
+# library(ineq) # Inequality measures
+# library(acid)
 
 # Geopackages
 library(sf)        # to read and write shapefile maps
@@ -1719,34 +1720,58 @@ Here we add back the tax revenue
 Add back carbon tax revenue. We estimated weighted income deciles above and mapped number of households by decile. We divided the revenue by that number and we add that amount by the first four income deciles in this manner. Again, another one calculated in Excel because of time constraints. Needs fixing to make automatic.
 
 ```{r}
-ca_microsim <- ca_microsim %>% 
-  left_join(income_decile_group, join_by(household_id == household_id)) %>% 
+ca_microsim <- ca_microsim %>%
+  left_join(income_decile_group, join_by(household_id == household_id)) %>%
   mutate(
-    tc_2030_nzs = 
-      # Urban 40% and Rural 60%
+    tc_2030_nzs =
+      # Urban 25% and Rural 75%
       case_when(
         # Urban
-        income_decile_group == 1 & urban_rural == 1 ~ 
+        income_decile_group == 1 & urban_rural == 1 ~
           tc_2030_nzs_noctr + (1546.29 * hhsize),
-        income_decile_group == 2 & urban_rural == 1 ~ 
+        income_decile_group == 2 & urban_rural == 1 ~
           tc_2030_nzs_noctr + (1610.65 * hhsize),
-        income_decile_group == 3 & urban_rural == 1 ~ 
+        income_decile_group == 3 & urban_rural == 1 ~
           tc_2030_nzs_noctr + (1251.14 * hhsize),
-        income_decile_group == 4 & urban_rural == 1 ~ 
+        income_decile_group == 4 & urban_rural == 1 ~
           tc_2030_nzs_noctr + (1134.21 * hhsize),
         # Rural
-        income_decile_group == 1 & urban_rural == 2 ~ 
+        income_decile_group == 1 & urban_rural == 2 ~
           tc_2030_nzs_noctr + (6323.09 * hhsize),
-        income_decile_group == 2 & urban_rural == 2 ~ 
+        income_decile_group == 2 & urban_rural == 2 ~
           tc_2030_nzs_noctr + (6109.07 * hhsize),
-        income_decile_group == 3 & urban_rural == 2 ~ 
+        income_decile_group == 3 & urban_rural == 2 ~
           tc_2030_nzs_noctr + (5599.16 * hhsize),
-        income_decile_group == 4 & urban_rural == 2 ~ 
+        income_decile_group == 4 & urban_rural == 2 ~
           tc_2030_nzs_noctr + (4420.53 * hhsize),
         .default = tc_2030_nzs_noctr
       )
   )
 ```
+
+This is the 50/50 version
+
+```{r}
+# ca_microsim <- ca_microsim %>% 
+#   left_join(income_decile_group, join_by(household_id == household_id)) %>% 
+#   mutate(
+#     tc_2030_nzs = 
+#       # Urban 25% and Rural 75%
+#       case_when(
+#         # Urban
+#         income_decile_group == 1 ~ 
+#           tc_2030_nzs_noctr + (3567.74 * hhsize),
+#         income_decile_group == 2 ~ 
+#           tc_2030_nzs_noctr + (3597.32 * hhsize),
+#         income_decile_group == 3 ~ 
+#           tc_2030_nzs_noctr + (2996.11 * hhsize),
+#         income_decile_group == 4  ~ 
+#           tc_2030_nzs_noctr + (2563.57 * hhsize),
+#         .default = tc_2030_nzs_noctr
+#       )
+#   )
+```
+
 
 And recalculate poverty.
 
@@ -3444,13 +3469,13 @@ test <- test%>%
          poor_EM_b_energy = poor_2030_EM_baseline_energy,
          poor_EM_nzs_energy = poor_2030_EM_nzs_energy
          ) %>%
-  group_by(poor_original, poor_b_energy) %>% 
-  summarize(no_pp = sum(weight_2030_baseline, na.rm = TRUE),
-            female = sum(female*weight_2030_baseline, na.rm = TRUE),
+  group_by(poor_nzs) %>% 
+  summarize(no_pp = sum(weight_2030_nzs, na.rm = TRUE),
+            female = sum(female*weight_2030_nzs, na.rm = TRUE),
             male = no_pp - female,
-            youth = sum(youth*weight_2030_baseline, na.rm = TRUE),
+            youth = sum(youth*weight_2030_nzs, na.rm = TRUE),
             non_youth = no_pp - youth,
-            rural = sum(rural_dummy *weight_2030_baseline, na.rm = TRUE),
+            rural = sum(rural_dummy *weight_2030_nzs, na.rm = TRUE),
             urban = no_pp - rural
             )
 
@@ -3463,6 +3488,9 @@ write.table(test, "clipboard", sep="\t", row.names=FALSE)
 ### Poverty gap
 
 ```{r}
+# Get the list of columns that start with 'aec_r_2030'
+income_columns <- names(ca_microsim_cc)[grepl("^aec_r", names(ca_microsim_cc))]
+
 aecrs <- ca_microsim_cc %>% 
   select(household_id, all_of(income_columns))
 
@@ -3476,15 +3504,12 @@ This one is unweighted, just for reference.
 # Define the poverty line
 poverty_line <- 52883
 
-# Get the list of columns that start with 'aec_r_2030'
-income_columns <- names(pp_microsim_cc_pov)[grepl("^aec_r", names(pp_microsim_cc_pov))]
-
 # Create a function to calculate both measures
 calculate_measures <- function(column) {
   income <- pp_microsim_cc_pov[[column]]
-  fgt1 <- Foster(income, poverty_line, parameter = 1)
-  fgt2 <- Foster(income, poverty_line, parameter = 2)
-  gini <- Gini(income, corr = FALSE, na.rm = TRUE)
+  fgt1 <- ineq::Foster(income, poverty_line, parameter = 1)
+  fgt2 <- ineq::Foster(income, poverty_line, parameter = 2)
+  gini <- ineq::Gini(income, corr = FALSE, na.rm = TRUE)
   return(data.frame(
     `Scenario / Variant` = column,
     `FGT (alpha=1)` = fgt1,
@@ -3588,7 +3613,7 @@ calculate_measures <- function(Income_Variable, Weight_Variable) {
   fgt2 <- weighted_FGT(income, weight, poverty_line, alpha = 2)
   
   # Calculate weighted Gini coefficient
-  gini <- weighted.gini(income, w = weight)
+  gini <- acid::weighted.gini(income, w = weight)
   
   return(data.frame(
     `Income Variable` = Income_Variable,
@@ -3770,15 +3795,22 @@ new_poor_map <- adm1 %>% # previous chunk has to be grouped by marz
 Let's map different scenarios.
 
 ```{r}
-tm_shape(new_poor_map)+
-  tm_polygons("new_p_lab_cc_pct", title="Percent", legend.show = TRUE) +
+map_DirectCC <- tm_shape(new_poor_map)+
+  tm_polygons("new_p_lab_cc_pct", 
+              title="Percent", 
+              #legend.show = TRUE,
+              legend.show = FALSE,
+              style = "fixed",
+              scale = 0.5,
+              breaks = c(0,0.5, 1,1.5,2,2.5,3,3.5,4)) +
   tm_text(c("new_p_lab_cc_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"),
+            frame = FALSE,
             #legend.outside = TRUE,
             title= "New poor as a percentage of Marz population\nDirect CC",
             title.position = c('left', 'bottom'),
             title.size = 0.9)
-
+map_DirectCC
 
 ```
 
@@ -3801,16 +3833,25 @@ tm_shape(new_poor_map)+
 Second variant b
 
 ```{r}
-tm_shape(new_poor_map)+
+map_dh_fp <- tm_shape(new_poor_map)+
   tm_polygons("new_poor_dry_hot_food2_pct",
               title="Percent", 
-              legend.show = TRUE) +
+              legend.show = TRUE,
+              style = "fixed",
+              scale = 0.5,
+              breaks = c(0,0.5, 1,1.5,2,2.5,3,3.5,4)) +
   tm_text(c("new_p_dry_hot_food2_label"), size = .7, col = "black")+
-  tm_layout(legend.position = c("right", "top"), 
-            title= "New poor as a percentage of Marz population\nDry/Hot + Food Price",
+  tm_layout(
+    #legend.outside = TRUE,
+    legend.position = c("right", "top"),
+    title.snap.to.legend = FALSE,
+    title = 
+      "\nDry/Hot + Food Price",
+    frame = FALSE,
 #            outer.margins=c(.10,.10, .10, .10), 
             title.position = c('left', 'bottom'),
             title.size = 0.9)
+map_dh_fp
 ```
 
 And the third variant
@@ -3819,7 +3860,7 @@ And the third variant
 tm_shape(new_poor_map)+
   tm_polygons("new_poor_baseline_energy_pct",
               title="Percent", 
-              legend.show = TRUE) +
+              legend.show = TRUE,) +
   tm_text(c("new_p_b_energy_label"), size = .7, col = "black")+
   tm_layout(legend.position = c("right", "top"), 
             title= "New poor as a percentage of Marz population\nBaseline + Energy Price",
@@ -3877,6 +3918,15 @@ tm_shape(new_poor_map)+
             title.size = 0.9)
 
 ```
+
+A combined map of Direct CC and Dry/Hot + Food Price
+
+```{r}
+tmap_arrange(map_DirectCC, map_dh_fp)
+
+```
+
+
 
 Now let's show average losses by decile as a percentage of total spending.
 
@@ -3997,6 +4047,51 @@ energy_shares <- ca_microsim_cc %>%
 
 write.table(energy_shares, "clipboard", sep="\t", row.names=FALSE)
 ```
+
+Inquiry to see why Dry Hot is worse than CC after prices.
+
+```{r}
+food_check <- ca_microsim_cc %>% 
+  mutate(lower3 = if_else(decile < 5,TRUE, FALSE)) %>%
+  filter(lower3==TRUE) %>% 
+  summarize(
+    avg_exp_cc = weighted.mean(
+      aec_r_2030_baseline_lab_cc_avg,
+      weight_2030_baseline, na.rm = TRUE),
+    distance_cc = weighted.mean(
+      aec_r_2030_baseline_lab_cc_avg,
+      weight_2030_baseline, na.rm = TRUE) - 52883,
+    avg_exp_dh = weighted.mean(
+      aec_r_2030_dry_hot, 
+      weight_2030_dry_hot, na.rm = TRUE),
+    distance_dh = weighted.mean(
+      aec_r_2030_dry_hot, 
+      weight_2030_dry_hot, na.rm = TRUE) - 52883,
+    avg_exp_cc_f = weighted.mean(
+      aec_r_2030_baseline_foodPI,
+      weight_2030_baseline, na.rm = TRUE),
+    distance_cc_f = weighted.mean(
+      aec_r_2030_baseline_foodPI,
+      weight_2030_baseline, na.rm = TRUE) - 52883,
+    avg_exp_dh_f = weighted.mean(
+      aec_r_2030_dry_hot_food2, 
+      weight_2030_dry_hot, na.rm = TRUE),
+    distance_dh_f = weighted.mean(
+      aec_r_2030_dry_hot_food2, 
+      weight_2030_dry_hot, na.rm = TRUE) - 52883,
+  )
+food_check
+
+food_check %>% 
+  gt()
+write.table(food_check, "clipboard", sep="\t", row.names=FALSE)
+```
+
+
+```{r}
+
+```
+
 
 ## End
 
