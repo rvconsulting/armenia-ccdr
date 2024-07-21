@@ -34,8 +34,7 @@ In this calculation file, we "age" the household survey according to demographic
 
 As a convention, code is presented in the following format in this guide:
 
-```{r}
-#| eval: FALSE
+```{r eval=FALSE}
 
 # Some comment that is not evaluated by R
 some_variable <- some_function(some_object, some_parameter = TRUE)
@@ -249,7 +248,7 @@ We also have an Excel file with changes to labor productivity due to climate var
 #| lst-label: lst-import-labor-productivity-data
 #| lst-cap: "Import labor productivity data"
 
-file <- r"(data/ARM-Microsimulation/LaborProductivityChanges.xlsx)"
+file <- "data/ARM-Microsimulation/LaborProductivityChanges.xlsx"
 sheets <- excel_sheets(file)
 
 # Use lapply to read and process each sheet
