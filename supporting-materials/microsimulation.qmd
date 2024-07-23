@@ -145,8 +145,10 @@ food_with_prices <- read_dta("data/ARM-HH-survey/FOOD_with_prices_short.dta")%>%
 
 We will work non-destructively, meaning we will not rewrite these data sets and we will only create intermediate data frame objects from them to perform transformations, selections and other data management tasks. For example, we will keep household assignment to poverty status and consumption deciles handy by creating a subset of our `ca` data with only our household identifiers, deciles, and poverty.
 
-```{r warning=FALSE, message=FALSE,}
+```{r}
 #| lst-label: lst-deciles
+#| warning: FALSE
+#| message: FALSE
 
 # From the WB processed dataset, we extract deciles and poverty
 deciles <- ca %>% 
@@ -156,7 +158,9 @@ deciles <- ca %>%
 
 Our population data comes from UN's projections.
 
-```{r warning=FALSE, message=FALSE,}
+```{r}
+#| warning: FALSE
+#| message: FALSE 
 #| lst-label: lst-population-projections
 
 population_projections <- read_dta("data/UN2022_population.dta") %>% 
@@ -221,7 +225,9 @@ tm_shape(adm1)+
 
 Marzes names are more accurate in the shapefile than in the survey. We will use them from here on instead of the survey factor labels.
 
-```{r warning=FALSE, message=FALSE}
+```{r}
+#| warning: FALSE
+#| message: FALSE 
 #| lst-label: lst-marz-name-from-geodata
 #| lst-cap: "Marz name from geodata"
 
@@ -243,7 +249,7 @@ We also have an Excel file with changes to labor productivity due to climate var
 #| lst-label: lst-import-labor-productivity-data
 #| lst-cap: "Import labor productivity data"
 
-file <- r"(data/ARM-Microsimulation/LaborProductivityChanges.xlsx)"
+file <- "data/ARM-Microsimulation/LaborProductivityChanges.xlsx"
 sheets <- excel_sheets(file)
 
 # Use lapply to read and process each sheet
