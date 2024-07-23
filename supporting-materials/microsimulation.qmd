@@ -35,7 +35,7 @@ In this calculation file, we "age" the household survey according to demographic
 As a convention, code is presented in the following format in this guide:
 
 ```{r}
-#| eval= FALSE
+#| eval: false
 
 # Some comment that is not evaluated by R
 some_variable <- some_function(some_object, some_parameter = TRUE)
@@ -63,8 +63,8 @@ Using RStudio project makes it possible to not use `setwd()` to establish the ro
 We start with a clean environment, making sure that any objects from a previous session are not present. We take this opportunity to keep our country ISO code in a variable `iso` in case we need it later.
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
+#| warning: false
+#| message: false
 
 # Clean workspace
 rm(list = ls())
@@ -87,7 +87,7 @@ We call the appropriate libraries.
 Rather than calling our libraries as we go, we will make sure we have everything we need from the beginning.
 
 ```{r}
-#| output: FALSE
+#| output: false
 #| lst-label: lst-load-packages
 
 library(tidyverse) # includes dplyr, ggplot2, purr...
@@ -119,9 +119,9 @@ library(tmap)      # for static and interactive maps
 We then load the datasets that we need for this study. The World Bank has processed some of these already for poverty analysis and so we have the original SPSS datasets with all variables for Households `hh` and for Individuals `pp`, as well as a consumption aggregate `ca` and a household income `ic` dataset, which are Stata datasets. This is for the year 2022. These are imported using the `haven` package. These are based on Armenia Integrated Living Conditions Survey 2022 [@armstat_integrated_2023]. We take this oportunity to standardize the household identification variable to `household_id`.
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
-#| output: FALSE
+#| warning: false
+#| message: false
+#| output: false
 #| lst-label: original-datasets
 
 # Households (hh)
@@ -166,9 +166,9 @@ population_projections <- read_dta("data/UN2022_population.dta") %>%
 The macro scenario dataset is an input provided by the Macroeconomic CGE simulation team, with yearly information on GDP, working age population, employment by economic activity (for an aggregation of three sectors: agriculture, manufacturing, and services), wages by economic activity, value added by economic activity, remittances, consumer price index, food price index and energy price index (for a bundle of gas, oil, coal, electricity) by decile (10 representative households in the macro model), and carbon tax revenue transfers to household deciles.
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
-#| output: FALSE
+#| warning: false
+#| message: false
+#| output: false
 #| lst-label: lst-import-macro-scenarios
 
 
@@ -190,8 +190,8 @@ sectors <- read_xlsx("data/ARM-HH-survey/economic_activity_codes.xlsx")
 We also have geographical information for level 1 in Shapefile format, which we import with the `sf` package. We rename the column with the name of the administrative region to match our household survey data set conventions to ease mergers. The `dplyr` package from the `tidyverse` meta package allows us to "pipe" or link processing steps using the `%>%` pipe. Although there is no geoprocessing in this analysis, this will come in handy for graphical presentations.
 
 ```{r}
-#| warning: FALSE 
-#| message: FALSE
+#| warning: false 
+#| message: false
 #| lst-label: lst-import-geodata
 
 # Armenia marzes or administrative level 1 shapefile
@@ -265,8 +265,8 @@ labor_productivity <- bind_rows(labor_productivity)
 Finally, we have our climate vulnerability information. For this analysis we only use the `crops_productivity` and `livestock_productivity` that comes from *Estimating the Economic Impacts of Climate Change in Armenia* [@strzepek_estimating_2024].
 
 ```{r}
-#| warning: FALSE 
-#| message: FALSE
+#| warning: false 
+#| message: false
 #| lst-label: lst-import-vulnerability-data
 #| lst-cap: "Import crops and livestock yield loss data"
 
@@ -743,8 +743,8 @@ population_projections <- population_projections  %>%
 Collapsing data by summing up variables starting with "yf" and "ym" and reshaping data to long format.
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
+#| warning: false
+#| message: false
 
 population_projections <- population_projections %>%
   group_by(Variant, country, cohort) %>%
@@ -835,9 +835,9 @@ pop_growth[c(1:09),]
 Here we use the Excel tab names to create the names of the scenarios going forward, with a previous cleaning in which we convert names to lower case, replace spaces and special characters with underscores, we remove the word scenario from the name, and remove leading or trailing spaces or underscores.
 
 ```{r}
-#| output: FALSE
-#| warning: FALSE
-#| message: FALSE
+#| output: false
+#| warning: false
+#| message: false
 
 # Macro Scenario File imported in "Datasets" section (scenario_file) 
 sheets <- excel_sheets(scenario_file)
@@ -860,9 +860,9 @@ scenarios <- scenario_sheets %>%
 Our scenarios are: `{r} glue::glue_collapse(scenarios, sep = ', ', last = ', and ')`. We now import data from Excel sheets corresponding to each scenario and combine them into one data frame.
 
 ```{r}
-#| output: FALSE
-#| warning: FALSE
-#| message: FALSE
+#| output: false
+#| warning: false
+#| message: false
 
 # Create an empty list to store data frames for each scenario
 scen_data_list <- list()
@@ -1116,8 +1116,8 @@ pp_microsim <- pp_microsim %>%
 We also need demographic targets for 2030
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
+#| warning: false
+#| message: false
 
 # Ensure pop_targets_2030 is correctly prepared
 # We use the "Medium" variant = variants[7]
@@ -1836,8 +1836,8 @@ write.table(test_baseline, "clipboard", sep="\t", row.names=FALSE)
 We plot the distributions in @fig-scenario-distribution-plots.
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
+#| warning: false
+#| message: false
 #| lst-label: lst-scenario-distribution-plots
 #| lst-cap: "Plotting equivalized consumption per capita distribution by scenario"
 #| label: fig-scenario-distribution-plots
@@ -1891,8 +1891,8 @@ ggplot(ca_microsim) +
 And we also plot the cumulative distributions to make the distinctions more evident in @fig-scenario-cumulative-distribution-plots.
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
+#| warning: false
+#| message: false
 #| lst-label: lst-scenario-cumulative-distribution-plots
 #| lst-cap: "Plotting equivalized consumption per capita cumulative distribution by scenario"
 #| label: fig-scenario-cumulative-distribution-plots
@@ -2345,8 +2345,8 @@ ic_microsim_cc <- ic_microsim_cc %>%
 We assume that the loss in income translates into a loss of expenditure.
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
+#| warning: false
+#| message: false
 
 income_losses <- ic_microsim_cc %>% 
   select(household_id,
@@ -2425,8 +2425,8 @@ test %>%
 We start by looking at the differences of food prices between scenarios.
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
+#| warning: false
+#| message: false
 
 # We extract and reformat the price data
 price_data <- macro_data %>% 
@@ -3448,8 +3448,8 @@ We make a table to see who became poor.
 ### The table
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
+#| warning: false
+#| message: false
 
 test <- pp_microsim_cc
 
@@ -4033,8 +4033,8 @@ print(interpolated_data)
 The inquiry is who is getting hit the most from changes to energy prices.
 
 ```{r}
-#| warning: FALSE
-#| message: FALSE
+#| warning: false
+#| message: false
 
 energy_shares <- ca_microsim_cc %>% 
   left_join(ag_income_50, join_by(household_id)) %>% 
