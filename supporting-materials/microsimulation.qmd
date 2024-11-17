@@ -3804,7 +3804,7 @@ Let's map different scenarios.
 map_DirectCC <- tm_shape(new_poor_map)+
   tm_polygons("new_p_lab_cc_pct", 
               title="Percent", 
-              #legend.show = TRUE,
+              legend.show = TRUE,
               legend.show = FALSE,
               style = "fixed",
               scale = 0.5,
